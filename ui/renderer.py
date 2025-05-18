@@ -19,7 +19,7 @@ class Renderer:
         }
         self.screen.fill((0, 0, 0))
 
-    def draw(self, selected_pos):
+    def draw(self):
         self.screen.fill((0, 0, 0))
         for y in range(self.grid.height):
             for x in range(self.grid.width):
@@ -34,7 +34,7 @@ class Renderer:
                     color = GRID_COLOR
 
                 pygame.draw.rect(self.screen, color, rect)
-                if (x, y) == selected_pos:
+                if cell.selected:
                     pygame.draw.rect(self.screen, SELECTED_COLOR, rect, 2)  # highlight
 
                 pygame.draw.rect(self.screen, BORDER_COLOR, rect, 1)  # grid border

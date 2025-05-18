@@ -3,7 +3,7 @@ import pygame
 from event_processor.InputEvents import InputEvents, KeyPressDetails
 from event_processor.Timer import Timer
 from ui import config
-from ui.input import InputHandler
+from ui.State import State
 from ui.renderer import Renderer
 from engine.grid import Grid
 
@@ -11,11 +11,10 @@ from engine.grid import Grid
 class Application:
     def __init__(self, grid: Grid):
         self.grid = grid
-#        self.renderer = Renderer(self.grid)
-#        self.input = InputHandler()
 
         self.renderer = Renderer(self.grid)
-        self.eventProcessor = InputEvents()
+        self.state_manager = State()
+        self.event_processor = InputEvents()
         self.ticker = Timer()
 
         self.interval = 1000 / config.FPS
@@ -34,7 +33,7 @@ class Application:
 
 
     def init_events(self):
-        self.eventProcessor.subscribe('Player1', [
+        self.event_processor.subscribe('Player1', [
             KeyPressDetails(pygame.K_UP, 150),
             KeyPressDetails(pygame.K_DOWN, 150),
             KeyPressDetails(pygame.K_LEFT, 150),
@@ -50,16 +49,15 @@ class Application:
         while not self.game_over:
             self.ticker.tick()
             self.check_exit()
-            self.eventProcessor.listen(self.ticker.last_timestamp)
+            self.event_processor.listen(self.ticker.last_timestamp)
 
             if self.ticker.last_timestamp >= render_threshold:
                 render_threshold += self.interval
-                events = self.eventProcessor.slice(first_timestamp, render_threshold)
-                self.stateManager.update_state(events)
+                events = self.event_processor.slice(first_timestamp, render_threshold)
+                self.state_manager.update_state(events)
                 first_timestamp = self.ticker.last_timestamp
-                if self.stateManager.ready_for_render is True:
-                    self.renderer.render(self.stateManager.players.to_render_players(), self.stateManager.ground.bricks_in_line)
-                    self.stateManager.ready_for_render = False
+                if self.state_manager.commit() is True:
+                    self.renderer.draw()
 
 
     def update(self):

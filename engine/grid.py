@@ -5,6 +5,7 @@ class Cell:
         self.height = height
         self.unit = None       # Instance of Unit or None
         self.obstacle = False  # True if this cell has an obstacle
+        self.selected = False
 
     def is_occupied(self):
         return self.unit is not None or self.obstacle
