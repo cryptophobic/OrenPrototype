@@ -1,5 +1,14 @@
 import pygame
 
+from enum import Enum, auto
+
+class GameState(Enum):
+    IDLE = auto()
+    SELECTING_UNIT = auto()
+    MOVING = auto()
+    ATTACKING = auto()
+    ENEMY_TURN = auto()
+
 
 class InputHandler:
     def __init__(self):
@@ -11,6 +20,7 @@ class InputHandler:
         self.direction = (0, 0)
 
         for event in pygame.event.get():
+            print("event", event)
             if event.type == pygame.QUIT:
                 exit()
             elif event.type == pygame.KEYDOWN:

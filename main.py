@@ -1,12 +1,12 @@
 import pygame
 
 from engine.grid import Grid
-from ui.interaction import Interaction
+from ui.application import Application
 
 def main():
     pygame.init()
     grid = Grid(25, 20)
-    interaction = Interaction(grid)
+    interaction = Application(grid)
 
     clock = pygame.time.Clock()
     while True:
