@@ -3,7 +3,7 @@ import pygame
 from event_processor.InputEvents import InputEvents, KeyPressDetails
 from event_processor.Timer import Timer
 from ui import config
-from ui.State import State
+from ui.state.state import State
 from ui.renderer import Renderer
 from engine.grid import Grid
 
@@ -58,26 +58,3 @@ class Application:
                 first_timestamp = self.ticker.last_timestamp
                 if self.state_manager.commit() is True:
                     self.renderer.draw()
-
-
-    def update(self):
-        self.input.poll()
-        dx, dy = self.input.get_direction()
-
-        if dx != 0 or dy != 0:
-            self.move_selection(dx, dy)
-
-        if self.input.enter_pressed:
-            self.interact()
-
-        self.renderer.draw((self.selected_x, self.selected_y))
-
-    def move_selection(self, dx, dy):
-        new_x = max(0, min(self.grid.width - 1, self.selected_x + dx))
-        new_y = max(0, min(self.grid.height - 1, self.selected_y + dy))
-        self.selected_x = new_x
-        self.selected_y = new_y
-
-    def interact(self):
-        cell = self.grid.get_cell(self.selected_x, self.selected_y)
-        print(f"Interacted with Cell ({cell.x}, {cell.y}) — Obstacle: {cell.obstacle}, Unit: {cell.unit}")

@@ -8,16 +8,13 @@ class ActorsCollection(UserDict):
     def __init__(self):
         super().__init__()
 
-    def idle_players(self):
+    def idle_actors(self):
         return filter(lambda x: x.idle, self.data.values())
 
-    def to_render_players(self):
+    def to_render_actors(self):
         return list(filter(lambda x: x.idle is False, self.data.values()))
 
-    def to_apply_speed_players(self):
-        return list(filter(lambda x: x.speed_pending() is True, self.data.values()))
-
-    def sorted_dirty_players(self):
+    def sorted_dirty_actors(self):
         def is_dirty(actor: Actor) -> bool:
             return actor.active is True and (actor.body.is_dirty())
 

@@ -24,9 +24,15 @@ class State:
 
     def update_state(self, events: Dict[int, List[KeyPressLog]]):
         self.__events_array.append(events)
+        self.__events_handler.dispatch_events(events)
 
     def commit(self) -> bool:
         committed = False
+
+        for actor in self.actors.sorted_dirty_actors():
+            actor.active = False
+            pass
+
         while self.__events_array:
             events = self.__events_array.popleft()
             committed = committed or self.__events_handler.dispatch_events(events)
