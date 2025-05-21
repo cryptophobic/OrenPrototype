@@ -12,7 +12,6 @@ class State:
     def __init__(self):
         self.actors: ActorsCollection = ActorsCollection()
         self.__events_handler = EventsHandler(self.actors)
-        self.__events_array: deque[Dict[int, List[KeyPressLog]]] = deque()
 
     def register_actor(self, actor: Actor):
         self.actors.add(actor)
@@ -23,13 +22,13 @@ class State:
         self.__events_handler.unload_keys_from_actor(actor)
 
     def update_state(self, events: Dict[int, List[KeyPressLog]]):
-        self.__events_array.append(events)
         self.__events_handler.dispatch_events(events)
 
     def commit(self) -> bool:
         committed = False
 
         for actor in self.actors.sorted_dirty_actors():
+            actor.
             actor.active = False
             pass
 

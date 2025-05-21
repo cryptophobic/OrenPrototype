@@ -10,8 +10,7 @@ class EventsHandler:
         self.actors: ActorsCollection = actors
         self.__keys: Dict[int: set[str]] = {}
 
-    def dispatch_events(self, events: Dict[int, List[KeyPressLog]]) -> bool:
-        reacted = False
+    def dispatch_events(self, events: Dict[int, List[KeyPressLog]]) -> None:
         for key, events_log in events.items():
             if len(events_log) == 0:
                 continue
@@ -20,12 +19,9 @@ class EventsHandler:
                 continue
 
             for actor_name in actor_names:
-                reacted = reacted or self.update_actor(actor_name, key, events_log)
+                self.update_actor(actor_name, key, events_log)
 
-        return reacted
-
-    def update_actor(self, actor_name: str, key: int, events_log: List[KeyPressLog]) -> bool:
-        reacted = False
+    def update_actor(self, actor_name: str, key: int, events_log: List[KeyPressLog]) -> None:
         for event in events_log:
             if event.down is not True:
                 continue
@@ -34,9 +30,7 @@ class EventsHandler:
             if actor is None or actor.idle:
                 continue
 
-            reacted = reacted or actor.dispatch(key)
-
-        return reacted
+            actor.dispatch(key)
 
     def load_keys_from_actor(self, actor: Actor):
         for key in actor.controls.keys():

@@ -10,3 +10,6 @@ class Actor:
         self.controls: Controls = Controls()
         self.body: Body = Body()
         pass
+
+    def dispatch(self, key: str):
+        self.controls.action(key)
