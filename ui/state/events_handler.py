@@ -3,11 +3,13 @@ from typing import Dict, List
 from event_processor.InputEvents import KeyPressLog
 from ui.actors.actor import Actor
 from ui.state.actors_collection import ActorsCollection
+from ui.state.event_bus import EventBus
 
 
 class EventsHandler:
     def __init__(self, actors: ActorsCollection):
         self.actors: ActorsCollection = actors
+        self.event_bus: EventBus = EventBus()
         self.__keys: Dict[int: set[str]] = {}
 
     def dispatch_events(self, events: Dict[int, List[KeyPressLog]]) -> None:
@@ -27,7 +29,7 @@ class EventsHandler:
                 continue
 
             actor = self.actors.get(actor_name)
-            if actor is None or actor.idle:
+            if actor is None or actor.active is False:
                 continue
 
             actor.dispatch(key)

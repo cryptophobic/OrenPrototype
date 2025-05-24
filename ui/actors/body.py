@@ -4,6 +4,7 @@ from ui.actors.vectors import Vec2
 class Body:
     def __init__(self):
         self.shape = None
+        self.coordinates: Vec2 = Vec2(x=0, y=0)
         self.velocity: Vec2 = Vec2(x=0, y=0)
         pass
 

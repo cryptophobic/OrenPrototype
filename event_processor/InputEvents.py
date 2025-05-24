@@ -7,6 +7,8 @@ from typing import Dict, Tuple, List
 from dataclasses import dataclass
 from event_processor.Gamepads import Gamepads
 from event_processor.Scheduler import Scheduler
+from ui.actors.actor import Actor
+from ui.actors.controls import Controls
 
 
 @dataclass
@@ -31,6 +33,13 @@ class KeyPressLog:
 KeyPressDetails = namedtuple("KeyPressDetails", ["key", "repeat_delta"])
 
 
+def extract_keypress_details(controls: Controls) -> Tuple[KeyPressDetails, ...]:
+    return tuple(
+        KeyPressDetails(key=key, repeat_delta=action.repeat_delta)
+        for key, action in controls.items()
+    )
+
+
 class InputEvents:
 
     flush = 10000
@@ -43,7 +52,9 @@ class InputEvents:
         self.keys_down: List[int] = []
         self.next_flush = Timer.current_timestamp() + InputEvents.flush
 
-    def subscribe(self, subscriber: str, keys: List[KeyPressDetails]):
+    def subscribe(self, actor: Actor):
+        subscriber = actor.name
+        keys = extract_keypress_details(actor.controls)
 
         if subscriber in self.subscribers:
             return False

@@ -3,6 +3,7 @@ import pygame
 from event_processor.InputEvents import InputEvents, KeyPressDetails
 from event_processor.Timer import Timer
 from ui import config
+from ui.actors.cursor.cursor import Cursor
 from ui.state.state import State
 from ui.renderer import Renderer
 from engine.grid import Grid
@@ -14,7 +15,7 @@ class Application:
 
         self.renderer = Renderer(self.grid)
         self.state_manager = State()
-        self.event_processor = InputEvents()
+        self.event_dispatcher = InputEvents()
         self.ticker = Timer()
 
         self.interval = 1000 / config.FPS
@@ -32,14 +33,11 @@ class Application:
             self.game_over = True
 
 
-    def init_events(self):
-        self.event_processor.subscribe('Player1', [
-            KeyPressDetails(pygame.K_UP, 150),
-            KeyPressDetails(pygame.K_DOWN, 150),
-            KeyPressDetails(pygame.K_LEFT, 150),
-            KeyPressDetails(pygame.K_RIGHT, 150),
-            KeyPressDetails(pygame.K_KP_ENTER, -1),
-        ])
+    def register_actors(self):
+        cursor = Cursor()
+        self.state_manager.register_actor(cursor)
+        self.event_dispatcher.subscribe(cursor)
+        pass
 
     def run(self):
 
@@ -49,11 +47,11 @@ class Application:
         while not self.game_over:
             self.ticker.tick()
             self.check_exit()
-            self.event_processor.listen(self.ticker.last_timestamp)
+            self.event_dispatcher.listen(self.ticker.last_timestamp)
 
             if self.ticker.last_timestamp >= render_threshold:
                 render_threshold += self.interval
-                events = self.event_processor.slice(first_timestamp, render_threshold)
+                events = self.event_dispatcher.slice(first_timestamp, render_threshold)
                 self.state_manager.update_state(events)
                 first_timestamp = self.ticker.last_timestamp
                 if self.state_manager.commit() is True:

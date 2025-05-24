@@ -4,7 +4,7 @@ from ui.actors.actor import Actor
 import petname
 
 
-class ActorsCollection(UserDict):
+class ActorsCollection(UserDict[str, Actor]):
     def __init__(self):
         super().__init__()
 
