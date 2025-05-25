@@ -1,4 +1,4 @@
-from engine.unit import Unit
+from engine.unit import Unit, Pawn
 from ui.actors.vectors import Vec2
 
 
@@ -6,7 +6,7 @@ class Cell:
     def __init__(self, coordinates: Vec2, height=0):
         self.coordinates = coordinates
         self.height = height
-        self.unit: Unit | None = None
+        self.unit: Pawn | None = None
         self.selected = False
 
     def is_occupied(self):
@@ -24,11 +24,12 @@ class Grid:
             return self.cells[coordinates.y][coordinates.x]
         return None
 
-    def place_unit(self, unit: Unit, coordinates: Vec2) -> bool:
+    def place_unit(self, unit: Pawn) -> bool:
+        coordinates = unit.actor.coordinates
         cell = self.get_cell(coordinates)
         if cell and not cell.is_occupied():
             cell.unit = unit
-            unit.position = coordinates
+            unit.actor.position = coordinates
             return True
         return False
 

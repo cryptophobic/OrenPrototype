@@ -1,9 +1,13 @@
 # Unit data structure and stats
 from ui.actors.actor import Actor
 
+class Pawn:
+    def __init__(self, actor: Actor):
+        self.actor: Actor = actor
 
-class Unit:
+class Unit(Pawn):
     def __init__(self, name, str_, dex, con, int_, wis, cha, actor: Actor):
+        super().__init__(actor)
         self.name = name
         self.STR = str_
         self.DEX = dex
@@ -12,7 +16,6 @@ class Unit:
         self.WIS = wis
         self.CHA = cha
         self.HP = con * 20
-        self.actor: Actor = actor
 
         self.initiative = 0
         self.armor_weight = 0

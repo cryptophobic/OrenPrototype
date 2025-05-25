@@ -34,6 +34,9 @@ class Vec2:
     def __ne__(self, other):
         return self.x != other.x or self.y != other.y
 
+    def is_zero(self):
+        return self.x == self.y == 0
+
     def iterate_to(self, other):
         return iterate_path(self, other)
 

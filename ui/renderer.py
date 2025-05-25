@@ -1,6 +1,7 @@
 import pygame
 from engine.grid import Grid
 from ui import config
+from ui.actors.vectors import Vec2
 
 GRID_COLOR = (200, 200, 200)
 OBSTACLE_COLOR = (100, 100, 100)
@@ -23,17 +24,19 @@ class Renderer:
         self.screen.fill((0, 0, 0))
         for y in range(self.grid.height):
             for x in range(self.grid.width):
-                cell = self.grid.get_cell(x, y)
+                cell = self.grid.get_cell(Vec2(x, y))
                 rect = pygame.Rect(x * self.tile_size["x"], y * self.tile_size["y"], self.tile_size["x"], self.tile_size["x"])
+                pygame.draw.rect(self.screen, GRID_COLOR, rect)
 
-                if cell.obstacle:
-                    color = OBSTACLE_COLOR
-                elif cell.unit:
-                    color = UNIT_COLOR
-                else:
-                    color = GRID_COLOR
+                if cell.unit:
+                    actor = cell.unit.actor
+                    icon = actor.body.shape.icon
+                    scaled_icon = pygame.transform.scale(icon, (self.tile_size["x"], self.tile_size["y"]))
+                    # Create a display surface
 
-                pygame.draw.rect(self.screen, color, rect)
+                    # Draw it on screen (at position 100,100)
+                    self.screen.blit(scaled_icon, (x * self.tile_size["x"], y * self.tile_size["y"]))
+
                 if cell.selected:
                     pygame.draw.rect(self.screen, SELECTED_COLOR, rect, 2)  # highlight
 

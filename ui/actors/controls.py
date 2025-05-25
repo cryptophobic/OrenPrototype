@@ -1,7 +1,9 @@
 from collections import UserDict
 from dataclasses import dataclass
 from typing import Callable
-from ui.actors.actor import Actor
+
+from ui.actors.actions import Actions
+
 
 @dataclass
 class Action:
@@ -13,9 +15,9 @@ class Action:
 
 
 class Controls(UserDict[int, Action]):
-    def __init__(self, actor: Actor):
+    def __init__(self, actions: Actions):
         super().__init__()
-        self.actor = actor
+        self.actions = actions
         pass
 
     def action(self, key: str):

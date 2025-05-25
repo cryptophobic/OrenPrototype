@@ -1,5 +1,5 @@
 from collections import deque
-from typing import Dict, List
+from typing import Dict, List, Callable
 
 from event_processor.InputEvents import KeyPressLog, EventLogRecord
 from ui.actors.actor import Actor
@@ -7,10 +7,11 @@ from ui.state.actors_collection import ActorsCollection
 from ui.state.event_bus import EventBus
 
 
+
 class EventsHandler:
-    def __init__(self, actors: ActorsCollection):
+    def __init__(self, actors: ActorsCollection, conflict_resolver: Callable):
         self.actors: ActorsCollection = actors
-        self.event_bus: EventBus = EventBus()
+        self.event_bus: EventBus = EventBus(conflict_resolver)
         self.__keys: Dict[int: set[str]] = {}
 
     def dispatch_events(self, events: deque[EventLogRecord]) -> None:

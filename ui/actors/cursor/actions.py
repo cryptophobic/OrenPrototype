@@ -19,11 +19,18 @@ class Actions(BaseActions):
     def move_down(self):
         self.__track.append(Vec2(0, 1))
 
-    def commit(self):
+    def commit(self, coordinates: Vec2):
         while self.__track:
-            velocity = self.__track.popleft()
-            cell_coordinates = self.actor.body.coordinates + velocity
+            velocity = self.__track[0]
+            cell_coordinates = coordinates + velocity
             cell = battlefield.get_cell(cell_coordinates)
-            if cell.is_occupied() and self.actor.is_conflicting(cell.unit.actor):
-                self.__track.clear()
+            if cell.is_occupied():
+                body = cell.unit.actor.body
+                if body.is_solid() or body.is_soft():
+                    return False, coordinates,
+
+            self.__track.popleft()
+            coordinates += velocity
+
+        return True, coordinates
 

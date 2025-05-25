@@ -1,10 +1,10 @@
-from ui.actors.body import Body as BaseBody, CollisionMatrix
+from ui.actors.body import Body as BaseBody, CollisionMatrix, CollisionResponse
 from ui.actors.cursor.shape import Shape
 
 
 class Body(BaseBody):
     def __init__(self):
         super().__init__(
-            collision_matrix=CollisionMatrix(block=False, overlap=True, ignore=False),
+            collision_matrix=CollisionMatrix(response=CollisionResponse.OVERLAP),
             shape=Shape()
         )

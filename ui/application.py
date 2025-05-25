@@ -1,9 +1,11 @@
 import pygame
 
+from engine.unit import Pawn
 from event_processor.InputEvents import InputEvents, KeyPressDetails
 from event_processor.Timer import Timer
 from ui import config
 from ui.actors.cursor.cursor import Cursor
+from ui.actors.vectors import Vec2
 from ui.state.state import State
 from ui.renderer import Renderer
 from engine.grid import Grid
@@ -34,15 +36,19 @@ class Application:
 
 
     def register_actors(self):
-        cursor = Cursor(self.grid)
+        cursor = Cursor(Vec2(0, 0))
         self.state_manager.register_actor(cursor)
         self.event_dispatcher.subscribe(cursor)
+
+        pawn = Pawn(cursor)
+        self.grid.place_unit(pawn)
         pass
 
     def run(self):
 
         render_threshold = self.ticker.last_timestamp + self.interval
         first_timestamp = self.ticker.last_timestamp
+        self.register_actors()
 
         while not self.game_over:
             self.ticker.tick()

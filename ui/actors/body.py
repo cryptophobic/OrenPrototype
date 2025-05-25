@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from enum import Enum, auto
 
 from ui.actors.shape import Shape
-from ui.actors.vectors import Vec2
 
 class CollisionResponse(Enum):
     BLOCK = auto()
@@ -29,14 +28,13 @@ class CollisionMatrix:
 class Body:
     def __init__(self,
                  shape: Shape = None,
-                 coordinates: Vec2 = Vec2(x=0, y=0),
-                 velocity: Vec2 = Vec2(x=0, y=0),
-                 collision_matrix: CollisionMatrix = CollisionMatrix()):
+                 collision_matrix: CollisionMatrix = CollisionMatrix(response=CollisionResponse.IGNORE),):
         self.shape: Shape = shape
-        self.coordinates: Vec2 = coordinates
-        self.velocity: Vec2 = velocity
         self.collision_matrix: CollisionMatrix = collision_matrix
         pass
 
-    def is_dirty(self):
-        return self.velocity.is_dirty()
+    def is_solid(self) -> bool:
+        return self.collision_matrix.response == CollisionResponse.BLOCK
+
+    def is_soft(self) -> bool:
+        return self.collision_matrix.response == CollisionResponse.OVERLAP
