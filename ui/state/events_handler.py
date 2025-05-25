@@ -1,6 +1,7 @@
+from collections import deque
 from typing import Dict, List
 
-from event_processor.InputEvents import KeyPressLog
+from event_processor.InputEvents import KeyPressLog, EventLogRecord
 from ui.actors.actor import Actor
 from ui.state.actors_collection import ActorsCollection
 from ui.state.event_bus import EventBus
@@ -12,27 +13,22 @@ class EventsHandler:
         self.event_bus: EventBus = EventBus()
         self.__keys: Dict[int: set[str]] = {}
 
-    def dispatch_events(self, events: Dict[int, List[KeyPressLog]]) -> None:
-        for key, events_log in events.items():
-            if len(events_log) == 0:
-                continue
+    def dispatch_events(self, events: deque[EventLogRecord]) -> None:
+        while events:
+            _, key, down = events.popleft()
             actor_names = self.__keys.get(key)
             if actor_names is None:
                 continue
 
             for actor_name in actor_names:
-                self.update_actor(actor_name, key, events_log)
+                actor = self.actors.get(actor_name)
+                if actor is None or actor.active is False:
+                    continue
 
-    def update_actor(self, actor_name: str, key: int, events_log: List[KeyPressLog]) -> None:
-        for event in events_log:
-            if event.down is not True:
-                continue
+                self.event_bus.post(actor, actor.get_action(key))
 
-            actor = self.actors.get(actor_name)
-            if actor is None or actor.active is False:
-                continue
-
-            actor.dispatch(key)
+    def process_events(self) -> bool:
+        return self.event_bus.flush() > 0
 
     def load_keys_from_actor(self, actor: Actor):
         for key in actor.controls.keys():

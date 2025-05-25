@@ -1,5 +1,4 @@
-from collections import namedtuple
-from functools import reduce
+from collections import namedtuple, deque
 
 import pygame
 from event_processor.Timer import Timer
@@ -15,6 +14,7 @@ from ui.actors.controls import Controls
 class KeyPressLogRecord:
     dt: int
     down: bool
+    processed: bool = False
 
 
 @dataclass
@@ -24,14 +24,8 @@ class KeyPressLog:
     log: List[KeyPressLogRecord]
     subscribers: int
 
-
-#@dataclass
-#class KeyPressDetails:
-#    key: int
-#    repeat_delta: int = -1
-
 KeyPressDetails = namedtuple("KeyPressDetails", ["key", "repeat_delta"])
-
+EventLogRecord = namedtuple("EventLogRecord", ["dt", "key", "down"])
 
 def extract_keypress_details(controls: Controls) -> Tuple[KeyPressDetails, ...]:
     return tuple(
@@ -42,7 +36,7 @@ def extract_keypress_details(controls: Controls) -> Tuple[KeyPressDetails, ...]:
 
 class InputEvents:
 
-    flush = 10000
+    flushing_interval = 10000
 
     def __init__(self):
         self.scheduler = Scheduler()
@@ -50,7 +44,7 @@ class InputEvents:
         self.subscribers: Dict[str, Tuple] = {}
         self.key_map: Dict[int, KeyPressLog] = {}
         self.keys_down: List[int] = []
-        self.next_flush = Timer.current_timestamp() + InputEvents.flush
+        self.next_flush = Timer.current_timestamp() + InputEvents.flushing_interval
 
     def subscribe(self, actor: Actor):
         subscriber = actor.name
@@ -97,6 +91,14 @@ class InputEvents:
 
         return False
 
+    def flush(self):
+        if Timer.current_timestamp() > self.next_flush:
+            frame = max(0, self.next_flush - InputEvents.flushing_interval)
+            for value in self.key_map.values():
+                value.log = [log for log in value.log if log.dt >= frame]
+
+            self.next_flush = Timer.current_timestamp() + InputEvents.flushing_interval
+
     def listen(self, ticks: int):
         pressed = pygame.key.get_pressed()
         for idx, key in enumerate(self.keys_down):
@@ -108,7 +110,7 @@ class InputEvents:
             if (self.is_down_event_expired(key)
                     or (not pressed[key] and not self.scheduler.is_pressed(key) and not self.gamepads.pressed(key))):
                 self.key_map[key].down = False
-                self.key_map[key].log.append(KeyPressLogRecord(dt=ticks, down=False))
+                self.key_map[key].log.append(KeyPressLogRecord(dt=ticks, down=False, processed=False))
                 self.keys_down.pop(idx)
 
         for key, events_log in self.key_map.items():
@@ -116,27 +118,45 @@ class InputEvents:
                     and (pressed[key] or self.scheduler.is_pressed(key) or self.gamepads.pressed(key))):
 
                 self.key_map[key].down = True
-                self.key_map[key].log.append(KeyPressLogRecord(dt=ticks, down=True))
+                self.key_map[key].log.append(KeyPressLogRecord(dt=ticks, down=True, processed=False))
                 self.keys_down.append(key)
 
-    def slice(self, start: int, end: int) -> Dict[int, List[KeyPressLog]]:
+        self.flush()
 
-        local_keymap = self.key_map
+    def slice(self, start: int, end: int) -> Dict[int, KeyPressLog]:
+        sliced = {}
 
-        if Timer.current_timestamp() > self.next_flush:
-            self.next_flush = Timer.current_timestamp() + InputEvents.flush
-            self.key_map = {
-                key: KeyPressLog(
-                    down=value.down,
-                    interval=value.interval,
-                    log=list(filter(lambda timestamp: (end <= timestamp.dt), value.log)),
-                    subscribers=value.subscribers
-                )
-                for key, value in local_keymap.items()
-            }
+        for key, value in self.key_map.items():
+            before = []
+            for log in value.log:
+                if start <= log.dt < end and not log.processed:
+                    log.processed = True
+                    before.append(log)
+
+            sliced[key] = KeyPressLog(
+                down=before[-1].down if len(before) > 0 else False,
+                interval=value.interval,
+                log=before,
+                subscribers=value.subscribers,
+            )
+
+        return sliced
+
+    def slice_flat(self, start: int, end: int) -> deque[EventLogRecord]:
+        flushed = self.slice(start, end)
+
+        return deque(sorted(
+            (log_entry.dt, key, log_entry.down)
+            for key, value in flushed.items()
+            for log_entry in value.log
+            if start <= log_entry.dt
+        ))
+
+    def slice_grouped(self, start: int, end: int) -> Dict[int, List[KeyPressLogRecord]]:
+        flushed = self.slice(start, end)
 
         return {
             key:
-                list(filter(lambda log_entry: (start <= log_entry.dt < end), value.log))
-            for key, value in local_keymap.items()
+                list(filter(lambda log_entry: (start <= log_entry.dt), value.log))
+            for key, value in flushed.items()
         }

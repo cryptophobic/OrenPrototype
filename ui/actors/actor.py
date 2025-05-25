@@ -13,5 +13,11 @@ class Actor:
         self.body: Body | None = None
         pass
 
-    def dispatch(self, key: int):
-        self.controls.action(key)
+    def get_action(self, key: int):
+        return self.controls.get(key)
+
+    def is_conflicting(self, actor: 'Actor') -> bool:
+        return actor.active and self.active and self.body.collision_matrix.blocks(actor.body.collision_matrix)
+
+    def is_overlapping(self, actor: 'Actor') -> bool:
+        return actor.active and self.active and self.body.collision_matrix.overlaps(actor.body.collision_matrix)

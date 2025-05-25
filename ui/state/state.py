@@ -1,8 +1,7 @@
-from typing import List, Dict
 from collections import deque
 
-
-from event_processor.InputEvents import KeyPressLog
+from engine.grid import Grid
+from event_processor.InputEvents import EventLogRecord
 from ui.actors.actor import Actor
 from ui.state.actors_collection import ActorsCollection
 from ui.state.events_handler import EventsHandler
@@ -21,19 +20,8 @@ class State:
         self.actors.remove(actor)
         self.__events_handler.unload_keys_from_actor(actor)
 
-    def update_state(self, events: Dict[int, List[KeyPressLog]]):
+    def update_state(self, events: deque[EventLogRecord]):
         self.__events_handler.dispatch_events(events)
 
     def commit(self) -> bool:
-        committed = False
-
-        for actor in self.actors.sorted_dirty_actors():
-            actor.
-            actor.active = False
-            pass
-
-        while self.__events_array:
-            events = self.__events_array.popleft()
-            committed = committed or self.__events_handler.dispatch_events(events)
-
-        return committed
+        return self.__events_handler.process_events()

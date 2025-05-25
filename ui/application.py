@@ -34,7 +34,7 @@ class Application:
 
 
     def register_actors(self):
-        cursor = Cursor()
+        cursor = Cursor(self.grid)
         self.state_manager.register_actor(cursor)
         self.event_dispatcher.subscribe(cursor)
         pass
@@ -51,7 +51,7 @@ class Application:
 
             if self.ticker.last_timestamp >= render_threshold:
                 render_threshold += self.interval
-                events = self.event_dispatcher.slice(first_timestamp, render_threshold)
+                events = self.event_dispatcher.slice_flat(first_timestamp, render_threshold)
                 self.state_manager.update_state(events)
                 first_timestamp = self.ticker.last_timestamp
                 if self.state_manager.commit() is True:
