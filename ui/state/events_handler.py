@@ -16,7 +16,11 @@ class EventsHandler:
 
     def dispatch_events(self, events: deque[EventLogRecord]) -> None:
         while events:
+            print(events)
+
             _, key, down = events.popleft()
+            if not down:
+                continue
             actor_names = self.__keys.get(key)
             if actor_names is None:
                 continue
