@@ -2,10 +2,11 @@ from collections import deque
 from typing import List, Dict
 
 from ui.actors.actions import Actions
-from ui.actors.behaviour import Behaviour, Behaviours
+from ui.actors.behaviour import Behaviour
 from ui.actors.body import Body
 from ui.actors.controls import Controls
 from ui.actors.vectors import Vec2
+from ui.config import Behaviours
 
 
 class Actor:
@@ -22,6 +23,8 @@ class Actor:
 
     def is_behaves(self, behaviour: Behaviours) -> bool:
         return behaviour in self.__behaviours
+
+    
 
     def clear_velocity(self):
         self.actions.clear_velocity()
