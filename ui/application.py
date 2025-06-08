@@ -45,7 +45,6 @@ class Application:
         pass
 
     def run(self):
-
         render_threshold = self.ticker.last_timestamp + self.interval
         first_timestamp = self.ticker.last_timestamp
         self.register_actors()
