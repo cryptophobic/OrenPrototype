@@ -1,8 +1,8 @@
 import pygame
 from app.event_processor.InputEvents import InputEvents
 from app.event_processor.Timer import Timer
-from app.engine.state.grid import Grid
-from app.engine.state.state_manager import StateManager
+from ui.engine.state.grid import Grid
+from ui.engine.state.state_manager import StateManager
 from app.engine.supervisor.supervisor import Supervisor
 from app.renderer import Renderer
 from app import config

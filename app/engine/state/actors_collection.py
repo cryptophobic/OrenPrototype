@@ -2,8 +2,10 @@ from collections import UserDict
 from typing import List
 import time
 
+from app.object.actor import Actor
 
-class ActorsCollection(UserDict):
+
+class ActorsCollection(UserDict[str, Actor]):
     def __init__(self):
         super().__init__()
 

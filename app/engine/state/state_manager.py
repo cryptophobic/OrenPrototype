@@ -2,26 +2,27 @@ from collections import deque
 from .actors_collection import ActorsCollection
 from .events_handler import EventsHandler
 from .event_bus import EventBus
+from .grid import Grid
+from ...object.actor import Actor
 
 
 class StateManager:
-    def __init__(self, grid=None):
+    def __init__(self, grid: Grid):
         self.grid = grid
         self.actors = ActorsCollection()
         self.events_handler = EventsHandler(self.actors)
         self.event_bus = EventBus(self.grid)
 
-    def register_actor(self, actor):
+    def register_actor(self, actor: Actor):
         """Register an actor in the system"""
         name = self.actors.add_actor(actor)
-        self.events_handler.load_keys_from_actor(actor)
+        # self.events_handler.load_keys_from_actor(actor)
         return name
 
-    def remove_actor(self, actor):
+    def remove_actor(self, actor: Actor):
         """Remove an actor from the system"""
-        if hasattr(actor, 'name') and actor.name:
-            self.events_handler.unload_keys_from_actor(actor)
-            self.actors.remove_actor(actor.name)
+        self.events_handler.unload_keys_from_actor(actor)
+        self.actors.remove_actor(actor.name)
 
     def queue_action(self, actor, action):
         """Safe API for AI action injection"""
