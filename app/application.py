@@ -1,11 +1,13 @@
 import pygame
-from app.event_processor.InputEvents import InputEvents
-from app.event_processor.Timer import Timer
-from ui.engine.state.grid import Grid
-from ui.engine.state.state_manager import StateManager
-from app.engine.supervisor.supervisor import Supervisor
-from app.renderer import Renderer
-from app import config
+
+from .context.context import Context
+from .event_processor.InputEvents import InputEvents
+from .event_processor.Timer import Timer
+from .engine.state.grid import Grid
+from .engine.state.state_manager import StateManager
+from .engine.supervisor.supervisor import Supervisor
+from .renderer import Renderer
+import config
 
 
 class Application:
@@ -15,12 +17,13 @@ class Application:
         
         # Create 10x15 empty grid as requested
         self.grid = Grid(10, 15)
-        
+
         # Initialize core systems
         self.state_manager = StateManager(self.grid)
         self.supervisor = Supervisor(self.state_manager)
         self.event_dispatcher = InputEvents()
         self.ticker = Timer()
+        self.context = Context.instance()
         self.renderer = Renderer(self.grid)
         
         # Game loop settings
@@ -52,6 +55,7 @@ class Application:
 
         while not self.game_over:
             self.ticker.tick()
+            self.context.frame_context.timestamp = self.ticker.last_timestamp
             self.check_exit()
             self.event_dispatcher.listen(self.ticker.last_timestamp)
 

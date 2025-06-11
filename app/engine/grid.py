@@ -10,7 +10,7 @@ class Cell:
         self.pawn: set[Pawn] = set()
 
 class Grid:
-    def __init__(self, level):
+    def __init__(self):
         self.width = 0
         self.height = 0
         self.cells: list[list[Cell]] = []
