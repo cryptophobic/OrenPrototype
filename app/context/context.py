@@ -7,7 +7,8 @@ class Context:
 
     def __init__(self):
         self.frame_context: FrameContext = FrameContext()
-        self.grid_context: LevelContext = LevelContext()
+        self.level_context: LevelContext = LevelContext()
+
 
     @classmethod
     def instance(cls) -> "Context":
