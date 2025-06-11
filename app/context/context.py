@@ -1,5 +1,5 @@
 from .frame_context import FrameContext
-from .level_context import GridContext
+from .level_context import LevelContext
 
 
 class Context:
@@ -7,7 +7,7 @@ class Context:
 
     def __init__(self):
         self.frame_context: FrameContext = FrameContext()
-        self.grid_context: GridContext = GridContext()
+        self.grid_context: LevelContext = LevelContext()
 
     @classmethod
     def instance(cls) -> "Context":

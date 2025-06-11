@@ -2,7 +2,7 @@ from app.engine.grid import Grid
 from app.maps.level import Level
 
 
-class GridContext:
+class LevelContext:
     def __init__(self):
         self.grid: Grid = Grid()
 
