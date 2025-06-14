@@ -10,8 +10,9 @@ class StaticObject(CoordinateHolder):
                  shape: Shape,
                  coordinates: Vec2,
                  height: int = 0,
-                 weight: int = 0
+                 weight: int = 0,
+                 name: str = None
                  ):
-        super().__init__(coordinates=coordinates, body=body, shape=shape)
+        super().__init__(coordinates=coordinates, body=body, shape=shape, name=name)
         self.height = height
         self.weight = weight

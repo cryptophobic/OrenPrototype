@@ -1,5 +1,4 @@
-from app.engine.grid import Grid
-from app.maps.level import Level
+from app.objects.grid import Grid
 
 
 class GridContext:

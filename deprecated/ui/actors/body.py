@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum, auto
 
-from .shape import Shape
+from deprecated.ui.actors.shape import Shape
 
 class CollisionResponse(Enum):
     BLOCK = auto()
@@ -27,7 +27,9 @@ class CollisionMatrix:
 
 class Body:
     def __init__(self,
+                 shape: Shape = None,
                  collision_matrix: CollisionMatrix = CollisionMatrix(response=CollisionResponse.IGNORE),):
+        self.shape: Shape = shape
         self.collision_matrix: CollisionMatrix = collision_matrix
         pass
 

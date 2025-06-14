@@ -22,7 +22,8 @@ class Unit(CoordinateHolder):
                  body: Body,
                  shape: Shape,
                  coordinates: Vec2,
-                 stats: Stats = Stats()
+                 stats: Stats = Stats(),
+                 name: str = None
                  ):
-        super().__init__(body=body, shape=shape, coordinates=coordinates)
+        super().__init__(body=body, shape=shape, coordinates=coordinates, name=name)
         self.stats: Stats = stats

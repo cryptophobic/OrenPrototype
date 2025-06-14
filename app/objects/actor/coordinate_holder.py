@@ -5,8 +5,8 @@ from .shape import Shape
 
 
 class CoordinateHolder(Actor):
-    def __init__(self, body: Body, shape: Shape, coordinates: Vec2):
-        super().__init__()
+    def __init__(self, body: Body, shape: Shape, coordinates: Vec2, name: str = None):
+        super().__init__(name=name)
         self.body: Body = body
         self.shape: Shape = shape
         self.coordinates: Vec2 = coordinates

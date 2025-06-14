@@ -1,12 +1,11 @@
 from dataclasses import dataclass, field
-from typing import List
+from app.objects.coordinate_holders_collection import CoordinateHoldersCollection
+from app.objects.static_objects_collection import StaticObjectsCollection
 
-from app.objects.coordinate_holder import CoordinateHolder
-from app.objects.static_object import StaticObject
 
 @dataclass
 class Level:
-    coordinate_holders: List[CoordinateHolder] = field(default_factory=list)
-    static_objects: List[StaticObject] = field(default_factory=list)
-    grid_width = 0
-    grid_height = 0
+    coordinate_holders: CoordinateHoldersCollection = field(default_factory=CoordinateHoldersCollection)
+    static_objects: StaticObjectsCollection = field(default_factory=StaticObjectsCollection)
+    grid_width: int = 0
+    grid_height: int = 0

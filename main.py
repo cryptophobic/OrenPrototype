@@ -1,11 +1,12 @@
-import pygame
+import sys
+import os
+sys.path.append(os.path.dirname(__file__))
 
-from map.battlefield import battlefield
-from ui.application import Application
+from app.application import Application
+
 
 def main():
-    pygame.init()
-    app = Application(battlefield)
+    app = Application()
     app.run()
 
 
