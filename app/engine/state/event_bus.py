@@ -1,6 +1,13 @@
 from collections import deque
 from typing import Callable
 
+from app.objects.actor import Actor
+
+
+class Message:
+    def __init__(self, actor, action):
+        self.sender: Actor = actor
+        self.action = action
 
 class EventBus:
     def __init__(self, grid=None):

@@ -100,24 +100,26 @@ class Actor:
 ```
 
 #### 1.2 Create CoordinateHolder (`app/object/coordinate_holder.py`)
+
 ```python
-from app.object.actor import Actor
+from app.objects.actor import Actor
 from app.helpers.vectors import Vec2
 
+
 class CoordinateHolder(Actor):
-    def __init__(self, coordinates: Vec2, name: str = None):
-        super().__init__(name)
-        self.coordinates = coordinates
-        self.position = coordinates  # Current grid position
-        self.collision_response = "OVERLAP"  # Configurable
-    
-    def is_conflicting(self, other: 'CoordinateHolder') -> bool:
-        # Collision detection logic
-        pass
-    
-    def clear_velocity(self):
-        # Reset movement for conflict resolution
-        pass
+   def __init__(self, coordinates: Vec2, name: str = None):
+      super().__init__(name)
+      self.coordinates = coordinates
+      self.position = coordinates  # Current grid position
+      self.collision_response = "OVERLAP"  # Configurable
+
+   def is_conflicting(self, other: 'CoordinateHolder') -> bool:
+      # Collision detection logic
+      pass
+
+   def clear_velocity(self):
+      # Reset movement for conflict resolution
+      pass
 ```
 
 #### 1.3 Create StaticObject and Unit Classes
@@ -380,27 +382,29 @@ class Grid:
 **Priority**: Medium
 
 #### 6.1 Level Structure (`app/maps/levels/level1.py`)
+
 ```python
 from app.engine.grid import Grid
-from app.object.unit import Unit
-from app.object.static_object import StaticObject
+from app.objects.unit import Unit
+from app.objects.static_object import StaticObject
 from app.helpers.vectors import Vec2
 
+
 def initialize_level() -> Grid:
-    grid = Grid(25, 20)
-    
-    # Place static objects
-    tree = StaticObject(Vec2(5, 5), "tree")
-    tree.add_behavior("solid", SolidBehavior())
-    grid.place_object(tree, Vec2(5, 5))
-    
-    # Place units
-    player = Unit(Vec2(1, 1), "player-hero")
-    player.add_behavior("moveable", MoveableBehavior(player))
-    player.add_behavior("player", PlayerBehavior(player))
-    grid.place_object(player, Vec2(1, 1))
-    
-    return grid
+   grid = Grid(25, 20)
+
+   # Place static objects
+   tree = StaticObject(Vec2(5, 5), "tree")
+   tree.add_behavior("solid", SolidBehavior())
+   grid.place_object(tree, Vec2(5, 5))
+
+   # Place units
+   player = Unit(Vec2(1, 1), "player-hero")
+   player.add_behavior("moveable", MoveableBehavior(player))
+   player.add_behavior("player", PlayerBehavior(player))
+   grid.place_object(player, Vec2(1, 1))
+
+   return grid
 ```
 
 #### 6.2 Dynamic Level Loading

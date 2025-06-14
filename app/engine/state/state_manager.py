@@ -3,7 +3,7 @@ from .actors_collection import ActorsCollection
 from .events_handler import EventsHandler
 from .event_bus import EventBus
 from .grid import Grid
-from ...object.actor import Actor
+from ...objects.actor import Actor
 
 
 class StateManager:

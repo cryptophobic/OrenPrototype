@@ -59,7 +59,7 @@ class Grid:
         return False
 
     def remove_object(self, obj, coordinates: Vec2) -> bool:
-        """Remove object from coordinates"""
+        """Remove an object from coordinates"""
         cell = self.get_cell(coordinates)
         if cell:
             cell.remove_occupant(obj)
@@ -67,7 +67,7 @@ class Grid:
         return False
 
     def move_object(self, obj, from_pos: Vec2, to_pos: Vec2) -> bool:
-        """Move object from one position to another"""
+        """Move an object from one position to another"""
         from_cell = self.get_cell(from_pos)
         to_cell = self.get_cell(to_pos)
         

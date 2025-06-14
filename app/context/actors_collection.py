@@ -2,7 +2,7 @@ from collections import UserDict
 from typing import List
 import time
 
-from app.object.actor import Actor
+from app.objects.actor.actor import Actor
 
 
 class ActorsCollection(UserDict[str, Actor]):
@@ -10,7 +10,7 @@ class ActorsCollection(UserDict[str, Actor]):
         super().__init__()
 
     def add_actor(self, actor) -> str:
-        """Add actor with unique name generation if needed"""
+        """Add an actor with unique name generation if needed"""
         if actor.name and actor.name not in self.data:
             name = actor.name
         else:
@@ -21,7 +21,7 @@ class ActorsCollection(UserDict[str, Actor]):
         return name
 
     def generate_unique_name(self) -> str:
-        """Generate unique actor name with timestamp fallback"""
+        """Generate a unique actor name with timestamp fallback"""
         try:
             import petname
             base_name = petname.Generate(2, separator="-")
@@ -48,7 +48,7 @@ class ActorsCollection(UserDict[str, Actor]):
         return [actor for actor in self.data.values() if getattr(actor, 'dirty', False)]
 
     def remove_actor(self, actor_name: str) -> bool:
-        """Remove actor by name"""
+        """Remove an actor by name"""
         if actor_name in self.data:
             del self.data[actor_name]
             return True
