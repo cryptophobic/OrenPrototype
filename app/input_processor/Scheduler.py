@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Dict
 
-from app.event_processor.Timer import Timer
+from app.input_processor.Timer import Timer
 
 
 @dataclass

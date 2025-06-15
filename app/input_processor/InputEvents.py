@@ -1,12 +1,11 @@
 from collections import namedtuple, deque
 
 import pygame
-from app.event_processor.Timer import Timer
+from .Timer import Timer
 from typing import Dict, Tuple, List
 from dataclasses import dataclass
-from app.event_processor.Gamepads import Gamepads
-from app.event_processor.Scheduler import Scheduler
-# Removed ui dependencies for generic event processing
+from .Gamepads import Gamepads
+from .Scheduler import Scheduler
 
 
 @dataclass
@@ -24,10 +23,7 @@ class KeyPressLog:
     subscribers: int
 
 KeyPressDetails = namedtuple("KeyPressDetails", ["key", "repeat_delta"])
-EventLogRecord = namedtuple("EventLogRecord", ["dt", "key", "down"])
-
-# This function will be replaced by behavior-based key extraction
-
+KeyPressEventLogRecord = namedtuple("KeyPressEventLogRecord", ["dt", "key", "down"])
 
 class InputEvents:
 
@@ -133,7 +129,7 @@ class InputEvents:
 
         return sliced
 
-    def slice_flat(self, start: int, end: int) -> deque[EventLogRecord]:
+    def slice_flat(self, start: int, end: int) -> deque[KeyPressEventLogRecord]:
         flushed = self.slice(start, end)
 
         return deque(sorted(

@@ -1,10 +1,11 @@
 import pygame
 
 from .context.context import Context
-from .event_processor.InputEvents import InputEvents
-from .event_processor.Timer import Timer
+from .context.frame_context import FrameContext
+from .engine.state.state_manager import StateManager
+from .input_processor.InputEvents import InputEvents
+from .input_processor.Timer import Timer
 # from .engine.state.grid import Grid
-# from .engine.state.state_manager import StateManager
 # from .engine.supervisor.supervisor import Supervisor
 from .maps.level1 import LevelFactory
 from .renderer import Renderer
@@ -13,16 +14,15 @@ from . import config
 
 class Application:
     def __init__(self):
-        # Initialize pygame
-        # pygame.init()
         self.renderer = Renderer()
         self.level_factory = LevelFactory()
 
         self.context = Context.instance()
         self.context.init_from_level(self.level_factory.levels["level1"])
+        self.frame_context = FrameContext.instance()
 
         # Initialize core systems
-        # self.state_manager = StateManager(self.grid)
+        self.state_manager = StateManager()
         # self.supervisor = Supervisor(self.state_manager)
         self.event_dispatcher = InputEvents()
         self.ticker = Timer()
@@ -41,6 +41,9 @@ class Application:
         if pressed[pygame.K_ESCAPE]:
             self.game_over = True
 
+    def register_actors(self):
+        self.context.actors_context
+
     def run(self):
         """Main game loop"""
         render_threshold = self.ticker.last_timestamp + self.interval
@@ -49,7 +52,7 @@ class Application:
 
         while not self.game_over:
             self.ticker.tick()
-            self.context.frame_context.timestamp = self.ticker.last_timestamp
+            self.frame_context.timestamp = self.ticker.last_timestamp
             self.check_exit()
             # self.event_dispatcher.listen(self.ticker.last_timestamp)
 

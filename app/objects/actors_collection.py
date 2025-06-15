@@ -9,8 +9,17 @@ class ActorsCollection(CollectionBase[T], Generic[T]):
     def __init__(self, items: dict[str, Actor] | None = None):
         super().__init__(items or {})
 
-    def get_active_actors(self) -> "ActorsCollection":
-        return ActorsCollection(self.filter(lambda a: a.active))
+    def possessed_by_player(self) -> CollectionBase[T]:
+        return CollectionBase[T](self.filter(lambda a: a.player))
+
+    def get_active_actors(self) -> CollectionBase[T]:
+        return CollectionBase[T](self.filter(lambda a: a.active))
+
+    def subtract_actors(self, other: CollectionBase[T]) -> CollectionBase[T]:
+        if not other:
+            return self
+
+        return CollectionBase[T]({k: v for k, v in self.data.items() if k not in other})
 
     def add(self, actor: T):
         if actor.name and actor.name not in self.data:

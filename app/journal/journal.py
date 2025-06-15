@@ -3,8 +3,6 @@ from enum import Enum, auto
 from collections import deque
 from typing import Dict
 
-from app.context.context import Context
-
 
 class ObjectTypes(Enum):
     PROPERTY = auto()
@@ -35,53 +33,68 @@ class Journal(Dict[str, EventLog]):
 
 journal = Journal()
 
+
+def is_internal(name: str) -> bool:
+    return name.startswith("_")
+
+
 class Logging:
     def __init__(self, name: str = "global"):
         self._journal = journal
-        self.__context = Context.instance()
-        self.name: str = name
+        self.__name: str = name
+        self.__disable_read_events: bool = True
 
-    def __is_internal(self, name: str) -> bool:
-        return name.startswith("_") and name not in {"name"}
+    @property
+    def _context(self):
+        from app.context.frame_context import FrameContext
+        return FrameContext.instance()
+
+    @property
+    def name(self):
+        return self.__name
+
+    @name.setter
+    def name(self, value):
+        self.__name = value
 
     def __getattribute__(self, name):
-        if self.__is_internal(name):
+        if is_internal(name):
             return super().__getattribute__(name)
 
         attr = super().__getattribute__(name)
-        if callable(attr) and not name.startswith("__"):
+        if callable(attr):
             def wrapped(*args, **kwargs):
                 event_log = EventLogRecord(
-                    dt=self.__context.frame_context.timestamp,
+                    dt=self._context.timestamp,
                     object_id=name,
                     object_type=ObjectTypes.METHOD,
                     action=ObjectActions.CALL,
                     extra={"args": args, "kwargs": kwargs}
                 )
-                self._journal.log_append(self.name, event_log)
+                self._journal.log_append(self.__name, event_log)
                 return attr(*args, **kwargs)
             return wrapped
-        else:
+        elif not self.__disable_read_events:
             event_log = EventLogRecord(
-                dt=self.__context.frame_context.timestamp,
+                dt=self._context.timestamp,
                 object_id=name,
                 object_type=ObjectTypes.PROPERTY,
                 action=ObjectActions.READ
             )
-            self._journal.log_append(self.name, event_log)
+            self._journal.log_append(self.__name, event_log)
 
         return attr
 
     def __setattr__(self, name, value):
-        if not self._is_internal(name):
+        if not is_internal(name):
             old_value = getattr(self, name, None)
             event_log = EventLogRecord(
-                dt=self.__context.frame_context.timestamp,
+                dt=self._context.timestamp,
                 object_id=name,
                 object_type=ObjectTypes.PROPERTY,
                 action=ObjectActions.WRITE,
                 extra={"old": old_value, "new": value}
             )
-            self._journal.log_append(self.name, event_log)
+            self._journal.log_append(self.__name, event_log)
 
         super().__setattr__(name, value)
