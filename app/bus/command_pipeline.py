@@ -22,17 +22,26 @@ class ActorAction:
         method = getattr(behaviour, self.method_name, None)
         if not callable(method):
             return False
-        return method(*self.args, **self.kwargs) == True
+        return method(*self.args, **self.kwargs)
 
 
 class CommandPipeline:
+    MAX_RECURSION_DEPTH = 5
+
     def __init__(self):
         self._queue: deque[ActorAction] = deque()
 
     def post(self, action: ActorAction):
         self._queue.append(action)
 
-    def process_queue(self, queue: deque[ActorAction]):
+    def process_actions(self,
+                        queue: deque[ActorAction] = None,
+                        state_changed: bool = False,
+                        depth: int = 0):
+        queue = queue or self._queue
+        if depth >= CommandPipeline.MAX_RECURSION_DEPTH:
+            return state_changed
+
         while queue:
             action = queue.popleft()
             if action.attempts_number >= 2:
@@ -40,15 +49,14 @@ class CommandPipeline:
 
             actor = action.actor
             if actor.blocking_actions:
-                self.process_queue(actor.blocking_actions)
+                state_changed = self.process_actions(actor.blocking_actions, state_changed=state_changed, depth=depth + 1) or state_changed
 
             resolved = action.resolve()
+            state_changed = resolved or state_changed
             if not resolved and actor.blocking_actions:
                 queue.appendleft(action)
 
-    def process_actions(self) -> bool:
-        state_changed = True
-
-        self.process_queue(self._queue)
-
         return state_changed
+
+    def clear(self):
+        self._queue.clear()
