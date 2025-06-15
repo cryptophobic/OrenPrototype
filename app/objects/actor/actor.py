@@ -1,5 +1,7 @@
+from collections import deque
 from typing import Deque, Optional, List
 
+from ...bus.command_pipeline import ActorAction
 from ...config import Behaviours
 from ...engine.state.event_bus import ActionFn, Message
 from ...journal.journal import Logging
@@ -10,6 +12,7 @@ class Actor(Logging):
     def __init__(self, name: str = None):
         super().__init__(name)
         self.active = True
+        self.blocking_actions: deque[ActorAction] = deque()
         self.pending_actions: Deque[ActionFn]
         self.__behaviours: dict[Behaviours, Behaviour] = {}
 
