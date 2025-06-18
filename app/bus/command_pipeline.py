@@ -22,7 +22,7 @@ class ActorAction:
         method = getattr(behaviour, self.method_name, None)
         if not callable(method):
             return False
-        return method(*self.args, **self.kwargs)
+        return method(*self.args, **self.kwargs) == True
 
 
 class CommandPipeline:
