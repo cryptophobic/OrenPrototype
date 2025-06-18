@@ -1,5 +1,6 @@
 from collections import deque
 from dataclasses import dataclass, field
+from typing import Callable
 
 from app.config import Behaviours
 from app.objects.actor.actor import Actor
@@ -13,17 +14,20 @@ class ActorAction:
     args: tuple = ()
     kwargs: dict = field(default_factory=dict)
     attempts_number: int = 0
+    resolved: bool = False
 
     def resolve(self) -> bool:
+        if self.resolved:
+            return True
         self.attempts_number += 1
         behaviour = self.actor.__behaviours.get(self.behaviour)
         if not behaviour:
             return False
-        method = getattr(behaviour, self.method_name, None)
+        method: Callable[..., bool] = getattr(behaviour, self.method_name, None)
         if not callable(method):
             return False
-        return method(*self.args, **self.kwargs) == True
-
+        self.resolved = method(*self.args, **self.kwargs) == True
+        return self.resolved
 
 class CommandPipeline:
     MAX_RECURSION_DEPTH = 5
@@ -49,12 +53,16 @@ class CommandPipeline:
 
             actor = action.actor
             if actor.blocking_actions:
-                state_changed = self.process_actions(actor.blocking_actions, state_changed=state_changed, depth=depth + 1) or state_changed
+                state_changed = self.process_actions(
+                    queue=actor.blocking_actions,
+                    state_changed=state_changed,
+                    depth=depth + 1)
 
             resolved = action.resolve()
             state_changed = resolved or state_changed
-            if not resolved and actor.blocking_actions:
-                queue.appendleft(action)
+            if not resolved:
+                # questionable
+                queue.appendleft(action) if actor.blocking_actions else queue.append(action)
 
         return state_changed
 
