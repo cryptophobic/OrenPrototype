@@ -12,7 +12,7 @@ class Promise:
     response_actions: Deque[ActorAction]
     reason: str
 
-class Reasons(Enum):
+class MessageTypes(Enum):
     PUSHED_BY = "pushed_by"
     STROKED_BY = "stroked_by"
 
@@ -26,7 +26,7 @@ class Payload:
 @dataclass
 class Message:
     sender: Actor
-    reason: Reasons
+    message_type: MessageTypes
     payload: Payload
 
 class MessageBroker:

@@ -2,6 +2,7 @@ from collections import deque
 from typing import Deque, Optional, List
 
 from ...bus.command_pipeline import ActorAction
+from ...bus.message_broker import Promise
 from ...config import Behaviours
 from ...engine.state.event_bus import ActionFn, Message
 from ...journal.journal import Logging
@@ -15,6 +16,9 @@ class Actor(Logging):
         self.blocking_actions: deque[ActorAction] = deque()
         self.pending_actions: Deque[ActionFn]
         self.__behaviours: dict[Behaviours, Behaviour] = {}
+
+    def on_message(self, message: Message) -> Promise:
+        raise NotImplementedError(f"{self.__class__.__name__} must implement on_message()")
 
     def is_behave_as_this(self, behaviour: Behaviours) -> bool:
         return self.is_behave_as_them([behaviour])

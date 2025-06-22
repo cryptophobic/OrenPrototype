@@ -1,9 +1,9 @@
 from collections import deque
 from dataclasses import dataclass, field
-from typing import Callable
 
 from app.config import Behaviours
 from app.objects.actor.actor import Actor
+from app.objects.behaviors.behaviour import BehaviourFn
 
 
 @dataclass
@@ -23,7 +23,7 @@ class ActorAction:
         behaviour = self.actor.__behaviours.get(self.behaviour)
         if not behaviour:
             return False
-        method: Callable[..., bool] = getattr(behaviour, self.method_name, None)
+        method: BehaviourFn = getattr(behaviour, self.method_name, None)
         if not callable(method):
             return False
         self.resolved = method(*self.args, **self.kwargs) == True

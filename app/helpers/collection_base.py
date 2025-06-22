@@ -1,20 +1,21 @@
-from typing import TypeVar, Generic, Iterator, Callable, ValuesView, ItemsView, KeysView
+from typing import TypeVar, Generic, Callable, ValuesView, ItemsView, KeysView
 from collections import UserDict
 
-T = TypeVar("T")
+K = TypeVar("K")  # Key type — e.g. Behaviours, str, int
+V = TypeVar("V")  # Value type — e.g. Actor, Behaviour, etc.
 
-class CollectionBase(Generic[T], UserDict[str, T]):
-    def __init__(self, items: dict[str, T] | None = None):
+class CollectionBase(Generic[K, V], UserDict[K, V]):
+    def __init__(self, items: dict[K, V] | None = None):
         super().__init__(items or {})
 
-    def values(self) -> ValuesView[T]:
+    def values(self) -> ValuesView[V]:
         return super().values()
 
-    def keys(self) -> KeysView[str]:
+    def keys(self) -> KeysView[K]:
         return super().keys()
 
-    def items(self) -> ItemsView[str, T]:
+    def items(self) -> ItemsView[K, V]:
         return super().items()
 
-    def filter(self, predicate: Callable[[T], bool]) -> dict[str, T]:
+    def filter(self, predicate: Callable[[V], bool]) -> dict[K, V]:
         return {k: v for k, v in self.data.items() if predicate(v)}
