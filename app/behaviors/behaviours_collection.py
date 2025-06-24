@@ -1,12 +1,14 @@
 from typing import Self
 
-from ...bus.message_broker import MessageTypes
-from ...config import Behaviours
-from ...helpers.collection_base import CollectionBase
+from ..bus.message_broker import MessageTypes
+from ..config import Behaviours
+from ..helpers.collection_base import CollectionBase
 
 from .behaviour import Behaviour
 
-class BehavioursCollection(CollectionBase[Behaviours, Behaviour]):
+
+
+class BehavioursCollection(CollectionBase[Behaviours, type[Behaviour]]):
     def __init__(self, items: dict[Behaviours, Behaviour] | None = None):
         super().__init__(items or {})
 

@@ -16,23 +16,22 @@ BORDER_COLOR = (50, 50, 50)
 class Behaviours(Enum):
 
     # Base class. Actor and descendants
-    BEHAVIOUR = "app.behaviours.behaviour.Behaviour"
+    BEHAVIOUR = ".behaviour.Behaviour"
 
     # Unit
-    VULNERABLE = "app.behaviours.units.vulnerable.Vulnerable"
-    AGGRESSIVE = "app.behaviours.units.aggressive.Aggressive"
-    FRIGHTENED = "app.behaviours.units.frightened.Frightened"
-    ENEMY = "app.behaviours.units.frightened.Frightened"
-    FRIEND = "app.behaviours.units.friend.friend"
-    NEUTRAL = "app.behaviours.units.neutral.neutral"
+    VULNERABLE = ".units.vulnerable.Vulnerable"
+    AGGRESSIVE = ".units.aggressive.Aggressive"
+    FRIGHTENED = ".units.frightened.Frightened"
+    ENEMY = ".units.frightened.Frightened"
+    FRIEND = ".units.friend.friend"
+    NEUTRAL = ".units.neutral.neutral"
 
     # CoordinateHolder and descendants
-    MOVEABLE = "app.behaviours.coordinate_holder.moveable.Moveable"
-    CURSOR = "app.behaviours.coordinate_holder.cursor.Cursor" # Could conflict with Unit and StaticObjects behaviours.
+    MOVEABLE = ".coordinate_holder.moveable.Moveable"
 
     # StaticObject
-    DESTRUCTIBLE = "app.behaviours.static_objects.destructible.Destructible"
-    TRANSPORTABLE = "app.behaviours.static_objects.transportable.Transportable"
+    DESTRUCTIBLE = ".static_objects.destructible.Destructible"
+    TRANSPORTABLE = ".static_objects.transportable.Transportable"
 
 
 controls_presets = {

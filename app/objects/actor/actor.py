@@ -6,7 +6,7 @@ from ...bus.message_broker import Promise
 from ...config import Behaviours
 from ...engine.state.event_bus import ActionFn, Message
 from ...journal.journal import Logging
-from ...objects.behaviors.behaviour import Behaviour
+from ...behaviors.behaviour import Behaviour
 
 
 class Actor(Logging):
