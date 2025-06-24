@@ -1,22 +1,21 @@
-# app/behaviors/coordinate_holder/moveable.py
+from collections import deque
+from typing import Optional, ClassVar
 
-from ..behaviour import Behaviour
+from ..behaviour import Behaviour, BehaviourAction, BehaviourFn
 from app.config import Behaviours
 from app.bus.message_broker import MessageTypes, Message
 from ...objects.actor.actor import Actor
 
 class Moveable(Behaviour):
     name = Behaviours.MOVEABLE
+    message_handlers: ClassVar[dict[MessageTypes, deque[BehaviourFn]]] = {}
 
 
     @staticmethod
-    def pushed_by(receiver: Actor, message: Message) -> bool:
-        # Basic sample logic: log it and mark receiver as dirty
-        print(f"{receiver.name} was pushed by {message.sender.name}")
-        receiver.body.velocity += message.sender.body.velocity
-        receiver.dirty = True
-        return True
+    def pushed_by(receiver: Actor, message: Message) -> Optional[BehaviourAction]:
+        # Your real logic here
+        return BehaviourAction(behaviour=Behaviours.MOVEABLE, method_name="step_back")
 
-    message_handlers = {
-        MessageTypes.PUSHED_BY: pushed_by,
-    }
+    @classmethod
+    def register_handlers(cls):
+        cls.message_handlers[MessageTypes.PUSHED_BY] = deque([cls.pushed_by])

@@ -1,18 +1,16 @@
 from collections import deque
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from typing import Iterator
 
-from app.config import Behaviours
-from app.objects.actor.actor import Actor
-from app.objects.behaviors.behaviour import BehaviourFn
+from ..helpers.staged_queue import StagedQueue
+from ..objects.actor.actor import Actor
+from ..behaviors.behaviour import BehaviourFn, BehaviourAction
 
 
 @dataclass
 class ActorAction:
     actor: Actor
-    behaviour: Behaviours
-    method_name: str
-    args: tuple = ()
-    kwargs: dict = field(default_factory=dict)
+    behaviour_action: BehaviourAction
     attempts_number: int = 0
     resolved: bool = False
 
@@ -20,51 +18,67 @@ class ActorAction:
         if self.resolved:
             return True
         self.attempts_number += 1
-        behaviour = self.actor.__behaviours.get(self.behaviour)
+        behaviour = self.actor.__behaviours.get(self.behaviour_action.behaviour)
         if not behaviour:
             return False
-        method: BehaviourFn = getattr(behaviour, self.method_name, None)
+        method: BehaviourFn = getattr(behaviour, self.behaviour_action.method_name, None)
         if not callable(method):
             return False
-        self.resolved = method(*self.args, **self.kwargs) == True
+
+        result = method(*self.behaviour_action.args, **self.behaviour_action.kwargs)
+        self.resolved = result is True
         return self.resolved
+
+def wrap_action(actor: Actor, behaviour_action: BehaviourAction) -> ActorAction:
+    return ActorAction(actor, behaviour_action)
+
+def wrap_actions(actor: Actor, behaviour_actions: deque[BehaviourAction]) -> Iterator[ActorAction]:
+    for action in behaviour_actions:
+        yield wrap_action(actor, action)
 
 class CommandPipeline:
     MAX_RECURSION_DEPTH = 5
 
     def __init__(self):
-        self._queue: deque[ActorAction] = deque()
+        self._queue: StagedQueue[ActorAction] = StagedQueue[ActorAction]()
 
     def post(self, action: ActorAction):
-        self._queue.append(action)
+        self._queue.append_first(action)
 
-    def process_actions(self,
-                        queue: deque[ActorAction] = None,
+    def process_actions(self):
+        return self.process_queue(self._queue)
+
+    def process_queue(self,
+                        queue: StagedQueue[ActorAction] = StagedQueue[ActorAction](),
                         state_changed: bool = False,
                         depth: int = 0):
-        queue = queue or self._queue
+
         if depth >= CommandPipeline.MAX_RECURSION_DEPTH:
             return state_changed
 
-        while queue:
-            action = queue.popleft()
+        for action in queue:
             if action.attempts_number >= 2:
                 continue
 
             actor = action.actor
             if actor.blocking_actions:
-                state_changed = self.process_actions(
-                    queue=actor.blocking_actions,
+                state_changed = self.process_queue(
+                    queue=StagedQueue[ActorAction](
+                        first=None,
+                        middle=wrap_actions(actor, actor.blocking_actions),
+                        last=None,
+                    ),
                     state_changed=state_changed,
                     depth=depth + 1)
+
+                actor.blocking_actions.clear()
 
             resolved = action.resolve()
             state_changed = resolved or state_changed
             if not resolved:
-                # questionable
-                queue.appendleft(action) if actor.blocking_actions else queue.append(action)
+                queue.append_left_first(action) if actor.blocking_actions else queue.append_last(action)
 
         return state_changed
 
     def clear(self):
-        self._queue.clear()
+        self._queue = StagedQueue[ActorAction]()

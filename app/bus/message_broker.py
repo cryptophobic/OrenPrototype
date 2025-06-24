@@ -1,16 +1,15 @@
-from collections import deque
 from dataclasses import dataclass
 from enum import Enum
-from typing import Deque, Dict
+from typing import Deque, Dict, Optional
 
+from ..behaviors.behaviour import BehaviourAction
 from ..objects.actor.actor import Actor
-from .command_pipeline import ActorAction
 
 @dataclass
 class Promise:
     responder: Actor
-    response_actions: Deque[ActorAction]
-    reason: str
+    response_actions: Deque[BehaviourAction]
+    reason: str # possible debug
 
 class MessageTypes(Enum):
     PUSHED_BY = "pushed_by"
@@ -31,17 +30,19 @@ class Message:
 
 class MessageBroker:
     def __init__(self):
-        self.promise_queue: Dict[str, Deque[Promise]] = {}
+        self.last_message_number = 0
+        self.promise_queue: Dict[int, Promise] = {}
 
     def send_message(self, message: Message, responder: Actor) -> bool:
         if responder.active:
             # Actor.on_message is obliged to return Promise.
             # With empty response_actions at least.
             promise = responder.on_message(message)
-            self.promise_queue.setdefault(message.sender.name, deque()).append(promise)
+            self.promise_queue[self.last_message_number] = promise
+            self.last_message_number += 1
             return True
 
         return False
 
-    def get_response(self, sender: Actor) -> Deque[Promise]:
-        return self.promise_queue.pop(sender.name, deque())
+    def get_response(self, message_number) -> Optional[Promise]:
+        return self.promise_queue.pop(message_number, None)

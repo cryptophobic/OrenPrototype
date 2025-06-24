@@ -7,9 +7,8 @@ from ..helpers.collection_base import CollectionBase
 from .behaviour import Behaviour
 
 
-
 class BehavioursCollection(CollectionBase[Behaviours, type[Behaviour]]):
-    def __init__(self, items: dict[Behaviours, Behaviour] | None = None):
+    def __init__(self, items: dict[Behaviours, type[Behaviour]] | None = None):
         super().__init__(items or {})
 
     def get_active_actors(self) -> Self:
