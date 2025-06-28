@@ -11,10 +11,12 @@ class Moveable(Behaviour):
     message_handlers: ClassVar[dict[MessageTypes, deque[BehaviourFn]]] = {}
 
 
-    @staticmethod
-    def pushed_by(receiver: Actor, message: Message) -> Optional[BehaviourAction]:
+    @classmethod
+    def pushed_by(cls, receiver: Actor, message: Message) -> Optional[BehaviourAction]:
         # Your real logic here
-        return BehaviourAction(behaviour=Behaviours.MOVEABLE, method_name="step_back")
+        return BehaviourAction(behaviour=Behaviours.MOVEABLE, method_name="step_back", args=(receiver, message))
+
+    def step_back(self, actor: Actor, message: Message):
 
     @classmethod
     def register_handlers(cls):
