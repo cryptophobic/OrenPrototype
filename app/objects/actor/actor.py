@@ -2,7 +2,7 @@ from collections import deque
 from typing import List
 
 from ...behaviors.behaviours_collection import BehavioursCollection
-from ...bus.message_broker import Message, Promise
+from ...bus.message_broker.types import Message, Promise
 from ...config import Behaviours
 from ...journal.journal import Logging
 from ...behaviors.behaviour import Behaviour, BehaviourAction

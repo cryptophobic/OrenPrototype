@@ -3,20 +3,32 @@ from typing import Optional, ClassVar
 
 from ..behaviour import Behaviour, BehaviourAction, BehaviourFn
 from app.config import Behaviours
-from app.bus.message_broker import MessageTypes, Message
+from ...bus.message_broker.types import MessageTypes, Message, PushedByPayload
 from ...objects.actor.actor import Actor
 
 class Moveable(Behaviour):
     name = Behaviours.MOVEABLE
     message_handlers: ClassVar[dict[MessageTypes, deque[BehaviourFn]]] = {}
 
-
-    @classmethod
-    def pushed_by(cls, receiver: Actor, message: Message) -> Optional[BehaviourAction]:
-        # Your real logic here
-        return BehaviourAction(behaviour=Behaviours.MOVEABLE, method_name="step_back", args=(receiver, message))
-
-    def step_back(self, actor: Actor, message: Message):
+    @staticmethod
+    def pushed_by(receiver: Actor, message: Message) -> Optional[BehaviourAction]:
+        if isinstance(message.payload, PushedByPayload):
+            pushed_payload = message.payload
+            
+            if pushed_payload.force > 10:
+                return BehaviourAction(
+                    behaviour=Behaviours.MOVEABLE, 
+                    method_name="knockback",
+                    kwargs={"direction": pushed_payload.direction, "distance": pushed_payload.force // 5}
+                )
+            else:
+                return BehaviourAction(
+                    behaviour=Behaviours.MOVEABLE, 
+                    method_name="step_back",
+                    kwargs={"direction": pushed_payload.direction}
+                )
+        
+        return BehaviourAction(behaviour=Behaviours.MOVEABLE, method_name="step_back")
 
     @classmethod
     def register_handlers(cls):

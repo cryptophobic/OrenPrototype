@@ -2,8 +2,13 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Deque
 
-from app.behaviors.behaviour import BehaviourAction
-from app.objects.actor.actor import Actor
+from ...behaviors.behaviour import BehaviourAction
+from ...helpers.vectors import Vec2
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ...objects.actor.actor import Actor
 
 
 @dataclass
@@ -16,17 +21,23 @@ class MessageTypes(Enum):
     PUSHED_BY = "pushed_by"
     STROKED_BY = "stroked_by"
 
-
 @dataclass
 class Payload:
-    # TODO: expand later to store possible details.
-    # e.g. direction of pushing, striking
-    # parameters of strike (magic, physical, fire, power of strike etc)
     pass
+
+@dataclass
+class PushedByPayload(Payload):
+    force: int
+    direction: Vec2
+
+@dataclass
+class StrokedByPayload(Payload):
+    damage: int
+    damage_type: str
+    direction: Vec2
 
 @dataclass
 class Message:
     sender: Actor
     message_type: MessageTypes
     payload: Payload
-
