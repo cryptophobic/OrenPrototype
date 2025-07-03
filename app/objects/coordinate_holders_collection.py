@@ -13,3 +13,10 @@ class CoordinateHoldersCollection(ActorsCollection[V]):
 
     def get_overlapping_actors(self, other: CoordinateHolder) -> Self:
         return CoordinateHoldersCollection(self.filter(lambda a: a.overlaps(other)))
+
+    @classmethod
+    def from_collections(cls, collections: list['CoordinateHoldersCollection']) -> 'CoordinateHoldersCollection':
+        merged = {}
+        for collection in collections:
+            merged.update(collection.items())
+        return cls(merged)

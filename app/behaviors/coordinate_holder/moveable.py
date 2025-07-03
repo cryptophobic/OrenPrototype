@@ -14,15 +14,29 @@ class Moveable(Behaviour):
     supported_receivers = (CoordinateHolder, StaticObject, Unit)
 
     @classmethod
-    def handle_pushed_by_as_unit(cls, unit: Unit, pushed_payload: PushedByPayload) -> BehaviourAction:
+    def move(cls, coordinate_holder: CoordinateHolder, pushed_payload: PushedByPayload) -> bool:
+        result, collection = cls.context.move_coordinate_holder(coordinate_holder, pushed_payload.direction)
+        for name, coordinate_holder in collection.items():
+
+
+        return result
+
+    @classmethod
+    def handle_pushed_by_as_unit(cls, unit: Unit, pushed_payload: PushedByPayload) -> bool:
         pass
 
     @classmethod
-    def handle_pushed_by_as_coordinate_holder(cls, unit: CoordinateHolder, pushed_payload: PushedByPayload) -> BehaviourAction:
-        pass
+    def handle_pushed_by_as_coordinate_holder(cls, coordinate_holder: CoordinateHolder, pushed_payload: PushedByPayload) -> bool:
+        if pushed_payload.force > 0:
+            return cls.move(coordinate_holder, PushedByPayload(
+                direction=pushed_payload.direction,
+                force=pushed_payload.force - 1))
+        else:
+            return True
+
 
     @classmethod
-    def handle_pushed_by_as_static_object(cls, unit: StaticObject, pushed_payload: PushedByPayload) -> BehaviourAction:
+    def handle_pushed_by_as_static_object(cls, static_object: StaticObject, pushed_payload: PushedByPayload) -> bool:
         pass
 
     @classmethod

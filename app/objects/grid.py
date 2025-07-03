@@ -1,9 +1,16 @@
+from dataclasses import dataclass
+
 from .actor.coordinate_holder import CoordinateHolder
 from .actor.static_object import StaticObject
 from .coordinate_holders_collection import CoordinateHoldersCollection
 from .static_objects_collection import StaticObjectsCollection
 from ..helpers.vectors import Vec2
 
+@dataclass
+class PlaceToPositionResult:
+    placed: bool
+    blocked: CoordinateHoldersCollection = CoordinateHoldersCollection()
+    overlapped: CoordinateHoldersCollection = CoordinateHoldersCollection()
 
 class Cell:
     def __init__(self, coordinates: Vec2):
@@ -18,31 +25,36 @@ class Cell:
         return True if self.coordinate_holders.pop(coordinate_holder.name, None) is not None else False
 
 
-    def place_coordinate_holder(self, coordinate_holder: CoordinateHolder) -> bool:
+    def place_coordinate_holder(self, coordinate_holder: CoordinateHolder, to_place: Vec2) -> tuple[bool, CoordinateHoldersCollection]:
+        blocked_list = []
         blocked = self.coordinate_holders.get_blocking_actors(coordinate_holder)
         if blocked:
-            return False
+            blocked_list.append(blocked)
 
         blocked = self.static_objects.get_blocking_actors(coordinate_holder)
         if blocked:
-            return False
+            blocked_list.append(blocked)
 
+        if blocked_list:
+            return False, CoordinateHoldersCollection.from_collections(blocked_list)
+
+        overlapped_list = []
         overlapped = self.coordinate_holders.get_overlapping_actors(coordinate_holder)
-        for name, overlapping_coordinate_holder in overlapped.items():
-            # TODO: send a message through the event bus.
-            pass
+        if overlapped:
+            overlapped_list.append(overlapped)
 
         overlapped = self.static_objects.get_overlapping_actors(coordinate_holder)
-        for name, overlapping_static_object in overlapped.items():
-            # TODO: send a message through the event bus.
-            pass
+        if overlapped:
+            overlapped_list.append(overlapped)
+
+        coordinate_holder.coordinates = to_place
 
         if isinstance(coordinate_holder, StaticObject):
             self.static_objects.add(coordinate_holder)
         else:
             self.coordinate_holders.add(coordinate_holder)
 
-        return True
+        return True, CoordinateHoldersCollection.from_collections(overlapped_list)
 
     def is_occupied(self, coordinate_holder: CoordinateHolder) -> bool:
         return True if self.coordinate_holders.get_blocking_actors(coordinate_holder) else False
@@ -58,21 +70,17 @@ class Grid:
             return self.cells[coordinates.y][coordinates.x]
         return None
 
-    def place_coordinate_holder(self, coordinate_holder: CoordinateHolder) -> bool:
-        cell = self.get_cell(coordinate_holder.coordinates)
-        return cell.place_coordinate_holder(coordinate_holder) if cell else False
+    def place_coordinate_holder(self, coordinate_holder: CoordinateHolder, to_place: Vec2) -> tuple[bool, CoordinateHoldersCollection]:
+        cell = self.get_cell(to_place)
+        return cell.place_coordinate_holder(coordinate_holder, to_place) if cell else (False, CoordinateHoldersCollection())
 
-    def remove_coordinate_holder(self, coordinate_holder: CoordinateHolder) -> bool:
-        coordinates = coordinate_holder.coordinates
-        cell = self.get_cell(coordinates)
+    def remove_coordinate_holder(self, coordinate_holder: CoordinateHolder, from_place: Vec2) -> bool:
+        cell = self.get_cell(from_place)
         return cell.remove_coordinate_holder(coordinate_holder) if cell else False
 
-    def move_coordinate_holder(self, coordinate_holder: CoordinateHolder, to_place: Vec2) -> bool:
-        cell = self.get_cell(to_place)
-        if not cell or cell.is_occupied(coordinate_holder):
-            return False
-
-        self.remove_coordinate_holder(coordinate_holder)
-        coordinate_holder.coordinates = to_place
-        self.place_coordinate_holder(coordinate_holder)
-        return True
+    def move_coordinate_holder(self, coordinate_holder: CoordinateHolder, to_place: Vec2) -> tuple[bool, CoordinateHoldersCollection]:
+        from_place = coordinate_holder.coordinates
+        placed, collection = self.place_coordinate_holder(coordinate_holder, to_place)
+        if placed:
+            self.remove_coordinate_holder(coordinate_holder, from_place)
+        return placed, collection

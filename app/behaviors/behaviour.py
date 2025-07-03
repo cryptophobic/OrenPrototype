@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from typing import Callable, ClassVar
 from ..bus.message_broker.types import MessageTypes, Message
 from ..config import Behaviours
+from ..context.context import Context
 from ..objects.actor.actor import Actor
 
 
@@ -20,6 +21,7 @@ class Behaviour:
     name: ClassVar[Behaviours] = Behaviours.BEHAVIOUR
     message_handlers: ClassVar[dict[MessageTypes, tuple[BehaviourFn, ...]]] = {}
     supported_receivers = (Actor,)
+    context = Context.instance()
 
 
     @classmethod

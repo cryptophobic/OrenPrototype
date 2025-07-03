@@ -1,6 +1,6 @@
 from typing import Self
 
-from ..bus.message_broker import MessageTypes
+from ..bus.message_broker.types import MessageTypes
 from ..config import Behaviours
 from ..helpers.collection_base import CollectionBase
 
