@@ -19,6 +19,7 @@ class Promise:
 
 class MessageTypes(Enum):
     PUSHED_BY = "pushed_by"
+    OVERLAPPED_BY = "overlapped_by"
     STROKED_BY = "stroked_by"
 
 @dataclass

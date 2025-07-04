@@ -23,7 +23,6 @@ class Behaviour:
     supported_receivers = (Actor,)
     context = Context.instance()
 
-
     @classmethod
     def on_message(cls, receiver: Actor, message: Message) -> deque[BehaviourAction]:
         response_actions: deque[BehaviourAction] = deque()

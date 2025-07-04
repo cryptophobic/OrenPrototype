@@ -8,13 +8,14 @@ class MessageBroker:
         self.last_message_number = 0
         self.promise_queue: Dict[int, Promise] = {}
 
-    def send_message(self, message: Message, responder: Actor) -> Optional[int]:
+    def send_message(self, message: Message, responder: Actor, no_response: bool=False) -> Optional[int]:
         if responder.active:
             promise = responder.on_message(message)
-            message_number = self.last_message_number
-            self.promise_queue[message_number] = promise
-            self.last_message_number += 1
-            return message_number
+            if not no_response:
+                message_number = self.last_message_number
+                self.promise_queue[message_number] = promise
+                self.last_message_number += 1
+                return message_number
 
         return None
 

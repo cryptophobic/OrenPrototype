@@ -17,7 +17,7 @@ class Actor(Logging):
 
     def on_message(self, message: Message) -> Promise:
         filtered_behaviours = self.__behaviours.can_response_to(message.message_type)
-        response_actions = deque()
+        response_actions: deque[BehaviourAction] = deque()
         for behaviour in filtered_behaviours.values():
             response_actions.extend(behaviour.on_message(self, message))
 

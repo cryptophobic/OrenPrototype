@@ -8,7 +8,7 @@ from ..helpers.vectors import Vec2
 
 @dataclass
 class PlaceToPositionResult:
-    placed: bool
+    placed: bool = False
     blocked: CoordinateHoldersCollection = CoordinateHoldersCollection()
     overlapped: CoordinateHoldersCollection = CoordinateHoldersCollection()
 
@@ -25,7 +25,7 @@ class Cell:
         return True if self.coordinate_holders.pop(coordinate_holder.name, None) is not None else False
 
 
-    def place_coordinate_holder(self, coordinate_holder: CoordinateHolder, to_place: Vec2) -> tuple[bool, CoordinateHoldersCollection]:
+    def place_coordinate_holder(self, coordinate_holder: CoordinateHolder, to_place: Vec2) -> PlaceToPositionResult:
         blocked_list = []
         blocked = self.coordinate_holders.get_blocking_actors(coordinate_holder)
         if blocked:
@@ -36,7 +36,7 @@ class Cell:
             blocked_list.append(blocked)
 
         if blocked_list:
-            return False, CoordinateHoldersCollection.from_collections(blocked_list)
+            return PlaceToPositionResult(placed=False, blocked=CoordinateHoldersCollection.from_collections(blocked_list))
 
         overlapped_list = []
         overlapped = self.coordinate_holders.get_overlapping_actors(coordinate_holder)
@@ -54,7 +54,7 @@ class Cell:
         else:
             self.coordinate_holders.add(coordinate_holder)
 
-        return True, CoordinateHoldersCollection.from_collections(overlapped_list)
+        return PlaceToPositionResult(placed=True, blocked=CoordinateHoldersCollection.from_collections(overlapped_list))
 
     def is_occupied(self, coordinate_holder: CoordinateHolder) -> bool:
         return True if self.coordinate_holders.get_blocking_actors(coordinate_holder) else False
@@ -70,7 +70,7 @@ class Grid:
             return self.cells[coordinates.y][coordinates.x]
         return None
 
-    def place_coordinate_holder(self, coordinate_holder: CoordinateHolder, to_place: Vec2) -> tuple[bool, CoordinateHoldersCollection]:
+    def place_coordinate_holder(self, coordinate_holder: CoordinateHolder, to_place: Vec2) -> PlaceToPositionResult:
         cell = self.get_cell(to_place)
         return cell.place_coordinate_holder(coordinate_holder, to_place) if cell else (False, CoordinateHoldersCollection())
 
@@ -78,9 +78,9 @@ class Grid:
         cell = self.get_cell(from_place)
         return cell.remove_coordinate_holder(coordinate_holder) if cell else False
 
-    def move_coordinate_holder(self, coordinate_holder: CoordinateHolder, to_place: Vec2) -> tuple[bool, CoordinateHoldersCollection]:
+    def move_coordinate_holder(self, coordinate_holder: CoordinateHolder, to_place: Vec2) -> PlaceToPositionResult:
         from_place = coordinate_holder.coordinates
-        placed, collection = self.place_coordinate_holder(coordinate_holder, to_place)
-        if placed:
+        result = self.place_coordinate_holder(coordinate_holder, to_place)
+        if result.placed:
             self.remove_coordinate_holder(coordinate_holder, from_place)
-        return placed, collection
+        return result
