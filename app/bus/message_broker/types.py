@@ -18,6 +18,8 @@ class Promise:
     reason: str # possible debug
 
 class MessageTypes(Enum):
+    KEY_DOWN = "key_down"
+    KEY_UP = "key_up"
     PUSHED_BY = "pushed_by"
     OVERLAPPED_BY = "overlapped_by"
     STROKED_BY = "stroked_by"
@@ -25,6 +27,10 @@ class MessageTypes(Enum):
 @dataclass
 class Payload:
     pass
+
+@dataclass
+class ControlsPayload(Payload):
+    key_code: int
 
 @dataclass
 class PushedByPayload(Payload):
@@ -38,7 +44,11 @@ class StrokedByPayload(Payload):
     direction: Vec2
 
 @dataclass
-class Message:
-    sender: Actor
+class MessageBody:
     message_type: MessageTypes
     payload: Payload
+
+@dataclass
+class Message:
+    sender: Actor
+    body: MessageBody

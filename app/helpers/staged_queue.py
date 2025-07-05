@@ -37,6 +37,9 @@ class StagedQueue(Generic[T]):
     def append_left_first(self, item: T):
         self.first.appendleft(item)
 
+    def extend_left_first(self, items: deque[T]):
+        self.first.extendleft(items)
+
     def append_last(self, item: T):
         self.last.append(item)
 

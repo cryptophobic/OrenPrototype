@@ -1,7 +1,7 @@
 from collections import deque
 from dataclasses import dataclass, field
 from typing import Callable, ClassVar
-from ..bus.message_broker.types import MessageTypes, Message
+from ..bus.message_broker.types import MessageTypes, MessageBody
 from ..config import Behaviours
 from ..context.context import Context
 from ..objects.actor.actor import Actor
@@ -14,7 +14,7 @@ class BehaviourAction:
     args: tuple = ()
     kwargs: dict = field(default_factory=dict)
 
-BehaviourFn = Callable[[Actor, Message], BehaviourAction]
+BehaviourFn = Callable[[Actor, MessageBody], BehaviourAction]
 
 # Base Behaviour class
 class Behaviour:
@@ -24,11 +24,11 @@ class Behaviour:
     context = Context.instance()
 
     @classmethod
-    def on_message(cls, receiver: Actor, message: Message) -> deque[BehaviourAction]:
+    def on_message(cls, receiver: Actor, message_body: MessageBody) -> deque[BehaviourAction]:
         response_actions: deque[BehaviourAction] = deque()
-        if cls.can_handle(receiver, message.message_type):
-            for handler in cls.message_handlers[message.message_type]:
-                action = handler(receiver, message)
+        if cls.can_handle(receiver, message_body.message_type):
+            for handler in cls.message_handlers[message_body.message_type]:
+                action = handler(receiver, message_body)
                 if action:
                     response_actions.append(action)
 

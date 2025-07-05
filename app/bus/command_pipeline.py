@@ -48,6 +48,21 @@ class CommandPipeline:
     def process_actions(self):
         return self.process_queue(self._queue)
 
+    def __flush_pending(self, actor: Actor, state_changed, depth):
+        if actor.pending_actions:
+            state_changed = self.process_queue(
+                queue=StagedQueue[ActorAction](
+                    first=None,
+                    middle=wrap_actions(actor, actor.pending_actions),
+                    last=None,
+                ),
+                state_changed=state_changed,
+                depth=depth + 1)
+
+            actor.pending_actions.clear()
+
+        return state_changed
+
     def process_queue(self,
                         queue: StagedQueue[ActorAction] = StagedQueue[ActorAction](),
                         state_changed: bool = False,
@@ -61,22 +76,13 @@ class CommandPipeline:
                 continue
 
             actor = action.actor
-            if actor.blocking_actions:
-                state_changed = self.process_queue(
-                    queue=StagedQueue[ActorAction](
-                        first=None,
-                        middle=wrap_actions(actor, actor.blocking_actions),
-                        last=None,
-                    ),
-                    state_changed=state_changed,
-                    depth=depth + 1)
-
-                actor.blocking_actions.clear()
-
+            state_changed = self.__flush_pending(actor, state_changed, depth)
             resolved = action.resolve()
             state_changed = resolved or state_changed
             if not resolved:
-                queue.append_left_first(action) if actor.blocking_actions else queue.append_last(action)
+                queue.append_left_first(action) if actor.pending_actions else queue.append_last(action)
+            elif actor.pending_actions:
+                state_changed = self.__flush_pending(actor, state_changed, depth)
 
         return state_changed
 
