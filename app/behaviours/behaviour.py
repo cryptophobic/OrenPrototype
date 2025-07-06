@@ -1,14 +1,11 @@
 from collections import deque
-from typing import Callable, ClassVar, TYPE_CHECKING
+from typing import Callable, ClassVar
 
 from .types import BehaviourAction
 from ..bus.message_broker.types import MessageTypes, MessageBody, MessagePayloadMap
 from ..config import Behaviours
 from ..context.context import Context
 from ..protocols.actor_protocol import ActorProtocol
-
-if TYPE_CHECKING:
-    from ..objects.actor.actor import Actor
 
 BehaviourFn = Callable[[ActorProtocol, MessageBody], deque[BehaviourAction]]
 MessageTypeHandlersDict = dict[type, str]
