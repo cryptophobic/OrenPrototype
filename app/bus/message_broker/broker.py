@@ -12,7 +12,6 @@ class MessageBroker:
     def send_message(self, message: Message, responder: Actor, no_response: bool=False) -> Optional[int]:
         if responder.active:
             promise = responder.on_message(message.body)
-            print(promise.reason)
             if not no_response:
                 message_number = self.last_message_number
                 self.promise_queue[message_number] = promise

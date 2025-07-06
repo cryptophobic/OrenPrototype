@@ -2,7 +2,12 @@ from dataclasses import dataclass
 from enum import Enum
 
 from ...helpers.vectors import Vec2
-from ...objects.actor.actor import Actor
+
+from typing import TYPE_CHECKING
+
+
+if TYPE_CHECKING:
+    from ...objects.actor.actor import Actor
 
 class MessageTypes(Enum):
     KEY_DOWN = "key_down"
@@ -42,7 +47,7 @@ class MessageBody:
 
 @dataclass
 class Message:
-    sender: Actor
+    sender: "Actor"
     body: MessageBody
 
 MessagePayloadMap: dict[MessageTypes, type[Payload]] = {

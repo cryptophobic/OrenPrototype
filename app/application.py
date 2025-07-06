@@ -2,7 +2,6 @@ import pygame
 
 from .context.context import Context
 from .context.frame_context import FrameContext
-from .engine.state.state_manager import StateManager
 from .input_processor.InputEvents import InputEvents
 from .input_processor.Timer import Timer
 from .maps.level1 import LevelFactory
@@ -20,7 +19,7 @@ class Application:
         self.frame_context = FrameContext.instance()
 
         # Initialize core systems
-        self.state_manager = StateManager()
+        # self.state_manager = StateManager()
         # self.supervisor = Supervisor(self.state_manager)
         self.event_dispatcher = InputEvents()
         self.ticker = Timer()
