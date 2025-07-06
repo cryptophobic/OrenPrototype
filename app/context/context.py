@@ -14,11 +14,11 @@ class Context:
         self.grid_context.load_grid(level.grid_height, level.grid_width)
         for name, coordinate_holder in level.coordinate_holders.items():
             self.actors_context.add_actor(coordinate_holder)
-            self.grid_context.grid.place_coordinate_holder(coordinate_holder)
+            self.grid_context.grid.place_coordinate_holder(coordinate_holder, coordinate_holder.coordinates)
 
         for name, static_object in level.static_objects.items():
             self.actors_context.add_actor(static_object)
-            self.grid_context.grid.place_coordinate_holder(static_object)
+            self.grid_context.grid.place_coordinate_holder(static_object, static_object.coordinates)
 
     @classmethod
     def instance(cls) -> "Context":

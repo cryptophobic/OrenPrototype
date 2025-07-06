@@ -1,7 +1,7 @@
 from typing import Dict, Optional, Deque
 
 from .types import Message
-from ...behaviors.types import BehaviourAction
+from ...behaviours.types import BehaviourAction
 from ...objects.actor.actor import Actor
 
 class MessageBroker:

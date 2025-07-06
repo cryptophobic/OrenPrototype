@@ -1,19 +1,23 @@
 from collections import UserDict
-from typing import TypeVar, Type
+from typing import TypeVar, Type, TYPE_CHECKING
 
 from ..helpers.unique_name import generate_unique_name
-from ..objects.actor.actor import Actor
-from ..objects.actor.coordinate_holder import CoordinateHolder
-from ..objects.actor.static_object import StaticObject
-from ..objects.actor.unit import Unit
+from ..protocols.actor_protocol import ActorProtocol
+from ..protocols.coordinate_holder_protocol import CoordinateHolderProtocol, UnitProtocol
 from ..objects.actors_collection import ActorsCollection
 from ..objects.coordinate_holders_collection import CoordinateHoldersCollection
 from ..objects.static_objects_collection import StaticObjectsCollection
 from ..objects.units_collection import UnitsCollection
 
-T = TypeVar("T", bound=Actor)
+if TYPE_CHECKING:
+    from ..objects.actor.actor import Actor
+    from ..objects.actor.coordinate_holder import CoordinateHolder
+    from ..objects.actor.static_object import StaticObject
+    from ..objects.actor.unit import Unit
 
-class ActorsContext(UserDict[str, Actor]):
+T = TypeVar("T", bound=ActorProtocol)
+
+class ActorsContext(UserDict[str, ActorProtocol]):
     def __init__(self):
         super().__init__()
 
@@ -24,12 +28,18 @@ class ActorsContext(UserDict[str, Actor]):
         }
 
     def get_coordinate_holders(self) -> CoordinateHoldersCollection:
+        # Import at runtime to avoid circular imports
+        from ..objects.actor.coordinate_holder import CoordinateHolder
         return CoordinateHoldersCollection(self.__get_by_type(CoordinateHolder)).get_active_actors()
 
     def get_static_objects(self) -> StaticObjectsCollection:
+        # Import at runtime to avoid circular imports
+        from ..objects.actor.static_object import StaticObject
         return StaticObjectsCollection(self.__get_by_type(StaticObject)).get_active_actors()
 
     def get_units(self) -> UnitsCollection:
+        # Import at runtime to avoid circular imports
+        from ..objects.actor.unit import Unit
         return UnitsCollection(self.__get_by_type(Unit)).get_active_actors()
 
     def get_actors(self) -> ActorsCollection:

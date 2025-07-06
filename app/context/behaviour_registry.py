@@ -1,15 +1,18 @@
 import importlib
 import inspect
+from typing import TYPE_CHECKING
 
-from app.behaviors.behaviour import Behaviour
 from app.config import Behaviours
+
+if TYPE_CHECKING:
+    from app.behaviours.behaviour import Behaviour
 
 
 class BehaviourRegistry:
     modulePath = "app.behaviours"
 
     def __init__(self):
-        self.registry: dict[Behaviours, type[Behaviour]] = {}
+        self.registry: dict[Behaviours, type['Behaviour']] = {}
 
     def load(self, behaviour: Behaviours):
         module_path, class_name = behaviour.value.rsplit(".", 1)
@@ -19,6 +22,8 @@ class BehaviourRegistry:
             module = importlib.import_module(full_path)
             cls = getattr(module, class_name, None)
 
+            # Import Behaviour at runtime to avoid circular imports
+            from app.behaviours.behaviour import Behaviour
             if inspect.isclass(cls) and issubclass(cls, Behaviour):
                 self.registry[behaviour] = cls
             else:
@@ -26,7 +31,7 @@ class BehaviourRegistry:
         except Exception as e:
             raise ImportError(f"Failed to load behaviour {behaviour}: {e}") from e
 
-    def get(self, behaviour: Behaviours) -> type[Behaviour]:
+    def get(self, behaviour: Behaviours) -> type['Behaviour']:
         if behaviour not in self.registry:
             self.load(behaviour)
 

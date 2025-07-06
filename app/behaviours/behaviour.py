@@ -1,13 +1,16 @@
 from collections import deque
-from typing import Callable, ClassVar
+from typing import Callable, ClassVar, TYPE_CHECKING
 
 from .types import BehaviourAction
 from ..bus.message_broker.types import MessageTypes, MessageBody, MessagePayloadMap
 from ..config import Behaviours
 from ..context.context import Context
-from ..objects.actor.actor import Actor
+from ..protocols.actor_protocol import ActorProtocol
 
-BehaviourFn = Callable[[Actor, MessageBody], deque[BehaviourAction]]
+if TYPE_CHECKING:
+    from ..objects.actor.actor import Actor
+
+BehaviourFn = Callable[[ActorProtocol, MessageBody], deque[BehaviourAction]]
 MessageTypeHandlersDict = dict[type, str]
 MessageHandlersDict = dict[MessageTypes, tuple[MessageTypeHandlersDict, ...]]
 
@@ -23,13 +26,13 @@ def register_message_handler(message_type: MessageTypes, handlers: dict[type, st
 class Behaviour:
     name: ClassVar[Behaviours] = Behaviours.BEHAVIOUR
     message_handlers: ClassVar[MessageHandlersDict] = {}
-    supported_receivers = (Actor,)
+    supported_receivers = (ActorProtocol,)
     context = Context.instance()
 
     @classmethod
     def route_to_receiver_method(
             cls,
-            receiver: Actor,
+            receiver: ActorProtocol,
             handlers_ref: MessageTypeHandlersDict,
             message_body: MessageBody,
     ) -> deque[BehaviourAction]:
@@ -49,7 +52,7 @@ class Behaviour:
         return deque()
 
     @classmethod
-    def on_message(cls, receiver: Actor, message_body: MessageBody) -> deque[BehaviourAction]:
+    def on_message(cls, receiver: ActorProtocol, message_body: MessageBody) -> deque[BehaviourAction]:
         response_actions: deque[BehaviourAction] = deque()
         if cls.can_handle(receiver, message_body.message_type):
             for handler in cls.message_handlers[message_body.message_type]:
@@ -58,7 +61,7 @@ class Behaviour:
         return response_actions
 
     @classmethod
-    def can_handle(cls, receiver: Actor, message_type: MessageTypes) -> bool:
+    def can_handle(cls, receiver: ActorProtocol, message_type: MessageTypes) -> bool:
         return (
                 isinstance(receiver, cls.supported_receivers)
                 and message_type in cls.message_handlers

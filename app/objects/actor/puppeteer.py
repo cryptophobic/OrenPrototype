@@ -9,7 +9,6 @@ class KeyBinding:
     key_down: MessageBody
     key_up: MessageBody = None
 
-@dataclass
 class Controls(UserDict[int, KeyBinding]):
     pass
 

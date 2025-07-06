@@ -1,12 +1,16 @@
 from collections import deque
-from typing import List
+from typing import List, TYPE_CHECKING
 
-from ...behaviors.behaviours_collection import BehavioursCollection
+from ...behaviours.behaviours_collection import BehavioursCollection
 from ...bus.message_broker.types import MessageBody
 from ...config import Behaviours
 from ...context.behaviour_registry import get_registry
 from ...journal.journal import Logging
-from ...behaviors.behaviour import Behaviour, BehaviourAction
+from ...behaviours.types import BehaviourAction
+from ...protocols.actor_protocol import ActorProtocol
+
+if TYPE_CHECKING:
+    from ...behaviours.behaviour import Behaviour
 
 class Actor(Logging):
     def __init__(self, name: str = None):
@@ -33,10 +37,10 @@ class Actor(Logging):
         behaviour_class = get_registry().get(behaviour)
         return self.add_behaviour(behaviour_class)
 
-    def add_behaviour(self, behaviour: type[Behaviour]):
+    def add_behaviour(self, behaviour: type['Behaviour']):
         self.__behaviours[behaviour.name] = behaviour
         return self
 
-    def remove_behaviour(self, behaviour: type[Behaviour]):
+    def remove_behaviour(self, behaviour: type['Behaviour']):
         self.__behaviours.pop(behaviour.name, None)
         return self

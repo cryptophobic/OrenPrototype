@@ -17,7 +17,7 @@ class Behaviours(Enum):
 
     # Base class. Actor and descendants
     BEHAVIOUR = ".behaviour.Behaviour"
-    POSSESSOR = ".behaviour.puppeteer.possessor"
+    POSSESSOR = ".puppeteer.possessor.Possessor"
 
     # Unit
     VULNERABLE = ".units.vulnerable.Vulnerable"

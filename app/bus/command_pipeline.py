@@ -4,7 +4,7 @@ from typing import Iterator
 
 from ..helpers.staged_queue import StagedQueue
 from ..objects.actor.actor import Actor
-from ..behaviors.behaviour import BehaviourFn, BehaviourAction
+from ..behaviours.behaviour import BehaviourFn, BehaviourAction
 
 
 @dataclass

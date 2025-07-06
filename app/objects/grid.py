@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from .actor.coordinate_holder import CoordinateHolder
 from .actor.static_object import StaticObject
@@ -9,8 +9,8 @@ from ..helpers.vectors import Vec2
 @dataclass
 class PlaceToPositionResult:
     placed: bool = False
-    blocked: CoordinateHoldersCollection = CoordinateHoldersCollection()
-    overlapped: CoordinateHoldersCollection = CoordinateHoldersCollection()
+    blocked: CoordinateHoldersCollection = field(default_factory=CoordinateHoldersCollection)
+    overlapped: CoordinateHoldersCollection = field(default_factory=CoordinateHoldersCollection)
 
 class Cell:
     def __init__(self, coordinates: Vec2):

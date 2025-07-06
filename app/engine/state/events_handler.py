@@ -8,11 +8,11 @@ class EventsHandler:
         self.__keys: Dict[int, Set[str]] = {}  # pygame key -> actor names
 
     def load_keys_from_actor(self, actor):
-        """Load key mappings from Player behavior of actor"""
-        if hasattr(actor, 'behaviors') and "player" in actor.behaviors:
-            player_behavior = actor.behaviors["player"]
-            if hasattr(player_behavior, 'get_actions'):
-                for key, action in player_behavior.get_actions().items():
+        """Load key mappings from Player behaviour of actor"""
+        if hasattr(actor, 'behaviours') and "player" in actor.behaviours:
+            player_behaviour = actor.behaviours["player"]
+            if hasattr(player_behaviour, 'get_actions'):
+                for key, action in player_behaviour.get_actions().items():
                     if key not in self.__keys:
                         self.__keys[key] = set()
                     self.__keys[key].add(actor.name)
