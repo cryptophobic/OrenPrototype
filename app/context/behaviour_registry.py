@@ -31,3 +31,12 @@ class BehaviourRegistry:
             self.load(behaviour)
 
         return self.registry.get(behaviour)
+
+# behaviour_registry.py
+_registry_instance: BehaviourRegistry | None = None
+
+def get_registry() -> BehaviourRegistry:
+    global _registry_instance
+    if _registry_instance is None:
+        _registry_instance = BehaviourRegistry()
+    return _registry_instance

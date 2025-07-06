@@ -7,7 +7,7 @@ from ...bus.message_broker.types import MessageBody
 @dataclass
 class KeyBinding:
     key_down: MessageBody
-    key_up: MessageBody = None # Not necessary should be set
+    key_up: MessageBody = None
 
 @dataclass
 class Controls(UserDict[int, KeyBinding]):
@@ -19,7 +19,3 @@ class Puppeteer(Actor):
 
         self.puppet = puppet
         self.controls = controls
-
-
-
-

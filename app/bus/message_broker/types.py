@@ -1,21 +1,8 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Deque
 
-from ...behaviors.behaviour import BehaviourAction
 from ...helpers.vectors import Vec2
-
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from ...objects.actor.actor import Actor
-
-
-@dataclass
-class Promise:
-    responder: Actor
-    response_actions: Deque[BehaviourAction]
-    reason: str # possible debug
+from ...objects.actor.actor import Actor
 
 class MessageTypes(Enum):
     KEY_DOWN = "key_down"
@@ -23,6 +10,7 @@ class MessageTypes(Enum):
     PUSHED_BY = "pushed_by"
     OVERLAPPED_BY = "overlapped_by"
     STROKED_BY = "stroked_by"
+    INTENTION_TO_MOVE = "intention_to_move"
 
 @dataclass
 class Payload:
@@ -35,6 +23,10 @@ class ControlsPayload(Payload):
 @dataclass
 class PushedByPayload(Payload):
     force: int
+    direction: Vec2
+
+@dataclass
+class IntentionToMovePayload(Payload):
     direction: Vec2
 
 @dataclass
@@ -52,3 +44,12 @@ class MessageBody:
 class Message:
     sender: Actor
     body: MessageBody
+
+MessagePayloadMap: dict[MessageTypes, type[Payload]] = {
+    MessageTypes.KEY_DOWN: ControlsPayload,
+    MessageTypes.KEY_UP: ControlsPayload,
+    MessageTypes.PUSHED_BY: PushedByPayload,
+    MessageTypes.OVERLAPPED_BY: Payload,
+    MessageTypes.STROKED_BY: StrokedByPayload,
+    MessageTypes.INTENTION_TO_MOVE: IntentionToMovePayload,
+}

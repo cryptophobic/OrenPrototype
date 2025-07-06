@@ -5,8 +5,6 @@ from .context.frame_context import FrameContext
 from .engine.state.state_manager import StateManager
 from .input_processor.InputEvents import InputEvents
 from .input_processor.Timer import Timer
-# from .engine.state.grid import Grid
-# from .engine.supervisor.supervisor import Supervisor
 from .maps.level1 import LevelFactory
 from .renderer import Renderer
 from . import config

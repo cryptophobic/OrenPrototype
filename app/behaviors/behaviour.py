@@ -1,36 +1,59 @@
 from collections import deque
-from dataclasses import dataclass, field
 from typing import Callable, ClassVar
-from ..bus.message_broker.types import MessageTypes, MessageBody
+
+from .types import BehaviourAction
+from ..bus.message_broker.types import MessageTypes, MessageBody, MessagePayloadMap
 from ..config import Behaviours
 from ..context.context import Context
 from ..objects.actor.actor import Actor
 
+BehaviourFn = Callable[[Actor, MessageBody], deque[BehaviourAction]]
+MessageTypeHandlersDict = dict[type, str]
+MessageHandlersDict = dict[MessageTypes, tuple[MessageTypeHandlersDict, ...]]
 
-@dataclass
-class BehaviourAction:
-    behaviour: Behaviours
-    method_name: str
-    args: tuple = ()
-    kwargs: dict = field(default_factory=dict)
+def register_message_handler(message_type: MessageTypes, handlers: dict[type, str]):
+    def decorator(cls: type[Behaviour]):
+        existing = cls.message_handlers.get(message_type, ())
+        cls.message_handlers[message_type] = existing + (handlers,)
+        return cls
 
-BehaviourFn = Callable[[Actor, MessageBody], BehaviourAction]
+    return decorator
 
 # Base Behaviour class
 class Behaviour:
     name: ClassVar[Behaviours] = Behaviours.BEHAVIOUR
-    message_handlers: ClassVar[dict[MessageTypes, tuple[BehaviourFn, ...]]] = {}
+    message_handlers: ClassVar[MessageHandlersDict] = {}
     supported_receivers = (Actor,)
     context = Context.instance()
+
+    @classmethod
+    def route_to_receiver_method(
+            cls,
+            receiver: Actor,
+            handlers_ref: MessageTypeHandlersDict,
+            message_body: MessageBody,
+    ) -> deque[BehaviourAction]:
+        expected_payload_type = MessagePayloadMap.get(message_body.message_type)
+        if expected_payload_type and not isinstance(message_body.payload, expected_payload_type):
+            raise TypeError(f"Expected {expected_payload_type.__name__}, got {type(message_body.payload).__name__}")
+
+        for receiver_type, method_name in handlers_ref.items():
+            if isinstance(receiver, receiver_type):
+                return deque([
+                    BehaviourAction(
+                        behaviour=cls.name,
+                        method_name=method_name,
+                        kwargs=message_body.payload.__dict__,
+                    )
+                ])
+        return deque()
 
     @classmethod
     def on_message(cls, receiver: Actor, message_body: MessageBody) -> deque[BehaviourAction]:
         response_actions: deque[BehaviourAction] = deque()
         if cls.can_handle(receiver, message_body.message_type):
             for handler in cls.message_handlers[message_body.message_type]:
-                action = handler(receiver, message_body)
-                if action:
-                    response_actions.append(action)
+                response_actions.extend(cls.route_to_receiver_method(receiver, handler, message_body))
 
         return response_actions
 
@@ -44,4 +67,3 @@ class Behaviour:
     @classmethod
     def register_handlers(cls):
         pass
-

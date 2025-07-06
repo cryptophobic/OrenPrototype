@@ -1,22 +1,38 @@
-from collections import deque
-from typing import Optional
-
-from ..behaviour import Behaviour, BehaviourAction
+from ..behaviour import Behaviour, register_message_handler
 from app.config import Behaviours
-from ...bus.message_broker.types import MessageTypes, Message, PushedByPayload, Payload, MessageBody
+from ...bus.message_broker.types import MessageTypes, Message, PushedByPayload, Payload, MessageBody, \
+    IntentionToMovePayload
 from ...context.message_broker_context import MessageBrokerContext
 from ...helpers.vectors import Vec2
 from ...objects.actor.coordinate_holder import CoordinateHolder
-from ...objects.actor.static_object import StaticObject
 from ...objects.actor.unit import Unit
 
 
+@register_message_handler(
+    MessageTypes.PUSHED_BY,
+    {
+        Unit: "pushed_by_as_unit",
+        CoordinateHolder: "pushed_by_as_coordinate_holder",
+    }
+)
+
+@register_message_handler(
+    MessageTypes.INTENTION_TO_MOVE,
+    {
+        Unit: "intention_to_move_as_unit",
+        CoordinateHolder: "intention_to_move_as_coordinate_holder",
+    }
+)
+
 class Moveable(Behaviour):
     name = Behaviours.MOVEABLE
-    supported_receivers = (CoordinateHolder, StaticObject, Unit)
+    supported_receivers = (CoordinateHolder, Unit)
 
+    '''
+    internal implementation of behavioral actions
+    '''
     @classmethod
-    def move(cls, coordinate_holder: CoordinateHolder, direction: Vec2, force: int) -> bool:
+    def __move(cls, coordinate_holder: CoordinateHolder, direction: Vec2, force: int) -> bool:
         result = cls.context.move_coordinate_holder(coordinate_holder, coordinate_holder.coordinates + direction)
         broker_context = MessageBrokerContext().instance().context
         for actor in result.blocked.values():
@@ -32,8 +48,8 @@ class Moveable(Behaviour):
             )
             message_id = broker_context.send_message(message, actor)
             if message_id is not None:
-                promise = broker_context.get_response(message_id)
-                coordinate_holder.pending_actions.extend(promise.response_actions)
+                response_actions = broker_context.get_response(message_id)
+                coordinate_holder.pending_actions.extend(response_actions)
 
         for actor in result.overlapped.values():
             message = Message(
@@ -47,41 +63,33 @@ class Moveable(Behaviour):
 
         return result.placed
 
+
+    '''
+    Handlers to execute by command pipeline
+    '''
     @classmethod
-    def handle_pushed_by_as_unit(cls, unit: Unit, pushed_payload: PushedByPayload) -> bool:
-        pass
+    def pushed_by_as_unit(cls, unit: Unit, pushed_payload: PushedByPayload) -> bool:
+        return cls.pushed_by_as_coordinate_holder(unit, pushed_payload)
 
     @classmethod
-    def handle_pushed_by_as_coordinate_holder(cls, coordinate_holder: CoordinateHolder, pushed_payload: PushedByPayload) -> bool:
+    def pushed_by_as_coordinate_holder(cls, coordinate_holder: CoordinateHolder, pushed_payload: PushedByPayload) -> bool:
         if pushed_payload.force > 0:
-            return cls.move(coordinate_holder, pushed_payload.direction, pushed_payload.force - 1)
+            return cls.__move(coordinate_holder, pushed_payload.direction, pushed_payload.force - 1)
         else:
             return True
 
+    @classmethod
+    def intention_to_move_as_unit(cls, unit: Unit, intention_to_move_payload: IntentionToMovePayload) -> bool:
+        return cls.__move(
+            coordinate_holder=unit,
+            direction=intention_to_move_payload.direction,
+            force=unit.stats.STR
+        )
 
     @classmethod
-    def handle_pushed_by_as_static_object(cls, static_object: StaticObject, pushed_payload: PushedByPayload) -> bool:
-        pass
-
-    @classmethod
-    def pushed_by(cls, receiver: CoordinateHolder, message_body: MessageBody) -> Optional[deque[BehaviourAction]]:
-        if not isinstance(message_body.payload, PushedByPayload):
-            raise TypeError(f"Expected PushedByPayload, got {type(message_body.payload)}")
-
-        actions_queue: deque[BehaviourAction] = deque()
-
-        if isinstance(receiver, Unit):
-            actions_queue.append(BehaviourAction(behaviour=Behaviours.MOVEABLE, method_name="handle_pushed_by_as_unit", kwargs=message_body.payload.__dict__))
-
-        elif isinstance(receiver, StaticObject):
-            actions_queue.append(BehaviourAction(behaviour=Behaviours.MOVEABLE, method_name="handle_pushed_by_as_static_object", kwargs=message_body.payload.__dict__))
-
-        elif isinstance(receiver, CoordinateHolder):
-            actions_queue.append(BehaviourAction(behaviour=Behaviours.MOVEABLE, method_name="handle_pushed_by_as_coordinate_holder", kwargs=message_body.payload.__dict__))
-
-        return actions_queue
-
-    @classmethod
-    def register_handlers(cls):
-        existing = cls.message_handlers.get(MessageTypes.PUSHED_BY, ())
-        cls.message_handlers[MessageTypes.PUSHED_BY] = existing + (cls.pushed_by,)
+    def intention_to_move_as_coordinate_holder(cls, coordinate_holder: CoordinateHolder, intention_to_move_payload: PushedByPayload) -> bool:
+        return cls.__move(
+            coordinate_holder=coordinate_holder,
+            direction=intention_to_move_payload.direction,
+            force=1
+        )

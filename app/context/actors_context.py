@@ -36,7 +36,6 @@ class ActorsContext(UserDict[str, Actor]):
         return ActorsCollection(self.data.copy()).get_active_actors()
 
     def add_actor(self, actor) -> str:
-        """Add an actor with unique name generation if needed"""
         if actor.name and actor.name not in self.data:
             name = actor.name
         else:
@@ -47,7 +46,6 @@ class ActorsContext(UserDict[str, Actor]):
         return name
 
     def remove_actor(self, actor_name: str) -> bool:
-        """Remove an actor by name"""
         if actor_name in self.data:
             del self.data[actor_name]
             return True

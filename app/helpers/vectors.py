@@ -10,8 +10,21 @@ class Vec2:
     X = 0
     Y = 1
 
-    def is_dirty(self) -> bool:
-        return self.x != 0 or self.y != 0
+    @staticmethod
+    def up(magnitude: int = 1):
+        return Vec2(0, -magnitude)
+
+    @staticmethod
+    def down(magnitude: int = 1):
+        return Vec2(0, magnitude)
+
+    @staticmethod
+    def left(magnitude: int = 1):
+        return Vec2(-magnitude, 0)
+
+    @staticmethod
+    def right(magnitude: int = 1):
+        return Vec2(magnitude, 0)
 
     def __getitem__(self, item: int) -> int:
         if item > 1:
@@ -37,6 +50,9 @@ class Vec2:
     def is_zero(self):
         return self.x == self.y == 0
 
+    def is_not_zero(self) -> bool:
+        return self.x != 0 or self.y != 0
+
     def iterate_to(self, other):
         return iterate_path(self, other)
 
@@ -44,7 +60,9 @@ class Vec2:
         return iterate_path(other, self)
 
     def distance_to(self, other):
-        return math.dist([self.x, self. y], [other[Vec2.X], other[Vec2.Y]])
+        dx = self.x - other.x
+        dy = self.y - other.y
+        return math.sqrt(dx * dx + dy * dy)
 
     def scalar_multiply(self, scalar):
         return Vec2(int(self.x * scalar), int(self.y * scalar))

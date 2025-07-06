@@ -33,28 +33,3 @@ class Behaviours(Enum):
     # StaticObject
     DESTRUCTIBLE = ".static_objects.destructible.Destructible"
     TRANSPORTABLE = ".static_objects.transportable.Transportable"
-
-
-controls_presets = {
-    Behaviours.MOVEABLE: {
-        pygame.K_UP: 'move_up',
-        pygame.K_DOWN: 'move_down',
-        pygame.K_LEFT: 'move_left',
-        pygame.K_RIGHT: 'move_right',
-    },
-    Behaviours.AGGRESSIVE: {
-        pygame.K_a: 'attack',
-        pygame.K_s: 'defense',
-        pygame.K_d: 'dodge',
-        pygame.K_e: 'end_turn',
-    },
-    Behaviours.FRIGHTENED: {
-        pygame.K_e: 'end_turn',
-    }
-}
-
-controls_presets[Behaviours.CURSOR] = {
-    **controls_presets[Behaviours.MOVEABLE],
-    pygame.K_KP_ENTER: 'select',
-    pygame.K_ESCAPE: 'deselect'
-}
