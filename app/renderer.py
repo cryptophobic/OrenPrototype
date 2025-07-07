@@ -1,7 +1,6 @@
 import pygame
 
 from app.context.context import Context
-from app.engine.state.grid import Grid
 from app import config
 from app.helpers.vectors import Vec2
 
