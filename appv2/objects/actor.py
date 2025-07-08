@@ -35,5 +35,5 @@ class Actor(ActorProtocol):
         self.__behaviours[behaviour] = behaviour_class
 
     def remove_behaviour(self, behaviour: Behaviours):
-        self.__behaviours.pop(behaviour.name, None)
+        self.__behaviours.pop(behaviour, None)
         return self
