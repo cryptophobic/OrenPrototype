@@ -1,7 +1,7 @@
 import importlib
 
 from app.config import Behaviours
-from appv2.protocols.behaviour_protocol import BehaviourProtocol
+from appv2.protocols.behaviours.behaviour_protocol import BehaviourProtocol
 
 
 class BehaviourRegistry:

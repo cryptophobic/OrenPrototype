@@ -1,11 +1,11 @@
 from collections import deque
 from typing import List
 
-from appv2.behaviours.behaviour_collection import BehaviourCollection
+from appv2.collections.behaviour_collection import BehaviourCollection
 from appv2.engine.message_broker.types import MessageBody
 from appv2.config import Behaviours
 from appv2.behaviours.types import BehaviourAction
-from appv2.protocols.actor_protocol import ActorProtocol
+from appv2.protocols.objects.actor_protocol import ActorProtocol
 from appv2.registry.behaviour_registry import get_registry
 
 

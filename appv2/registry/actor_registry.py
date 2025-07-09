@@ -4,9 +4,9 @@ from typing import Type, TypeVar, cast
 from app.helpers.unique_name import generate_unique_name
 from app.protocols.actor_protocol import ActorProtocol
 from app.protocols.coordinate_holder_protocol import CoordinateHolderProtocol
-from appv2.protocols.unit_protocol import UnitProtocol
-from appv2.protocols.static_object_protocol import StaticObjectProtocol
-from appv2.protocols.puppeteer_protocol import PuppeteerProtocol
+from appv2.protocols.objects.puppeteer_protocol import PuppeteerProtocol
+from appv2.protocols.objects.static_object_protocol import StaticObjectProtocol
+from appv2.protocols.objects.unit_protocol import UnitProtocol
 
 T = TypeVar("T", bound=ActorProtocol)
 

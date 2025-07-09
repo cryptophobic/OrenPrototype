@@ -3,7 +3,7 @@ from typing import Self, Optional
 from appv2.engine.message_broker.types import MessageTypes
 from appv2.config import Behaviours
 from appv2.core.collection_base import CollectionBase
-from appv2.protocols.behaviour_protocol import BehaviourProtocol
+from appv2.protocols.behaviours.behaviour_protocol import BehaviourProtocol
 from appv2.registry.behaviour_registry import get_registry
 
 

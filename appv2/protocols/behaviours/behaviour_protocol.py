@@ -4,7 +4,7 @@ from typing import runtime_checkable, Protocol, ClassVar, Type
 from appv2.behaviours.types import BehaviourAction, MessageHandlersDict
 from appv2.config import Behaviours
 from appv2.engine.message_broker.types import MessageBody
-from appv2.protocols.actor_protocol import ActorProtocol
+from appv2.protocols.objects.actor_protocol import ActorProtocol
 
 
 @runtime_checkable

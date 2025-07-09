@@ -1,3 +1,4 @@
+from collections import UserDict
 from dataclasses import dataclass
 from enum import Enum
 
@@ -49,6 +50,9 @@ class Message:
 class KeyBinding:
     key_down: MessageBody
     key_up: MessageBody = None
+
+class Controls(UserDict[int, KeyBinding]):
+    pass
 
 MessagePayloadMap: dict[MessageTypes, type[Payload]] = {
     MessageTypes.KEY_DOWN: ControlsPayload,
