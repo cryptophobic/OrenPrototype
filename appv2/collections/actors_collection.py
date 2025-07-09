@@ -1,4 +1,4 @@
-from typing import TypeVar, Generic, Self
+from typing import TypeVar, Generic, Self, Type
 
 from appv2.core.collection_base import CollectionBase
 from appv2.core.unique_name import generate_unique_name
@@ -10,8 +10,11 @@ class ActorsCollection(CollectionBase[str, V], Generic[V]):
     def __init__(self, items: dict[str, V] | None = None):
         super().__init__(items or {})
 
-    def possessed_by_player(self) -> Self:
-        return type(self)(self.filter(lambda a: a.player))
+    def get_by_classname(self, cls: Type[V]) -> dict[str, V]:
+        return {
+            name: actor for name, actor in self.data.items()
+            if isinstance(actor, cls)
+        }
 
     def get_active_actors(self) -> Self:
         return type(self)(self.filter(lambda a: a.active))
