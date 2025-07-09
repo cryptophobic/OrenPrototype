@@ -45,6 +45,11 @@ class Message:
     sender: str
     body: MessageBody
 
+@dataclass
+class KeyBinding:
+    key_down: MessageBody
+    key_up: MessageBody = None
+
 MessagePayloadMap: dict[MessageTypes, type[Payload]] = {
     MessageTypes.KEY_DOWN: ControlsPayload,
     MessageTypes.KEY_UP: ControlsPayload,
