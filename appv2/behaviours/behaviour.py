@@ -1,10 +1,10 @@
 from collections import deque
 from typing import Callable, ClassVar
 
+from appv2.protocols.objects.actor_protocol import ActorProtocol
 from types import BehaviourAction, MessageHandlersDict, MessageTypeHandlersDict
 from appv2.engine.message_broker.types import MessageTypes, MessageBody, MessagePayloadMap
 from appv2.config import Behaviours
-from appv2.protocols.actor_protocol import ActorProtocol
 
 BehaviourFn = Callable[[ActorProtocol, MessageBody], deque[BehaviourAction]]
 

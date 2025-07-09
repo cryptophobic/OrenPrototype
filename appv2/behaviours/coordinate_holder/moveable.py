@@ -1,14 +1,10 @@
-from ..behaviour import Behaviour, register_message_handler
-from app.config import Behaviours
-from ...bus.message_broker.types import MessageTypes, Message, PushedByPayload, Payload, MessageBody, \
-    IntentionToMovePayload
-from ...context.message_broker_context import MessageBrokerContext
-from ...helpers.vectors import Vec2
-from ...protocols.coordinate_holder_protocol import CoordinateHolderProtocol, UnitProtocol
-
-if TYPE_CHECKING:
-    from ...objects.actor.coordinate_holder import CoordinateHolder
-    from ...objects.actor.unit import Unit
+from appv2.behaviours.behaviour import register_message_handler
+from appv2.config import Behaviours
+from appv2.core.vectors import Vec2
+from appv2.engine.message_broker.types import MessageTypes
+from appv2.protocols.behaviours.behaviour_protocol import BehaviourProtocol
+from appv2.protocols.objects.coordinate_holder_protocol import CoordinateHolderProtocol
+from appv2.protocols.objects.unit_protocol import UnitProtocol
 
 
 @register_message_handler(
@@ -27,7 +23,7 @@ if TYPE_CHECKING:
     }
 )
 
-class Moveable(Behaviour):
+class Moveable(BehaviourProtocol):
     name = Behaviours.MOVEABLE
     supported_receivers = (CoordinateHolderProtocol, UnitProtocol)
 
