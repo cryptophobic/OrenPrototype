@@ -12,7 +12,8 @@ from appv2.registry.behaviour_registry import get_registry
 class Actor(ActorProtocol):
     def __init__(self, name: str = None):
         super().__init__(name)
-        self.active = True
+        self.is_active: bool = True
+        self.is_deleted: bool = False
         self.pending_actions: deque[BehaviourAction] = deque()
         self.__behaviours: BehaviourCollection = BehaviourCollection()
 

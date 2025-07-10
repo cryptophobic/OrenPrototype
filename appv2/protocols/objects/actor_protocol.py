@@ -8,7 +8,8 @@ from appv2.config import Behaviours
 @runtime_checkable
 class ActorProtocol(Protocol):
     name: str
-    active: bool
+    is_active: bool
+    is_deleted: bool
     pending_actions: deque[BehaviourAction]
 
     def on_message(self, message_body: MessageBody) -> deque[BehaviourAction]: ...
