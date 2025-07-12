@@ -3,10 +3,11 @@ from typing import Optional
 
 from app.behaviours.types import BehaviourAction
 from app.engine.message_broker.types import Message
+from app.protocols.engine.message_broker.broker_protocol import MessageBrokerProtocol
 from app.protocols.objects.actor_protocol import ActorProtocol
 
 
-class MessageBroker:
+class MessageBroker(MessageBrokerProtocol):
     def __init__(self):
         self.last_message_number = 0
         self.promise_queue: dict[int, deque[BehaviourAction]] = {}

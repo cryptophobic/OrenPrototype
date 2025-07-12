@@ -15,10 +15,10 @@ class Actor(ActorProtocol):
         self.is_active: bool = True
         self.is_deleted: bool = False
         self.pending_actions: deque[BehaviourAction] = deque()
-        self.__behaviours: BehaviourCollection = BehaviourCollection()
+        self.behaviours: BehaviourCollection = BehaviourCollection()
 
     def on_message(self, message_body: MessageBody) -> deque[BehaviourAction]:
-        filtered_behaviours = self.__behaviours.can_respond_to(message_body.message_type)
+        filtered_behaviours = self.behaviours.can_respond_to(message_body.message_type)
         response_actions: deque[BehaviourAction] = deque()
         for behaviour in filtered_behaviours:
             response_actions.extend(behaviour.on_message(self, message_body))
