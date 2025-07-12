@@ -1,16 +1,18 @@
 import pygame
 
-from .level import Level
-from ..bus.message_broker.types import MessageBody, MessageTypes, IntentionToMovePayload
-from ..config import Behaviours
-from ..helpers.vectors import Vec2
-from ..objects.actor.puppeteer import Puppeteer, Controls, KeyBinding
-from ..objects.actor.static_object import StaticObject
-from ..objects.actor.unit import Stats, Unit
-from ..resources.index import get_icon, Icons
-from ..objects.actor.body import Body, CollisionMatrix, CollisionResponse
-from ..objects.actor.coordinate_holder import CoordinateHolder
-from ..objects.actor.shape import Shape
+from app.config import Behaviours
+from app.core.geometry.shape import Shape
+from app.core.physics.body import Body, CollisionMatrix, CollisionResponse
+from app.core.vectors import Vec2
+from app.engine.grid.grid import Grid
+from app.engine.message_broker.types import Controls, KeyBinding, MessageBody, MessageTypes, IntentionToMovePayload
+from app.maps.level import Level
+from app.objects.coordinate_holder import CoordinateHolder
+from app.objects.puppeteer import Puppeteer
+from app.objects.static_object import StaticObject
+from app.objects.types import UnitStats
+from app.objects.unit import Unit
+from app.resources.index import get_icon, Icons
 
 
 class LevelFactory:
@@ -19,16 +21,24 @@ class LevelFactory:
         level.grid_width = 30
         level.grid_height = 25
 
+        level.grid = Grid(width=30, height=25)
+
         # Cursor setup
         cursor_body = Body(CollisionMatrix(response=CollisionResponse.OVERLAP))
         cursor_shape = Shape(get_icon(Icons.CURSOR))
-        level.coordinate_holders.add(CoordinateHolder(body=cursor_body, shape=cursor_shape, coordinates=Vec2(2, 1), name="Cursor"))
+
+        cursor_actor = CoordinateHolder(
+            body=cursor_body,
+            shape=cursor_shape,
+            coordinates=Vec2(2, 1),
+            name="Cursor")
+        level.coordinate_holders.add(cursor_actor)
         # End of Cursor setup
 
         # Player setup
         player_body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))
         player_shape = Shape(get_icon(Icons.PLAYER))
-        player_stats = Stats(STR=5, DEX=1, CON=5, INT=2, WIS=2, CHA=1, HP=10, initiative=1)
+        player_stats = UnitStats(STR=5, DEX=1, CON=5, INT=2, WIS=2, CHA=1, HP=10, initiative=1)
         unit = Unit(body=player_body, shape=player_shape, coordinates=Vec2(0, 0), stats=player_stats, name="Adventurer")
         unit.add_behaviour_from_enum(Behaviours.MOVEABLE)
         level.coordinate_holders.add(unit)
@@ -58,5 +68,14 @@ class LevelFactory:
                 weight=100,
             ))
         # End of prison walls
+
+        for coordinate_holder in level.coordinate_holders:
+            level.actors_collection.add(coordinate_holder)
+            level.grid.place(coordinate_holder, coordinate_holder.coordinates)
+
+        for static_object in level.static_objects:
+            level.actors_collection.add(static_object)
+            level.grid.place(static_object, static_object.coordinates)
+
 
         self.levels = { "level1": level }

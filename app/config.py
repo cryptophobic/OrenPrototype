@@ -1,6 +1,4 @@
-from enum import Enum, auto
-
-import pygame
+from enum import Enum
 
 FPS = 60
 SCREEN_SIZE = (1000, 800)

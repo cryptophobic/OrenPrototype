@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from typing import Tuple, Dict
 from app.config import Behaviours
+from app.engine.message_broker.types import MessageTypes
+
 
 @dataclass
 class BehaviourAction:
@@ -8,3 +10,6 @@ class BehaviourAction:
     method_name: str
     args: Tuple = ()
     kwargs: Dict = field(default_factory=dict)
+
+MessageTypeHandlersDict = dict[type, str]
+MessageHandlersDict = dict[MessageTypes, tuple[MessageTypeHandlersDict, ...]]

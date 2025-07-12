@@ -1,15 +1,14 @@
 from collections import deque
 from typing import Callable, ClassVar
 
-from .types import BehaviourAction
-from ..bus.message_broker.types import MessageTypes, MessageBody, MessagePayloadMap
-from ..config import Behaviours
-from ..context.context import Context
-from ..protocols.actor_protocol import ActorProtocol
+from app.protocols.engine.grid.grid_protocol import GridProtocol
+from app.protocols.engine.message_broker.broker_protocol import MessageBrokerProtocol
+from app.protocols.objects.actor_protocol import ActorProtocol
+from types import BehaviourAction, MessageHandlersDict, MessageTypeHandlersDict
+from app.engine.message_broker.types import MessageTypes, MessageBody, MessagePayloadMap
+from app.config import Behaviours
 
 BehaviourFn = Callable[[ActorProtocol, MessageBody], deque[BehaviourAction]]
-MessageTypeHandlersDict = dict[type, str]
-MessageHandlersDict = dict[MessageTypes, tuple[MessageTypeHandlersDict, ...]]
 
 def register_message_handler(message_type: MessageTypes, handlers: dict[type, str]):
     def decorator(cls: type[Behaviour]):
@@ -24,7 +23,6 @@ class Behaviour:
     name: ClassVar[Behaviours] = Behaviours.BEHAVIOUR
     message_handlers: ClassVar[MessageHandlersDict] = {}
     supported_receivers = (ActorProtocol,)
-    context = Context.instance()
 
     @classmethod
     def route_to_receiver_method(
@@ -61,8 +59,34 @@ class Behaviour:
     def can_handle(cls, receiver: ActorProtocol, message_type: MessageTypes) -> bool:
         return (
                 isinstance(receiver, cls.supported_receivers)
-                and message_type in cls.message_handlers
+                and cls.can_respond_to(message_type)
         )
+
+    @classmethod
+    def can_respond_to(cls, message_type: MessageTypes) -> bool:
+        return (
+                message_type in cls.message_handlers
+        )
+
+    @classmethod
+    def register_messenger(cls, broker: MessageBrokerProtocol):
+        cls._messenger = broker
+
+    @classmethod
+    def get_messenger(cls) -> MessageBrokerProtocol:
+        if cls._messenger is None:
+            raise RuntimeError("MessageBroker not registered in Behaviour.")
+        return cls._messenger
+
+    @classmethod
+    def register_grid(cls, grid: GridProtocol):
+        cls._grid = grid
+
+    @classmethod
+    def get_grid(cls) -> GridProtocol:
+        if cls._grid is None:
+            raise RuntimeError("Grid not registered in Behaviour.")
+        return cls._grid
 
     @classmethod
     def register_handlers(cls):

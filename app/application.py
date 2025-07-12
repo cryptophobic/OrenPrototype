@@ -1,22 +1,21 @@
 import pygame
 
-from .context.context import Context
-from .context.frame_context import FrameContext
-from .input_processor.InputEvents import InputEvents
-from .input_processor.Timer import Timer
-from .maps.level1 import LevelFactory
-from .renderer import Renderer
-from . import config
+from app import config
+from app.engine.input_processor.InputEvents import InputEvents
+from app.engine.input_processor.Timer import Timer
+from app.maps.level1 import LevelFactory
+from app.renderer import Renderer
 
 
 class Application:
     def __init__(self):
         self.renderer = Renderer()
         self.level_factory = LevelFactory()
+        self.renderer.grid = self.level_factory.levels["level1"].grid
 
-        self.context = Context.instance()
-        self.context.init_from_level(self.level_factory.levels["level1"])
-        self.frame_context = FrameContext.instance()
+        # self.context = Context.instance()
+        # self.context.init_from_level(self.level_factory.levels["level1"])
+        # self.frame_context = FrameContext.instance()
 
         # Initialize core systems
         # self.state_manager = StateManager()
@@ -38,8 +37,8 @@ class Application:
         if pressed[pygame.K_ESCAPE]:
             self.game_over = True
 
-    def register_actors(self):
-        self.context.actors_context
+    # def register_actors(self):
+    #    self.context.actors_context
 
     def run(self):
         """Main game loop"""
@@ -49,21 +48,21 @@ class Application:
 
         while not self.game_over:
             self.ticker.tick()
-            self.frame_context.timestamp = self.ticker.last_timestamp
+            # self.frame_context.timestamp = self.ticker.last_timestamp
             self.check_exit()
             # self.event_dispatcher.listen(self.ticker.last_timestamp)
 
             if self.ticker.last_timestamp >= render_threshold:
                 render_threshold += self.interval
-                
+
                 # NEW: Supervisor runs first
                 # self.supervisor.update()
-                
+
                 # Get events and update state
                 events = self.event_dispatcher.slice_flat(first_timestamp, render_threshold)
                 # self.state_manager.update_state(events)
                 first_timestamp = self.ticker.last_timestamp
-                
+
                 # Render if state changed
                 # if self.state_manager.commit():
                 #     self.renderer.draw()

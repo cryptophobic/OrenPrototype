@@ -1,4 +1,4 @@
-from ..behaviour import Behaviour
+from app.behaviours.behaviour import Behaviour
 
 
 class Vulnerable(Behaviour):

@@ -1,16 +1,10 @@
-from typing import TYPE_CHECKING
-
-from ..behaviour import Behaviour, register_message_handler
+from app.behaviours.behaviour import register_message_handler, Behaviour
 from app.config import Behaviours
-from ...bus.message_broker.types import MessageTypes, Message, PushedByPayload, Payload, MessageBody, \
+from app.core.vectors import Vec2
+from app.engine.message_broker.types import MessageTypes, Message, MessageBody, PushedByPayload, Payload, \
     IntentionToMovePayload
-from ...context.message_broker_context import MessageBrokerContext
-from ...helpers.vectors import Vec2
-from ...protocols.coordinate_holder_protocol import CoordinateHolderProtocol, UnitProtocol
-
-if TYPE_CHECKING:
-    from ...objects.actor.coordinate_holder import CoordinateHolder
-    from ...objects.actor.unit import Unit
+from app.protocols.objects.coordinate_holder_protocol import CoordinateHolderProtocol
+from app.protocols.objects.unit_protocol import UnitProtocol
 
 
 @register_message_handler(
@@ -38,11 +32,11 @@ class Moveable(Behaviour):
     '''
     @classmethod
     def __move(cls, coordinate_holder: CoordinateHolderProtocol, direction: Vec2, force: int) -> bool:
-        result = cls.context.move_coordinate_holder(coordinate_holder, coordinate_holder.coordinates + direction)
-        broker_context = MessageBrokerContext().instance().context
-        for actor in result.blocked.values():
+        result = cls.get_grid().move(coordinate_holder, coordinate_holder.coordinates + direction)
+        messenger = cls.get_messenger()
+        for actor in result.blocked:
             message = Message(
-                sender=coordinate_holder,
+                sender=coordinate_holder.name,
                 body=MessageBody(
                     message_type=MessageTypes.PUSHED_BY,
                     payload=PushedByPayload(
@@ -51,20 +45,20 @@ class Moveable(Behaviour):
                     )
                 )
             )
-            message_id = broker_context.send_message(message, actor)
+            message_id = messenger.send_message(message, actor)
             if message_id is not None:
-                response_actions = broker_context.get_response(message_id)
+                response_actions = messenger.get_response(message_id)
                 coordinate_holder.pending_actions.extend(response_actions)
 
-        for actor in result.overlapped.values():
+        for actor in result.overlapped:
             message = Message(
-                sender=coordinate_holder,
+                sender=coordinate_holder.name,
                 body=MessageBody(
                     message_type=MessageTypes.OVERLAPPED_BY,
                     payload=Payload(),
                 )
             )
-            broker_context.send_message(message=message, responder=actor, no_response=True)
+            messenger.send_message(message=message, responder=actor, no_response=True)
 
         return result.placed
 
