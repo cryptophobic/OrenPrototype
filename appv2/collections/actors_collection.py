@@ -1,54 +1,62 @@
-from typing import TypeVar, Generic, Self
+from typing import TypeVar, Generic, Self, Iterator, Callable, Type, cast
 
 from appv2.core.collection_base import CollectionBase
 from appv2.core.unique_name import generate_unique_name
 from appv2.protocols.objects.actor_protocol import ActorProtocol
 
 V = TypeVar("V", bound=ActorProtocol)
+T = TypeVar("T", bound=ActorProtocol)
+C = TypeVar("C", bound="ActorsCollection")
 
 class ActorsCollection(CollectionBase[str, V], Generic[V]):
-    def __init__(self, items: dict[str, V] | None = None):
-        super().__init__(items or {})
-
     def get_active_actors(self) -> Self:
-        return type(self)(self.filter(lambda a: a.is_active and not a.is_deleted))
+        return self.filter(lambda a: a.is_active)
+    
+    def get_deleted_actors(self) -> Self:
+        return self.__class__({k: v for k, v in self.items.items() if v.is_deleted})
 
-    def __check_and_delete(self, name: str) -> bool:
-        if name in self.data and self.data[name].is_deleted:
-            del self.data[name]
-            return True
-        return False
+    def __iter__(self) -> Iterator[V]:
+        return iter(actor for actor in self.items.values() if not actor.is_deleted)
+    
+    def __len__(self) -> int:
+        return sum(1 for actor in self.items.values() if not actor.is_deleted)
 
-    def clean(self) -> None:
-        to_remove = [name for name, actor in self.data.items() if actor.is_deleted]
-        for name in to_remove:
-            del self.data[name]
+    def filter(self, predicate: Callable[[V], bool]) -> Self:
+        return self.__class__({k: v for k, v in self.items.items() if not v.is_deleted and predicate(v)})
+
+    def get_by_type(
+            self,
+            cls: Type[T],
+            collection_type: Type[C] = None
+    ) -> C:
+        matched = {
+            name: cast(T, actor)
+            for name, actor in self.items.items()
+            if isinstance(actor, cls) and not actor.is_deleted
+        }
+        result_cls = collection_type or self.__class__
+        return result_cls(matched)  # type: ignore
 
     def __contains__(self, name: str) -> bool:
-        return not self.__check_and_delete(name) and name in self.data
+        return name in self.items and not self.items[name].is_deleted
 
-    def __getitem__(self, name: str):
-        if self.__check_and_delete(name):
-            raise KeyError(f"Actor '{name}' was deleted.")
+    def clean(self) -> None:
+        for name, actor in self.raw_items().items():
+            if actor.is_deleted:
+                del self.items[name]
 
-        return super().__getitem__(name)
-
-    # For example, what if name is not equal to actor.name
-    def __setitem__(self, name: str, actor: ActorProtocol):
-        if not actor.is_deleted:
-            super().__setitem__(name, actor)
-
-    def subtract_actors(self, other: Self) -> Self:
-        if not other:
-            return self
-        return type(self)({k: v for k, v in self.data.items() if k not in other})
+    def get(self, key: str) -> V | None:
+        actor = self.raw_items().get(key)
+        if actor is None or actor.is_deleted:
+            return None
+        return actor
 
     def add(self, actor: V) -> None:
-        if actor.name and actor.name not in self.data:
+        if actor.name and actor.name not in self.items:
             name = actor.name
         else:
-            name = generate_unique_name(set(self.data.keys()))
+            name = generate_unique_name(set(self.items.keys()))
             actor.name = name
 
-        super().__setitem__(name, actor)
+        self.items[name] = actor
 

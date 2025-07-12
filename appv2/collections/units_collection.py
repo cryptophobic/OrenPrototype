@@ -6,5 +6,4 @@ from appv2.protocols.objects.unit_protocol import UnitProtocol
 V = TypeVar("V", bound=UnitProtocol)
 
 class UnitsCollection(CoordinateHoldersCollection[V]):
-    def __init__(self, items: dict[str, UnitProtocol] | None = None):
-        super().__init__(items or {})
+    pass
