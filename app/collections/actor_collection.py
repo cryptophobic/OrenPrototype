@@ -2,13 +2,14 @@ from typing import TypeVar, Generic, Self, Iterator, Callable, Type, cast
 
 from app.core.collection_base import CollectionBase
 from app.core.unique_name import generate_unique_name
+from app.protocols.collections.actor_collection_protocol import ActorCollectionProtocol
 from app.protocols.objects.actor_protocol import ActorProtocol
 
 V = TypeVar("V", bound=ActorProtocol)
 T = TypeVar("T", bound=ActorProtocol)
 C = TypeVar("C", bound="ActorCollection")
 
-class ActorCollection(CollectionBase[str, V], Generic[V]):
+class ActorCollection(CollectionBase[str, V], Generic[V], ActorCollectionProtocol[V]):
     def get_active_actors(self) -> Self:
         return self.filter(lambda a: a.is_active)
 
