@@ -13,6 +13,7 @@ from app.maps.level1 import LevelFactory
 from app.objects.orchestrator import Orchestrator
 from app.objects.puppeteer import Puppeteer
 from app.protocols.objects.orchestrator_protocol import OrchestratorProtocol
+from app.registry.behaviour_registry import get_registry
 from app.renderer import Renderer
 
 
@@ -52,11 +53,14 @@ class Application:
             self.event_dispatcher.subscribe(puppeteer.name, puppeteer.controls)
 
     def run(self):
-        """Main game loop"""
         render_threshold = self.ticker.last_timestamp + self.interval
         first_timestamp = self.ticker.last_timestamp
         self.register_actors()
         self.renderer.draw()
+        self.command_pipeline.actor_collection = self.orchestrator.actors_collection
+        base_behaviour = get_registry().get(Behaviours.BEHAVIOUR)
+        base_behaviour.register_grid(self.current_level.grid)
+        base_behaviour.register_messenger(self.message_broker)
 
         while not self.game_over:
             self.ticker.tick()
@@ -89,5 +93,5 @@ class Application:
 
                 if state_changed:
                     self.renderer.draw()
-        """TODO: graceful exit with save states"""
+        # TODO: graceful exit with save states
         pygame.quit()

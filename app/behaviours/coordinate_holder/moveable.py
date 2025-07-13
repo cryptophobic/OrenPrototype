@@ -46,7 +46,7 @@ class Moveable(Behaviour):
                 )
             )
             _, response_actions = messenger.send_message(message, actor)
-            if response_actions is not None:
+            if response_actions:
                 coordinate_holder.pending_actions.extend(response_actions)
 
         for actor in result.overlapped:
@@ -66,28 +66,28 @@ class Moveable(Behaviour):
     Handlers to execute by command pipeline
     '''
     @classmethod
-    def pushed_by_as_unit(cls, unit: UnitProtocol, pushed_payload: PushedByPayload) -> bool:
-        return cls.pushed_by_as_coordinate_holder(unit, pushed_payload)
+    def pushed_by_as_unit(cls, unit: UnitProtocol, payload: PushedByPayload) -> bool:
+        return cls.pushed_by_as_coordinate_holder(unit, payload)
 
     @classmethod
-    def pushed_by_as_coordinate_holder(cls, coordinate_holder: CoordinateHolderProtocol, pushed_payload: PushedByPayload) -> bool:
-        if pushed_payload.force > 0:
-            return cls.__move(coordinate_holder, pushed_payload.direction, pushed_payload.force - 1)
+    def pushed_by_as_coordinate_holder(cls, coordinate_holder: CoordinateHolderProtocol, payload: PushedByPayload) -> bool:
+        if payload.force > 0:
+            return cls.__move(coordinate_holder, payload.direction, payload.force - 1)
         else:
             return True
 
     @classmethod
-    def intention_to_move_as_unit(cls, unit: UnitProtocol, intention_to_move_payload: IntentionToMovePayload) -> bool:
+    def intention_to_move_as_unit(cls, unit: UnitProtocol, payload: IntentionToMovePayload) -> bool:
         return cls.__move(
             coordinate_holder=unit,
-            direction=intention_to_move_payload.direction,
+            direction=payload.direction,
             force=unit.stats.STR
         )
 
     @classmethod
-    def intention_to_move_as_coordinate_holder(cls, coordinate_holder: CoordinateHolderProtocol, intention_to_move_payload: PushedByPayload) -> bool:
+    def intention_to_move_as_coordinate_holder(cls, coordinate_holder: CoordinateHolderProtocol, payload: PushedByPayload) -> bool:
         return cls.__move(
             coordinate_holder=coordinate_holder,
-            direction=intention_to_move_payload.direction,
+            direction=payload.direction,
             force=1
         )

@@ -1,5 +1,6 @@
 from app.behaviours.behaviour import register_message_handler, Behaviour
 from app.config import Behaviours
+from app.core.types import KeyPressEventLogRecord
 from app.engine.message_broker.types import MessageTypes, MessageBody, InputPayload, Message, ControlsPayload
 from app.protocols.objects.orchestrator_protocol import OrchestratorProtocol
 
@@ -16,15 +17,14 @@ class InputHandler(Behaviour):
     supported_receivers = (OrchestratorProtocol,)
 
     @classmethod
-    def __input_process(cls, orchestrator: OrchestratorProtocol, message_body: MessageBody) -> bool:
-        if not isinstance(message_body.payload, InputPayload):
-            raise TypeError(f"Expected InputPayload, got {type(message_body.payload)}")
+    def __input_process(cls, orchestrator: OrchestratorProtocol, payload: InputPayload) -> bool:
+        if not isinstance(payload, InputPayload):
+            raise TypeError(f"Expected InputPayload, got {type(payload)}")
 
         puppeteers = orchestrator.get_puppeteers()
-        payload = message_body.payload
         messenger = cls.get_messenger()
         sent = False
-        for log_record in payload.input:
+        for log_record in payload.input: # type: KeyPressEventLogRecord
             for subscriber in log_record.subscribers_set:
                 puppeteer = puppeteers.get(subscriber)
                 if puppeteer:
@@ -37,12 +37,12 @@ class InputHandler(Behaviour):
                         )
                     )
                     _, response_actions = messenger.send_message(message, puppeteer)
-                    if response_actions is not None:
-                        orchestrator.pending_actions.extend(response_actions)
+                    if response_actions:
+                        puppeteer.pending_actions.extend(response_actions)
 
 
         return sent
 
     @classmethod
-    def input(cls, orchestrator: OrchestratorProtocol, message_body: MessageBody) -> bool:
-        return cls.__input_process(orchestrator, message_body)
+    def input(cls, orchestrator: OrchestratorProtocol, payload: InputPayload) -> bool:
+        return cls.__input_process(orchestrator, payload)

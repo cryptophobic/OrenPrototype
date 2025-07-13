@@ -58,7 +58,8 @@ class LevelFactory:
         # End of Puppeteer setup
 
         # Prison walls
-        for coordinates in [Vec2(1, 0), Vec2(1, 1), Vec2(0, 1)]:
+        # for coordinates in [Vec2(1, 0), Vec2(1, 1), Vec2(0, 1)]:
+        for coordinates in [Vec2(1, 1), Vec2(0, 1)]:
             prison_body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))
             prison_shape = Shape(get_icon(Icons.WALLS))
             # Unique name would be created automatically.

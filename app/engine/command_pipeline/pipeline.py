@@ -4,6 +4,7 @@ from typing import Iterator, Callable, Optional
 
 from app.behaviours.types import BehaviourAction
 from app.core.staged_queue import StagedQueue
+from app.engine.message_broker.types import Payload
 from app.protocols.collections.actor_collection_protocol import ActorCollectionProtocol
 from app.protocols.objects.actor_protocol import ActorProtocol
 
@@ -22,11 +23,11 @@ class ActorAction:
         behaviour = self.actor.behaviours.get(self.behaviour_action.behaviour)
         if not behaviour:
             return False
-        method: Callable[[...], bool] = getattr(behaviour, self.behaviour_action.method_name, None)
+        method: Callable[[ActorProtocol, Payload], bool] = getattr(behaviour, self.behaviour_action.method_name, None)
         if not callable(method):
             return False
 
-        self.resolved = method(*self.behaviour_action.args, **self.behaviour_action.kwargs)
+        self.resolved = method(self.actor, self.behaviour_action.payload)
         return self.resolved
 
 def wrap_action(actor: ActorProtocol, behaviour_action: BehaviourAction) -> ActorAction:
@@ -49,32 +50,43 @@ class CommandPipeline:
         if self.actor_collection:
             for actor in self.actor_collection.get_pending_actors():
                 queue.extend(wrap_actions(actor, actor.pending_actions))
-                actor.pending_actions.clear()
+                actor.pending_actions = deque()
 
         return queue
 
     def process(self, orchestrator: ActorProtocol) -> bool:
-        leftovers = self.flush_pending_actions()
-        queue = StagedQueue[ActorAction](
-            first=leftovers,
-            middle=wrap_actions(orchestrator, orchestrator.pending_actions),
-            last=None,
-        )
-        orchestrator.pending_actions.clear()
-        return self.process_queue(queue)
+        pending_actions = orchestrator.pending_actions
+        queue = StagedQueue[ActorAction](middle=iter(wrap_actions(orchestrator, pending_actions)))
+        orchestrator.pending_actions = deque()
+        state_changed = self.process_queue(queue)
+        return state_changed
 
-    def __flush_pending(self, actor: ActorProtocol, state_changed, depth):
-        if actor.pending_actions:
+    def __flush_pending(self, state_changed, depth):
+        leftovers = self.flush_pending_actions()
+
+        if leftovers:
+            queue = StagedQueue[ActorAction](first=leftovers,)
+
             state_changed = self.process_queue(
-                queue=StagedQueue[ActorAction](
-                    first=None,
-                    middle=wrap_actions(actor, actor.pending_actions),
-                    last=None,
-                ),
+                queue=queue,
                 state_changed=state_changed,
                 depth=depth + 1)
 
-            actor.pending_actions.clear()
+        return state_changed
+
+    def __flush_pending_actor(self, actor: ActorProtocol, state_changed, depth):
+        if actor.pending_actions:
+            queue = StagedQueue[ActorAction](
+                    first=None,
+                    middle=wrap_actions(actor, actor.pending_actions),
+                    last=None,
+                )
+            actor.pending_actions = deque()
+
+            state_changed = self.process_queue(
+                queue=queue,
+                state_changed=state_changed,
+                depth=depth + 1)
 
         return state_changed
 
@@ -91,13 +103,13 @@ class CommandPipeline:
                 continue
 
             actor = action.actor
-            state_changed = self.__flush_pending(actor, state_changed, depth)
+            state_changed = self.__flush_pending_actor(actor, state_changed, depth)
             resolved = action.resolve()
             state_changed = resolved or state_changed
             if not resolved:
                 queue.append_left_first(action) if actor.pending_actions else queue.append_last(action)
-            elif actor.pending_actions:
-                state_changed = self.__flush_pending(actor, state_changed, depth)
+
+            state_changed = self.__flush_pending(state_changed, depth)
 
         return state_changed
 

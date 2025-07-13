@@ -19,7 +19,7 @@ class Grid(GridProtocol):
 
     def place(self, coordinate_holder: CoordinateHolderProtocol, to_place: Vec2) -> PlaceToPositionResult:
         cell = self.get_cell(to_place)
-        return cell.place(coordinate_holder, to_place) if cell else (False, CoordinateHolderCollection())
+        return cell.place(coordinate_holder, to_place) if cell else PlaceToPositionResult(placed=False)
 
     def remove(self, coordinate_holder: CoordinateHolderProtocol, from_place: Vec2) -> bool:
         cell = self.get_cell(from_place)

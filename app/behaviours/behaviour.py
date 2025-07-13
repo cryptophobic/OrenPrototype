@@ -40,7 +40,7 @@ class Behaviour:
                     BehaviourAction(
                         behaviour=cls.name,
                         method_name=method_name,
-                        kwargs=message_body.payload.__dict__,
+                        payload=message_body.payload,
                     )
                 ])
         return deque()

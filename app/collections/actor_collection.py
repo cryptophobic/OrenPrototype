@@ -14,7 +14,7 @@ class ActorCollection(CollectionBase[str, V], Generic[V], ActorCollectionProtoco
         return self.filter(lambda a: a.is_active)
 
     def get_pending_actors(self) -> Self:
-        return self.filter(lambda a: a.pending_actions is True)
+        return self.filter(lambda a: a.pending_actions)
     
     def get_deleted_actors(self) -> Self:
         return self.__class__({k: v for k, v in self.items.items() if v.is_deleted})

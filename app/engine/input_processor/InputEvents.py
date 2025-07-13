@@ -4,7 +4,7 @@ import pygame
 from typing import Dict, Tuple, List
 from dataclasses import dataclass
 
-from app.core.types import KeyPressEventLogRecords
+from app.core.types import KeyPressEventLogRecords, KeyPressEventLogRecord
 from app.engine.input_processor.Gamepads import Gamepads
 from app.engine.input_processor.Scheduler import Scheduler
 from app.engine.input_processor.Timer import Timer
@@ -47,7 +47,7 @@ class InputEvents:
                 self.key_map[key] = KeyPressLog(
                     down=False,
                     subscribers=0,
-                    subscribers_set=set(subscriber_name),
+                    subscribers_set={subscriber_name},
                     log=[],
                     interval=binding.repeat_delta
                 )
@@ -141,10 +141,13 @@ class InputEvents:
         flushed = self.slice(start, end)
 
         return deque(sorted(
-            (log_entry.dt, key, log_entry.down, value.subscribers_set)
-            for key, value in flushed.items()
-            for log_entry in value.log
-            if start <= log_entry.dt
+            (
+                KeyPressEventLogRecord(log_entry.dt, key, log_entry.down, value.subscribers_set)
+                for key, value in flushed.items()
+                for log_entry in value.log
+                if start <= log_entry.dt
+            ),
+            key=lambda r: r.dt
         ))
 
     def slice_grouped(self, start: int, end: int) -> Dict[int, List[KeyPressLogRecord]]:

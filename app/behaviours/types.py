@@ -1,15 +1,13 @@
-from dataclasses import dataclass, field
-from typing import Tuple, Dict
+from dataclasses import dataclass
 from app.config import Behaviours
-from app.engine.message_broker.types import MessageTypes
+from app.engine.message_broker.types import MessageTypes, Payload
 
 
 @dataclass
 class BehaviourAction:
     behaviour: Behaviours
     method_name: str
-    args: Tuple = ()
-    kwargs: Dict = field(default_factory=dict)
+    payload: Payload
 
 MessageTypeHandlersDict = dict[type, str]
 MessageHandlersDict = dict[MessageTypes, tuple[MessageTypeHandlersDict, ...]]
