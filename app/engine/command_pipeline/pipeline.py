@@ -1,10 +1,10 @@
 from collections import deque
 from dataclasses import dataclass
-from typing import Iterator
+from typing import Iterator, Callable
 
-from app.behaviours.behaviour import BehaviourFn
 from app.behaviours.types import BehaviourAction
 from app.core.staged_queue import StagedQueue
+from app.protocols.collections.actors_collection_protocol import ActorsCollectionProtocol
 from app.protocols.objects.actor_protocol import ActorProtocol
 
 
@@ -19,16 +19,14 @@ class ActorAction:
         if self.resolved:
             return True
         self.attempts_number += 1
-        # TODO: Build an interface to access behaviours
-        behaviour = self.actor.__behaviours.get(self.behaviour_action.behaviour)
+        behaviour = self.actor.behaviours.get(self.behaviour_action.behaviour)
         if not behaviour:
             return False
-        method: BehaviourFn = getattr(behaviour, self.behaviour_action.method_name, None)
+        method: Callable[[...], bool] = getattr(behaviour, self.behaviour_action.method_name, None)
         if not callable(method):
             return False
 
-        result = method(*self.behaviour_action.args, **self.behaviour_action.kwargs)
-        self.resolved = result is True
+        self.resolved = method(*self.behaviour_action.args, **self.behaviour_action.kwargs)
         return self.resolved
 
 def wrap_action(actor: ActorProtocol, behaviour_action: BehaviourAction) -> ActorAction:
@@ -44,8 +42,18 @@ class CommandPipeline:
     def __init__(self):
         self._queue: StagedQueue[ActorAction] = StagedQueue[ActorAction]()
 
-    def post(self, action: ActorAction):
-        self._queue.append_first(action)
+    '''Runs every frame, clears all possible leftovers from previous frame'''
+    def flush_pending_actions(self, actor_collection: ActorsCollectionProtocol[ActorProtocol]):
+        queue: deque[ActorAction] = deque()
+        for actor in actor_collection.get_pending_actors():
+            queue.extend(wrap_actions(actor, actor.pending_actions))
+            actor.pending_actions.clear()
+
+        self._queue = StagedQueue[ActorAction](
+                    first=None,
+                    middle=iter(queue) if queue else None,
+                    last=None,
+                )
 
     def process_actions(self):
         return self.process_queue(self._queue)

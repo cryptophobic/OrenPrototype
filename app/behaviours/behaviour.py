@@ -1,5 +1,5 @@
 from collections import deque
-from typing import Callable, ClassVar
+from typing import ClassVar
 
 from app.protocols.engine.grid.grid_protocol import GridProtocol
 from app.protocols.engine.message_broker.broker_protocol import MessageBrokerProtocol
@@ -8,7 +8,6 @@ from types import BehaviourAction, MessageHandlersDict, MessageTypeHandlersDict
 from app.engine.message_broker.types import MessageTypes, MessageBody, MessagePayloadMap
 from app.config import Behaviours
 
-BehaviourFn = Callable[[ActorProtocol, MessageBody], deque[BehaviourAction]]
 
 def register_message_handler(message_type: MessageTypes, handlers: dict[type, str]):
     def decorator(cls: type[Behaviour]):

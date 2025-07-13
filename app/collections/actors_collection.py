@@ -11,6 +11,9 @@ C = TypeVar("C", bound="ActorsCollection")
 class ActorsCollection(CollectionBase[str, V], Generic[V]):
     def get_active_actors(self) -> Self:
         return self.filter(lambda a: a.is_active)
+
+    def get_pending_actors(self) -> Self:
+        return self.filter(lambda a: a.pending_actions is True)
     
     def get_deleted_actors(self) -> Self:
         return self.__class__({k: v for k, v in self.items.items() if v.is_deleted})
@@ -22,7 +25,10 @@ class ActorsCollection(CollectionBase[str, V], Generic[V]):
         return sum(1 for actor in self.items.values() if not actor.is_deleted)
 
     def filter(self, predicate: Callable[[V], bool]) -> Self:
-        return self.__class__({k: v for k, v in self.items.items() if not v.is_deleted and predicate(v)})
+        return self.__class__({
+            k: v for k, v in self.items.items()
+            if not v.is_deleted and predicate(v)
+        })
 
     def get_by_type(
             self,

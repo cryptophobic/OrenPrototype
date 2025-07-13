@@ -1,10 +1,13 @@
-from typing import Protocol, Self, runtime_checkable
+from typing import Self, runtime_checkable, TYPE_CHECKING
 from app.config import Behaviours
 from app.engine.message_broker.types import MessageTypes
-from app.protocols.behaviours.behaviour_protocol import BehaviourProtocol
+from app.protocols.core.collection_base_protocol import CollectionBaseProtocol
 
-@runtime_checkable
-class BehaviourCollectionProtocol(Protocol):
-    def get(self, item: Behaviours) -> BehaviourProtocol | None: ...
+if TYPE_CHECKING:
+    from app.protocols.behaviours.behaviour_protocol import BehaviourProtocol
+
+class BehaviourCollectionProtocol(CollectionBaseProtocol):
+    def get(self, item: Behaviours) -> "BehaviourProtocol | None": ...
+    def set(self, item: Behaviours) -> None: ...
     def load_all(self) -> None: ...
     def can_respond_to(self, message_type: MessageTypes) -> Self: ...

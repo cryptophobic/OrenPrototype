@@ -1,6 +1,7 @@
 import pygame
 
 from app import config
+from app.engine.context.game_context import GameContext
 from app.engine.input_processor.InputEvents import InputEvents
 from app.engine.input_processor.Timer import Timer
 from app.maps.level1 import LevelFactory
@@ -13,9 +14,7 @@ class Application:
         self.level_factory = LevelFactory()
         self.renderer.grid = self.level_factory.levels["level1"].grid
 
-        # self.context = Context.instance()
-        # self.context.init_from_level(self.level_factory.levels["level1"])
-        # self.frame_context = FrameContext.instance()
+        self.context = GameContext()
 
         # Initialize core systems
         # self.state_manager = StateManager()
@@ -36,9 +35,6 @@ class Application:
         pressed = pygame.key.get_pressed()
         if pressed[pygame.K_ESCAPE]:
             self.game_over = True
-
-    # def register_actors(self):
-    #    self.context.actors_context
 
     def run(self):
         """Main game loop"""

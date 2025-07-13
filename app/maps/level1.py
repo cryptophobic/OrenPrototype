@@ -40,7 +40,7 @@ class LevelFactory:
         player_shape = Shape(get_icon(Icons.PLAYER))
         player_stats = UnitStats(STR=5, DEX=1, CON=5, INT=2, WIS=2, CHA=1, HP=10, initiative=1)
         unit = Unit(body=player_body, shape=player_shape, coordinates=Vec2(0, 0), stats=player_stats, name="Adventurer")
-        unit.add_behaviour_from_enum(Behaviours.MOVEABLE)
+        unit.add_behaviour(Behaviours.MOVEABLE)
         level.coordinate_holders.add(unit)
         # End of player setup
 
@@ -52,7 +52,7 @@ class LevelFactory:
         controls[pygame.K_RIGHT] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=IntentionToMovePayload(Vec2.right())))
 
         puppeteer = Puppeteer(puppet=unit, controls=controls)
-        puppeteer.add_behaviour_from_enum(Behaviours.POSSESSOR)
+        puppeteer.add_behaviour(Behaviours.POSSESSOR)
         # End of Puppeteer setup
 
         # Prison walls

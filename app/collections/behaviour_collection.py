@@ -4,10 +4,11 @@ from app.engine.message_broker.types import MessageTypes
 from app.config import Behaviours
 from app.core.collection_base import CollectionBase
 from app.protocols.behaviours.behaviour_protocol import BehaviourProtocol
+from app.protocols.collections.behaviour_collection_protocol import BehaviourCollectionProtocol
 from app.registry.behaviour_registry import get_registry
 
 
-class BehaviourCollection(CollectionBase[Behaviours, Behaviours | BehaviourProtocol]):
+class BehaviourCollection(CollectionBase[Behaviours, Behaviours | BehaviourProtocol], BehaviourCollectionProtocol):
     def __init__(self, items: Optional[CollectionBase[Behaviours, Behaviours | BehaviourProtocol]] = None):
         super().__init__(items or {})
 
@@ -20,6 +21,9 @@ class BehaviourCollection(CollectionBase[Behaviours, Behaviours | BehaviourProto
             return behaviour
 
         return value
+
+    def set(self, item: Behaviours) -> None:
+        self.items[item] = item
 
     def _ensure_loaded(self, item: Behaviours) -> BehaviourProtocol:
         loaded = self.get(item)
