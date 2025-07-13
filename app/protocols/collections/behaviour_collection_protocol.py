@@ -1,4 +1,4 @@
-from typing import Self, runtime_checkable, TYPE_CHECKING
+from typing import Self, TYPE_CHECKING
 from app.config import Behaviours
 from app.engine.message_broker.types import MessageTypes
 from app.protocols.core.collection_base_protocol import CollectionBaseProtocol
