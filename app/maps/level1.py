@@ -27,12 +27,12 @@ class LevelFactory:
         # Cursor setup
         cursor_body = Body(CollisionMatrix(response=CollisionResponse.OVERLAP))
         cursor_shape = Shape(get_icon(Icons.CURSOR))
-
         cursor_actor = CoordinateHolder(
             body=cursor_body,
             shape=cursor_shape,
-            coordinates=Vec2(2, 1),
+            coordinates=Vec2(4, 8),
             name="Cursor")
+        cursor_actor.add_behaviour(Behaviours.MOVEABLE)
         level.actors_collection.add(cursor_actor)
         # End of Cursor setup
 
@@ -43,6 +43,15 @@ class LevelFactory:
         unit = Unit(body=player_body, shape=player_shape, coordinates=Vec2(0, 0), stats=player_stats, name="Adventurer")
         unit.add_behaviour(Behaviours.MOVEABLE)
         level.actors_collection.add(unit)
+        # End of player setup
+
+        # Enemy setup
+        enemy_body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))
+        enemy_shape = Shape(get_icon(Icons.ENEMY))
+        enemy_stats = UnitStats(STR=5, DEX=1, CON=5, INT=2, WIS=2, CHA=1, HP=10, initiative=1)
+        enemy_unit = Unit(body=enemy_body, shape=enemy_shape, coordinates=Vec2(5, 8), stats=enemy_stats, name="Enemy")
+        enemy_unit.add_behaviour(Behaviours.MOVEABLE)
+        level.actors_collection.add(enemy_unit)
         # End of player setup
 
         # Puppeteer setup

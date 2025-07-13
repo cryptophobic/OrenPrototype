@@ -47,7 +47,7 @@ class Moveable(Behaviour):
             )
             _, response_actions = messenger.send_message(message, actor)
             if response_actions:
-                coordinate_holder.pending_actions.extend(response_actions)
+                actor.pending_actions.extend(response_actions)
 
         for actor in result.overlapped:
             message = Message(
