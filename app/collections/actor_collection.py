@@ -6,9 +6,9 @@ from app.protocols.objects.actor_protocol import ActorProtocol
 
 V = TypeVar("V", bound=ActorProtocol)
 T = TypeVar("T", bound=ActorProtocol)
-C = TypeVar("C", bound="ActorsCollection")
+C = TypeVar("C", bound="ActorCollection")
 
-class ActorsCollection(CollectionBase[str, V], Generic[V]):
+class ActorCollection(CollectionBase[str, V], Generic[V]):
     def get_active_actors(self) -> Self:
         return self.filter(lambda a: a.is_active)
 

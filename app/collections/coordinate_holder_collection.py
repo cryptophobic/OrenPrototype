@@ -1,11 +1,11 @@
 from typing import TypeVar, Self
 
-from app.collections.actors_collection import ActorsCollection
+from app.collections.actor_collection import ActorCollection
 from app.protocols.objects.coordinate_holder_protocol import CoordinateHolderProtocol
 
 V = TypeVar("V", bound=CoordinateHolderProtocol)
 
-class CoordinateHoldersCollection(ActorsCollection[V]):
+class CoordinateHolderCollection(ActorCollection[V]):
     def get_blocking_actors(self, other: CoordinateHolderProtocol) -> Self:
         return self.filter(lambda a: a.blocks(other))
 

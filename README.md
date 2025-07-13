@@ -155,7 +155,7 @@ Handled by `OrchestratorInputBehaviour`, which:
 At init:
 
 ```python
-self.actors: ActorsCollection = self.level_factory.levels["level1"].actors
+self.actors: ActorCollection = self.level_factory.levels["level1"].actors
 ```
 
 ✅ Holds the truth, no need for globals

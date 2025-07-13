@@ -1,4 +1,4 @@
-from app.collections.coordinate_holders_collection import CoordinateHoldersCollection
+from app.collections.coordinate_holder_collection import CoordinateHolderCollection
 from app.core.vectors import Vec2
 from app.engine.grid.cell import Cell
 from app.engine.grid.types import PlaceToPositionResult
@@ -19,7 +19,7 @@ class Grid(GridProtocol):
 
     def place(self, coordinate_holder: CoordinateHolderProtocol, to_place: Vec2) -> PlaceToPositionResult:
         cell = self.get_cell(to_place)
-        return cell.place(coordinate_holder, to_place) if cell else (False, CoordinateHoldersCollection())
+        return cell.place(coordinate_holder, to_place) if cell else (False, CoordinateHolderCollection())
 
     def remove(self, coordinate_holder: CoordinateHolderProtocol, from_place: Vec2) -> bool:
         cell = self.get_cell(from_place)

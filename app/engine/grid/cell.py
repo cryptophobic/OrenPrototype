@@ -1,4 +1,4 @@
-from app.collections.coordinate_holders_collection import CoordinateHoldersCollection
+from app.collections.coordinate_holder_collection import CoordinateHolderCollection
 from app.core.vectors import Vec2
 from app.engine.grid.types import PlaceToPositionResult
 from app.protocols.engine.grid.cell_protocol import CellProtocol
@@ -8,7 +8,7 @@ from app.protocols.objects.coordinate_holder_protocol import CoordinateHolderPro
 class Cell(CellProtocol):
     def __init__(self, coordinates: Vec2):
         self.coordinates = coordinates
-        self.coordinate_holders: CoordinateHoldersCollection = CoordinateHoldersCollection()
+        self.coordinate_holders: CoordinateHolderCollection = CoordinateHolderCollection()
 
     def remove(self, coordinate_holder: CoordinateHolderProtocol) -> bool:
         return self.coordinate_holders.remove(coordinate_holder.name)

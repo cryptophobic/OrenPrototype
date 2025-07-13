@@ -4,7 +4,7 @@ from typing import Iterator, Callable
 
 from app.behaviours.types import BehaviourAction
 from app.core.staged_queue import StagedQueue
-from app.protocols.collections.actors_collection_protocol import ActorsCollectionProtocol
+from app.protocols.collections.actor_collection_protocol import ActorCollectionProtocol
 from app.protocols.objects.actor_protocol import ActorProtocol
 
 
@@ -43,7 +43,7 @@ class CommandPipeline:
         self._queue: StagedQueue[ActorAction] = StagedQueue[ActorAction]()
 
     '''Runs every frame, clears all possible leftovers from previous frame'''
-    def flush_pending_actions(self, actor_collection: ActorsCollectionProtocol[ActorProtocol]):
+    def flush_pending_actions(self, actor_collection: ActorCollectionProtocol[ActorProtocol]):
         queue: deque[ActorAction] = deque()
         for actor in actor_collection.get_pending_actors():
             queue.extend(wrap_actions(actor, actor.pending_actions))
