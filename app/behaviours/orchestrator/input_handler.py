@@ -24,7 +24,7 @@ class InputHandler(Behaviour):
         puppeteers = orchestrator.get_puppeteers()
         messenger = cls.get_messenger()
         sent = False
-        for log_record in payload.input: # type: KeyPressEventLogRecord
+        for log_record in payload.input:
             for subscriber in log_record.subscribers_set:
                 puppeteer = puppeteers.get(subscriber)
                 if puppeteer:
@@ -39,7 +39,6 @@ class InputHandler(Behaviour):
                     _, response_actions = messenger.send_message(message, puppeteer)
                     if response_actions:
                         puppeteer.pending_actions.extend(response_actions)
-
 
         return sent
 

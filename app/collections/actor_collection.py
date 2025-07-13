@@ -1,5 +1,6 @@
 from typing import TypeVar, Generic, Self, Iterator, Callable, Type, cast
 
+from app.config import Behaviours
 from app.core.collection_base import CollectionBase
 from app.core.unique_name import generate_unique_name
 from app.protocols.collections.actor_collection_protocol import ActorCollectionProtocol
@@ -15,6 +16,9 @@ class ActorCollection(CollectionBase[str, V], Generic[V], ActorCollectionProtoco
 
     def get_pending_actors(self) -> Self:
         return self.filter(lambda a: a.pending_actions)
+
+    def get_behave_as_this(self, behaviour: Behaviours) -> Self:
+        return self.filter(lambda a: a.is_behave_as_this(behaviour))
     
     def get_deleted_actors(self) -> Self:
         return self.__class__({k: v for k, v in self.items.items() if v.is_deleted})
