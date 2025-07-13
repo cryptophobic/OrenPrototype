@@ -12,16 +12,19 @@ class MessageBroker(MessageBrokerProtocol):
         self.last_message_number = 0
         self.promise_queue: dict[int, deque[BehaviourAction]] = {}
 
-    def send_message(self, message: Message, responder: ActorProtocol, no_response: bool=False) -> Optional[int]:
+    def clear_history(self) -> None:
+        self.promise_queue.clear()
+        self.last_message_number = 0
+
+    def send_message(self, message: Message, responder: ActorProtocol) -> tuple[int, deque[BehaviourAction]]:
+        self.last_message_number += 1
+        promise = deque()
         if responder.is_active:
             promise = responder.on_message(message.body)
-            if not no_response:
-                message_number = self.last_message_number
-                self.promise_queue[message_number] = promise
-                self.last_message_number += 1
-                return message_number
+            message_number = self.last_message_number
+            self.promise_queue[message_number] = promise
 
-        return None
+        return self.last_message_number, promise
 
     def get_response(self, message_number) -> Optional[deque[BehaviourAction]]:
         return self.promise_queue.pop(message_number, None)

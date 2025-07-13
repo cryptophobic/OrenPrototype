@@ -1,10 +1,10 @@
 from collections import deque
 from typing import ClassVar
 
+from app.behaviours.types import MessageHandlersDict, MessageTypeHandlersDict, BehaviourAction
 from app.protocols.engine.grid.grid_protocol import GridProtocol
 from app.protocols.engine.message_broker.broker_protocol import MessageBrokerProtocol
 from app.protocols.objects.actor_protocol import ActorProtocol
-from types import BehaviourAction, MessageHandlersDict, MessageTypeHandlersDict
 from app.engine.message_broker.types import MessageTypes, MessageBody, MessagePayloadMap
 from app.config import Behaviours
 

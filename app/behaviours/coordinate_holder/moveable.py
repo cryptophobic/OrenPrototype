@@ -45,9 +45,8 @@ class Moveable(Behaviour):
                     )
                 )
             )
-            message_id = messenger.send_message(message, actor)
-            if message_id is not None:
-                response_actions = messenger.get_response(message_id)
+            _, response_actions = messenger.send_message(message, actor)
+            if response_actions is not None:
                 coordinate_holder.pending_actions.extend(response_actions)
 
         for actor in result.overlapped:
@@ -58,7 +57,7 @@ class Moveable(Behaviour):
                     payload=Payload(),
                 )
             )
-            messenger.send_message(message=message, responder=actor, no_response=True)
+            messenger.send_message(message=message, responder=actor)
 
         return result.placed
 

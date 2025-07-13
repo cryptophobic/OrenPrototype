@@ -1,10 +1,18 @@
 import pygame
 
 from app import config
+from app.collections.puppeteer_collection import PuppeteerCollection
+from app.config import Behaviours
+from app.engine.command_pipeline.pipeline import CommandPipeline
 from app.engine.context.game_context import GameContext
 from app.engine.input_processor.InputEvents import InputEvents
 from app.engine.input_processor.Timer import Timer
+from app.engine.message_broker.broker import MessageBroker
+from app.engine.message_broker.types import Message, MessageBody, MessageTypes, InputPayload
 from app.maps.level1 import LevelFactory
+from app.objects.orchestrator import Orchestrator
+from app.objects.puppeteer import Puppeteer
+from app.protocols.objects.orchestrator_protocol import OrchestratorProtocol
 from app.renderer import Renderer
 
 
@@ -12,14 +20,17 @@ class Application:
     def __init__(self):
         self.renderer = Renderer()
         self.level_factory = LevelFactory()
-        self.renderer.grid = self.level_factory.levels["level1"].grid
-
+        self.current_level = self.level_factory.levels["level1"]
+        self.renderer.grid = self.current_level.grid
         self.context = GameContext()
+        self.event_dispatcher = InputEvents()
+        self.message_broker = MessageBroker()
+        self.command_pipeline = CommandPipeline()
 
         # Initialize core systems
-        # self.state_manager = StateManager()
-        # self.supervisor = Supervisor(self.state_manager)
-        self.event_dispatcher = InputEvents()
+        self.orchestrator: OrchestratorProtocol = Orchestrator(self.current_level.actors_collection)
+        self.orchestrator.behaviours.set(Behaviours.INPUT_HANDLER)
+
         self.ticker = Timer()
 
         # Game loop settings
@@ -36,34 +47,47 @@ class Application:
         if pressed[pygame.K_ESCAPE]:
             self.game_over = True
 
+    def register_actors(self):
+        for puppeteer in self.orchestrator.actors_collection.get_by_type(Puppeteer, PuppeteerCollection):
+            self.event_dispatcher.subscribe(puppeteer.name, puppeteer.controls)
+
     def run(self):
         """Main game loop"""
         render_threshold = self.ticker.last_timestamp + self.interval
         first_timestamp = self.ticker.last_timestamp
-        # self.register_actors()
+        self.register_actors()
+        self.renderer.draw()
 
         while not self.game_over:
             self.ticker.tick()
             self.check_exit()
-            # self.event_dispatcher.listen(self.ticker.last_timestamp)
+            self.event_dispatcher.listen(self.ticker.last_timestamp)
 
             if self.ticker.last_timestamp >= render_threshold:
                 render_threshold += self.interval
-
-                # NEW: Supervisor runs first
-                # self.supervisor.update()
-
-                # Get events and update state
                 events = self.event_dispatcher.slice_flat(first_timestamp, render_threshold)
-                # self.state_manager.update_state(events)
-                first_timestamp = self.ticker.last_timestamp
 
-                # Render if state changed
-                # if self.state_manager.commit():
-                #     self.renderer.draw()
+                if not events:
+                    continue
+
+                # TODO: Maybe later move this logic to some behaviour as currently only behaviours sending messages
+                message = Message(
+                    sender="Application",
+                    body=MessageBody(
+                        message_type=MessageTypes.INPUT,
+                        payload=InputPayload(events),
+                    )
+                )
+                _, pending_actions = self.message_broker.send_message(message, self.orchestrator)
+                self.orchestrator.pending_actions.extend(pending_actions)
+
+                # TODO: think twice if it is logical enough to pass self.orchestrator
+                state_changed = self.command_pipeline.process(self.orchestrator)
+
+                first_timestamp = self.ticker.last_timestamp
                 self.context.tick()
 
-                if True:
+                if state_changed:
                     self.renderer.draw()
-
+        """TODO: graceful exit with save states"""
         pygame.quit()

@@ -1,5 +1,6 @@
 import pygame
 
+from app.collections.coordinate_holder_collection import CoordinateHolderCollection
 from app.config import Behaviours
 from app.core.geometry.shape import Shape
 from app.core.physics.body import Body, CollisionMatrix, CollisionResponse
@@ -32,7 +33,7 @@ class LevelFactory:
             shape=cursor_shape,
             coordinates=Vec2(2, 1),
             name="Cursor")
-        level.coordinate_holders.add(cursor_actor)
+        level.actors_collection.add(cursor_actor)
         # End of Cursor setup
 
         # Player setup
@@ -41,7 +42,7 @@ class LevelFactory:
         player_stats = UnitStats(STR=5, DEX=1, CON=5, INT=2, WIS=2, CHA=1, HP=10, initiative=1)
         unit = Unit(body=player_body, shape=player_shape, coordinates=Vec2(0, 0), stats=player_stats, name="Adventurer")
         unit.add_behaviour(Behaviours.MOVEABLE)
-        level.coordinate_holders.add(unit)
+        level.actors_collection.add(unit)
         # End of player setup
 
         # Puppeteer setup
@@ -53,6 +54,7 @@ class LevelFactory:
 
         puppeteer = Puppeteer(puppet=unit, controls=controls)
         puppeteer.add_behaviour(Behaviours.POSSESSOR)
+        level.actors_collection.add(puppeteer)
         # End of Puppeteer setup
 
         # Prison walls
@@ -60,7 +62,7 @@ class LevelFactory:
             prison_body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))
             prison_shape = Shape(get_icon(Icons.WALLS))
             # Unique name would be created automatically.
-            level.static_objects.add(StaticObject(
+            level.actors_collection.add(StaticObject(
                 body=prison_body,
                 shape=prison_shape,
                 coordinates=coordinates,
@@ -69,13 +71,8 @@ class LevelFactory:
             ))
         # End of prison walls
 
-        for coordinate_holder in level.coordinate_holders:
-            level.actors_collection.add(coordinate_holder)
+        for coordinate_holder in level.actors_collection.get_by_type(CoordinateHolder, CoordinateHolderCollection):
             level.grid.place(coordinate_holder, coordinate_holder.coordinates)
-
-        for static_object in level.static_objects:
-            level.actors_collection.add(static_object)
-            level.grid.place(static_object, static_object.coordinates)
 
 
         self.levels = { "level1": level }

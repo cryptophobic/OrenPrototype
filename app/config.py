@@ -15,6 +15,11 @@ class Behaviours(Enum):
 
     # Base class. Actor and descendants
     BEHAVIOUR = ".behaviour.Behaviour"
+
+    # Orchestrator
+    INPUT_HANDLER = ".orchestrator.input_handler.InputHandler"
+
+    # Puppeteer
     POSSESSOR = ".puppeteer.possessor.Possessor"
 
     # Unit

@@ -9,9 +9,6 @@ from app.registry.behaviour_registry import get_registry
 
 
 class BehaviourCollection(CollectionBase[Behaviours, Behaviours | BehaviourProtocol], BehaviourCollectionProtocol):
-    def __init__(self, items: Optional[CollectionBase[Behaviours, Behaviours | BehaviourProtocol]] = None):
-        super().__init__(items or {})
-
     def get(self, item: Behaviours) -> Optional[BehaviourProtocol]:
         value = super().get(item)
 
@@ -37,8 +34,5 @@ class BehaviourCollection(CollectionBase[Behaviours, Behaviours | BehaviourProto
                 self.get(key)
 
     def can_respond_to(self, message_type: MessageTypes) -> Self:
-        return type(self)(
-            self.filter(
-                lambda item: self._ensure_loaded(item).can_respond_to(message_type)
-            )
-        )
+        self.load_all()
+        return type(self)(self.filter(lambda item: item.can_respond_to(message_type)).items)

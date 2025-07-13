@@ -1,6 +1,6 @@
 from collections import deque
 from dataclasses import dataclass
-from typing import Iterator, Callable
+from typing import Iterator, Callable, Optional
 
 from app.behaviours.types import BehaviourAction
 from app.core.staged_queue import StagedQueue
@@ -40,23 +40,28 @@ class CommandPipeline:
     MAX_RECURSION_DEPTH = 5
 
     def __init__(self):
+        self.actor_collection: Optional[ActorCollectionProtocol[ActorProtocol]] = None
         self._queue: StagedQueue[ActorAction] = StagedQueue[ActorAction]()
 
     '''Runs every frame, clears all possible leftovers from previous frame'''
-    def flush_pending_actions(self, actor_collection: ActorCollectionProtocol[ActorProtocol]):
+    def flush_pending_actions(self) -> deque:
         queue: deque[ActorAction] = deque()
-        for actor in actor_collection.get_pending_actors():
-            queue.extend(wrap_actions(actor, actor.pending_actions))
-            actor.pending_actions.clear()
+        if self.actor_collection:
+            for actor in self.actor_collection.get_pending_actors():
+                queue.extend(wrap_actions(actor, actor.pending_actions))
+                actor.pending_actions.clear()
 
-        self._queue = StagedQueue[ActorAction](
-                    first=None,
-                    middle=iter(queue) if queue else None,
-                    last=None,
-                )
+        return queue
 
-    def process_actions(self):
-        return self.process_queue(self._queue)
+    def process(self, orchestrator: ActorProtocol) -> bool:
+        leftovers = self.flush_pending_actions()
+        queue = StagedQueue[ActorAction](
+            first=leftovers,
+            middle=wrap_actions(orchestrator, orchestrator.pending_actions),
+            last=None,
+        )
+        orchestrator.pending_actions.clear()
+        return self.process_queue(queue)
 
     def __flush_pending(self, actor: ActorProtocol, state_changed, depth):
         if actor.pending_actions:

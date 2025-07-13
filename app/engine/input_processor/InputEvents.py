@@ -1,12 +1,14 @@
-from collections import namedtuple, deque
+from collections import deque
 
 import pygame
 from typing import Dict, Tuple, List
 from dataclasses import dataclass
 
+from app.core.types import KeyPressEventLogRecords
 from app.engine.input_processor.Gamepads import Gamepads
 from app.engine.input_processor.Scheduler import Scheduler
 from app.engine.input_processor.Timer import Timer
+from app.engine.message_broker.types import Controls
 
 
 @dataclass
@@ -22,9 +24,7 @@ class KeyPressLog:
     interval: int
     log: List[KeyPressLogRecord]
     subscribers: int
-
-KeyPressDetails = namedtuple("KeyPressDetails", ["key", "repeat_delta"])
-KeyPressEventLogRecord = namedtuple("KeyPressEventLogRecord", ["dt", "key", "down"])
+    subscribers_set: set[str]
 
 class InputEvents:
 
@@ -38,17 +38,22 @@ class InputEvents:
         self.keys_down: List[int] = []
         self.next_flush = Timer.current_timestamp() + InputEvents.flushing_interval
 
-    def subscribe(self, subscriber_name: str, keys: List[Tuple[int, int]]):
-        """Subscribe to keys with (key_code, repeat_delta) tuples"""
+    def subscribe(self, subscriber_name: str, keys: Controls):
         if subscriber_name in self.subscribers:
             return False
 
-        for key, repeat_delta in keys:
+        for key, binding in keys.items():
             if self.key_map.get(key) is None:
-                self.key_map[key] = KeyPressLog(down=False, subscribers=0, log=[], interval=repeat_delta)
+                self.key_map[key] = KeyPressLog(
+                    down=False,
+                    subscribers=0,
+                    subscribers_set=set(subscriber_name),
+                    log=[],
+                    interval=binding.repeat_delta
+                )
             self.key_map[key].subscribers += 1
 
-        self.subscribers[subscriber_name] = tuple(k[0] for k in keys)
+        self.subscribers[subscriber_name] = tuple(k for k in keys.keys())
         return True
 
     def unsubscribe(self, subscriber: str):
@@ -64,6 +69,7 @@ class InputEvents:
                 continue
 
             self.key_map[key].subscribers -= 1
+            self.key_map[key].subscribers_set.remove(subscriber)
 
         return True
 
@@ -126,15 +132,16 @@ class InputEvents:
                 interval=value.interval,
                 log=before,
                 subscribers=value.subscribers,
+                subscribers_set=value.subscribers_set,
             )
 
         return sliced
 
-    def slice_flat(self, start: int, end: int) -> deque[KeyPressEventLogRecord]:
+    def slice_flat(self, start: int, end: int) -> KeyPressEventLogRecords:
         flushed = self.slice(start, end)
 
         return deque(sorted(
-            (log_entry.dt, key, log_entry.down)
+            (log_entry.dt, key, log_entry.down, value.subscribers_set)
             for key, value in flushed.items()
             for log_entry in value.log
             if start <= log_entry.dt

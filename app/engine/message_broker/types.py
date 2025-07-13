@@ -2,10 +2,12 @@ from collections import UserDict
 from dataclasses import dataclass
 from enum import Enum
 
+from app.core.types import KeyPressEventLogRecords
 from app.core.vectors import Vec2
 
 
 class MessageTypes(Enum):
+    INPUT = "input"
     KEY_DOWN = "key_down"
     KEY_UP = "key_up"
     PUSHED_BY = "pushed_by"
@@ -49,7 +51,12 @@ class Message:
 @dataclass
 class KeyBinding:
     key_down: MessageBody
+    repeat_delta: int = 150
     key_up: MessageBody = None
+
+@dataclass
+class InputPayload(Payload):
+    input: KeyPressEventLogRecords
 
 class Controls(UserDict[int, KeyBinding]):
     pass
@@ -61,4 +68,5 @@ MessagePayloadMap: dict[MessageTypes, type[Payload]] = {
     MessageTypes.OVERLAPPED_BY: Payload,
     MessageTypes.STROKED_BY: StrokedByPayload,
     MessageTypes.INTENTION_TO_MOVE: IntentionToMovePayload,
+    MessageTypes.INPUT: InputPayload,
 }
