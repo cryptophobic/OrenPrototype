@@ -44,7 +44,6 @@ class Application:
 
         while not self.game_over:
             self.ticker.tick()
-            # self.frame_context.timestamp = self.ticker.last_timestamp
             self.check_exit()
             # self.event_dispatcher.listen(self.ticker.last_timestamp)
 
@@ -62,6 +61,7 @@ class Application:
                 # Render if state changed
                 # if self.state_manager.commit():
                 #     self.renderer.draw()
+                self.context.tick()
 
                 if True:
                     self.renderer.draw()
