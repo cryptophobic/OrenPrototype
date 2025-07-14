@@ -1,14 +1,14 @@
 from enum import Enum
 
 FPS = 60
-SCREEN_SIZE = (1000, 800)
+SCREEN_SIZE = (1750, 1400)
 
 # Grid colors
 GRID_COLOR = (200, 200, 200)
 OBSTACLE_COLOR = (100, 100, 100)
 SELECTED_COLOR = (255, 255, 0)
 UNIT_COLOR = (0, 128, 255)
-BORDER_COLOR = (50, 50, 50)
+BORDER_COLOR = (150, 150, 150)
 
 
 class Behaviours(Enum):

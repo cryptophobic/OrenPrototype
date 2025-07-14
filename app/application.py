@@ -34,6 +34,9 @@ class Application:
 
         self.ticker = Timer()
 
+        self.i = 0
+        self.pressed = False
+
         # Game loop settings
         self.interval = 1000 / config.FPS
         self.game_over = False
@@ -47,6 +50,19 @@ class Application:
         pressed = pygame.key.get_pressed()
         if pressed[pygame.K_ESCAPE]:
             self.game_over = True
+
+    def switch(self, puppets):
+        pressed = pygame.key.get_pressed()
+        length = len(puppets)
+        if pressed[pygame.K_TAB] and not self.pressed:
+            self.pressed = True
+            print(self.i, length, self.i % length)
+            self.orchestrator.set_puppet(puppets[self.i % length].name)
+            self.i += 1
+        else:
+            self.pressed = pressed[pygame.K_TAB]
+
+
 
     def register_actors(self):
         for puppeteer in self.orchestrator.actors_collection.get_by_type(Puppeteer, PuppeteerCollection):
@@ -62,9 +78,12 @@ class Application:
         base_behaviour.register_grid(self.current_level.grid)
         base_behaviour.register_messenger(self.message_broker)
 
+        puppets = list(self.orchestrator.moveable_actors.raw_items().values())
+
         while not self.game_over:
             self.ticker.tick()
             self.check_exit()
+            self.switch(puppets)
             self.event_dispatcher.listen(self.ticker.last_timestamp)
 
             if self.ticker.last_timestamp >= render_threshold:

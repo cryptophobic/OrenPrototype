@@ -1,6 +1,7 @@
 from typing import Protocol, Type, TypeVar, Iterator, Callable, runtime_checkable, Self
 
 from app.config import Behaviours
+from app.protocols.core.collection_base_protocol import CollectionBaseProtocol
 from app.protocols.objects.actor_protocol import ActorProtocol
 
 V = TypeVar("V", bound=ActorProtocol)
@@ -9,7 +10,7 @@ C = TypeVar("C", bound="ActorCollection")
 
 
 @runtime_checkable
-class ActorCollectionProtocol(Protocol[V]):
+class ActorCollectionProtocol(CollectionBaseProtocol[str, V], Protocol[V]):
     def __iter__(self) -> Iterator[V]: ...
     def __len__(self) -> int: ...
     def __contains__(self, name: str) -> bool: ...

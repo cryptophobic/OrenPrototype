@@ -51,7 +51,7 @@ class Message:
 @dataclass
 class KeyBinding:
     key_down: MessageBody
-    repeat_delta: int = 150
+    repeat_delta: int = 100
     key_up: MessageBody = None
 
 @dataclass

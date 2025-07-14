@@ -7,5 +7,7 @@ from app.protocols.objects.actor_protocol import ActorProtocol
 
 class OrchestratorProtocol(ActorProtocol):
     actors_collection: ActorCollectionProtocol
+    moveable_actors: ActorCollectionProtocol
 
     def get_puppeteers(self) -> PuppeteerCollectionProtocol: ...
+    def set_puppet(self, name: str): ...
