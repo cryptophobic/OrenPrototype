@@ -1,13 +1,12 @@
-import pygame
-
+import time
 
 class Timer:
     def __init__(self):
-        self.__last_timestamp = pygame.time.get_ticks()
+        self.__last_timestamp = int(time.time() * 1000)
         self.__delta_time = 0
 
     def tick(self):
-        current_timestamp = pygame.time.get_ticks()
+        current_timestamp = int(time.time() * 1000)
         self.__delta_time = current_timestamp - self.__last_timestamp
         self.__last_timestamp = current_timestamp
 
@@ -21,4 +20,4 @@ class Timer:
 
     @staticmethod
     def current_timestamp():
-        return pygame.time.get_ticks()
+        return int(time.time() * 1000)
