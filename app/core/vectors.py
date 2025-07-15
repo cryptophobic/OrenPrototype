@@ -1,9 +1,11 @@
 from dataclasses import dataclass
 import math
 
+from app.config import Y_MODIFIER
+
 
 @dataclass
-class Vec2:
+class CustomVec2:
     x: int
     y: int
 
@@ -12,19 +14,19 @@ class Vec2:
 
     @staticmethod
     def up(magnitude: int = 1):
-        return Vec2(0, -magnitude)
+        return CustomVec2(0, -magnitude * Y_MODIFIER)
 
     @staticmethod
     def down(magnitude: int = 1):
-        return Vec2(0, magnitude)
+        return CustomVec2(0, magnitude * Y_MODIFIER)
 
     @staticmethod
     def left(magnitude: int = 1):
-        return Vec2(-magnitude, 0)
+        return CustomVec2(-magnitude, 0)
 
     @staticmethod
     def right(magnitude: int = 1):
-        return Vec2(magnitude, 0)
+        return CustomVec2(magnitude, 0)
 
     def __getitem__(self, item: int) -> int:
         if item > 1:
@@ -33,13 +35,13 @@ class Vec2:
         return (self.x, self.y)[item]
 
     def __add__(self, other):
-        return Vec2(self.x + other[Vec2.X], self.y + other[Vec2.Y])
+        return CustomVec2(self.x + other[CustomVec2.X], self.y + other[CustomVec2.Y])
 
     def __sub__(self, other):
-        return Vec2(self.x - other[Vec2.X], self.y - other[Vec2.Y])
+        return CustomVec2(self.x - other[CustomVec2.X], self.y - other[CustomVec2.Y])
 
     def __neg__(self):
-        return Vec2(-self.x, -self.y)
+        return CustomVec2(-self.x, -self.y)
 
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
@@ -65,12 +67,12 @@ class Vec2:
         return math.sqrt(dx * dx + dy * dy)
 
     def scalar_multiply(self, scalar):
-        return Vec2(int(self.x * scalar), int(self.y * scalar))
+        return CustomVec2(int(self.x * scalar), int(self.y * scalar))
 
 
-def iterate_path(from_vec: Vec2, to_vec: Vec2):
-    incr = Vec2(1 if to_vec.x > from_vec.x else -1, 1 if to_vec.y > from_vec.y else -1)
-    res = Vec2(from_vec.x, from_vec.y)
+def iterate_path(from_vec: CustomVec2, to_vec: CustomVec2):
+    incr = CustomVec2(1 if to_vec.x > from_vec.x else -1, 1 if to_vec.y > from_vec.y else -1)
+    res = CustomVec2(from_vec.x, from_vec.y)
 
     while res != to_vec:
         if res.x != to_vec.x:

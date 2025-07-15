@@ -1,2 +1,2 @@
 petname==2.6
-pygame==2.6.0
+arcade~=3.3.2

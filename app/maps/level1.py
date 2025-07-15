@@ -1,10 +1,10 @@
-import pygame
+import arcade
 
 from app.collections.coordinate_holder_collection import CoordinateHolderCollection
 from app.config import Behaviours
 from app.core.geometry.shape import Shape
 from app.core.physics.body import Body, CollisionMatrix, CollisionResponse
-from app.core.vectors import Vec2
+from app.core.vectors import CustomVec2
 from app.engine.grid.grid import Grid
 from app.engine.message_broker.types import Controls, KeyBinding, MessageBody, MessageTypes, IntentionToMovePayload
 from app.maps.level import Level
@@ -13,7 +13,7 @@ from app.objects.puppeteer import Puppeteer
 from app.objects.static_object import StaticObject
 from app.objects.types import UnitStats
 from app.objects.unit import Unit
-from app.resources.index import get_icon, Icons
+from app.resources.index import Icons, get_icon_path
 
 
 def maze(width, height):
@@ -22,9 +22,9 @@ def maze(width, height):
     for x in range(width):
         for y in range(height):
             if walls[index] == '1':
-                coordinates = Vec2(x, y)
+                coordinates = CustomVec2(x, y)
                 prison_body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))
-                prison_shape = Shape(get_icon(Icons.WALLS))
+                prison_shape = Shape(get_icon_path(Icons.WALLS))
                 prison = StaticObject(
                     body=prison_body,
                     shape=prison_shape,
@@ -46,11 +46,11 @@ class LevelFactory:
 
         # Cursor setup
         cursor_body = Body(CollisionMatrix(response=CollisionResponse.OVERLAP))
-        cursor_shape = Shape(get_icon(Icons.CURSOR))
+        cursor_shape = Shape(get_icon_path(Icons.CURSOR))
         cursor_actor = CoordinateHolder(
             body=cursor_body,
             shape=cursor_shape,
-            coordinates=Vec2(4, 8),
+            coordinates=CustomVec2(4, 8),
             name="Cursor")
         cursor_actor.add_behaviour(Behaviours.MOVEABLE)
         level.actors_collection.add(cursor_actor)
@@ -58,28 +58,28 @@ class LevelFactory:
 
         # Player setup
         player_body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))
-        player_shape = Shape(get_icon(Icons.PLAYER))
+        player_shape = Shape(get_icon_path(Icons.PLAYER))
         player_stats = UnitStats(STR=5, DEX=1, CON=5, INT=2, WIS=2, CHA=1, HP=10, initiative=1)
-        unit = Unit(body=player_body, shape=player_shape, coordinates=Vec2(1, 1), stats=player_stats, name="Adventurer")
+        unit = Unit(body=player_body, shape=player_shape, coordinates=CustomVec2(1, 1), stats=player_stats, name="Adventurer")
         unit.add_behaviour(Behaviours.MOVEABLE)
         level.actors_collection.add(unit)
         # End of player setup
 
         # Enemy setup
         enemy_body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))
-        enemy_shape = Shape(get_icon(Icons.ENEMY))
+        enemy_shape = Shape(get_icon_path(Icons.ENEMY))
         enemy_stats = UnitStats(STR=5, DEX=1, CON=5, INT=2, WIS=2, CHA=1, HP=10, initiative=1)
-        enemy_unit = Unit(body=enemy_body, shape=enemy_shape, coordinates=Vec2(1, 2), stats=enemy_stats, name="Enemy")
+        enemy_unit = Unit(body=enemy_body, shape=enemy_shape, coordinates=CustomVec2(1, 2), stats=enemy_stats, name="Enemy")
         enemy_unit.add_behaviour(Behaviours.MOVEABLE)
         level.actors_collection.add(enemy_unit)
         # End of player setup
 
         # Puppeteer setup
         controls = Controls()
-        controls[pygame.K_UP] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=IntentionToMovePayload(Vec2.up())))
-        controls[pygame.K_DOWN] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=IntentionToMovePayload(Vec2.down())))
-        controls[pygame.K_LEFT] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=IntentionToMovePayload(Vec2.left())))
-        controls[pygame.K_RIGHT] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=IntentionToMovePayload(Vec2.right())))
+        controls[arcade.key.UP] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=IntentionToMovePayload(CustomVec2.up())))
+        controls[arcade.key.DOWN] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=IntentionToMovePayload(CustomVec2.down())))
+        controls[arcade.key.LEFT] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=IntentionToMovePayload(CustomVec2.left())))
+        controls[arcade.key.RIGHT] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=IntentionToMovePayload(CustomVec2.right())))
 
         puppeteer = Puppeteer(puppet=unit, controls=controls)
         puppeteer.add_behaviour(Behaviours.POSSESSOR)
@@ -87,22 +87,22 @@ class LevelFactory:
         # End of Puppeteer setup
 
         # Prison walls
-        # for coordinates in [Vec2(1, 0), Vec2(1, 1), Vec2(0, 1)]:
+        # for coordinates in [CustomVec2(1, 0), CustomVec2(1, 1), CustomVec2(0, 1)]:
 
-        # for prison in maze(level.grid_width, level.grid_height):
-        #     level.actors_collection.add(prison)
+        for prison in maze(level.grid_width, level.grid_height):
+            level.actors_collection.add(prison)
 
-        for coordinates in [Vec2(1, 1), Vec2(0, 1)]:
-           prison_body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))
-           prison_shape = Shape(get_icon(Icons.WALLS))
-           # Unique name would be created automatically.
-           level.actors_collection.add(StaticObject(
-               body=prison_body,
-               shape=prison_shape,
-               coordinates=coordinates,
-               height=100,
-               weight=100,
-           ))
+        # for coordinates in [CustomVec2(1, 1), CustomVec2(0, 1)]:
+        #    prison_body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))
+        #    prison_shape = Shape(get_icon_path(Icons.WALLS))
+        #    # Unique name would be created automatically.
+        #    level.actors_collection.add(StaticObject(
+        #        body=prison_body,
+        #        shape=prison_shape,
+        #        coordinates=coordinates,
+        #        height=100,
+        #        weight=100,
+        #    ))
         # End of prison walls
 
         for coordinate_holder in level.actors_collection.get_by_type(CoordinateHolder, CoordinateHolderCollection):
