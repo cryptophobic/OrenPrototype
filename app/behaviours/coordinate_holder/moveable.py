@@ -1,6 +1,6 @@
 from app.behaviours.behaviour import register_message_handler, Behaviour
 from app.config import Behaviours
-from app.core.vectors import Vec2
+from app.core.vectors import CustomVec2
 from app.engine.message_broker.types import MessageTypes, Message, MessageBody, PushedByPayload, Payload, \
     IntentionToMovePayload
 from app.protocols.objects.coordinate_holder_protocol import CoordinateHolderProtocol
@@ -31,7 +31,7 @@ class Moveable(Behaviour):
     internal implementation of behavioural actions
     '''
     @classmethod
-    def __move(cls, coordinate_holder: CoordinateHolderProtocol, direction: Vec2, force: int) -> bool:
+    def __move(cls, coordinate_holder: CoordinateHolderProtocol, direction: CustomVec2, force: int) -> bool:
         result = cls.get_grid().move(coordinate_holder, coordinate_holder.coordinates + direction)
         messenger = cls.get_messenger()
         for actor in result.blocked:

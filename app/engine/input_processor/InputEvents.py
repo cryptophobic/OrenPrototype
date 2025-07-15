@@ -1,6 +1,5 @@
 from collections import deque
 
-import pygame
 from typing import Dict, Tuple, List
 from dataclasses import dataclass
 
@@ -37,6 +36,7 @@ class InputEvents:
         self.key_map: Dict[int, KeyPressLog] = {}
         self.keys_down: List[int] = []
         self.next_flush = Timer.current_timestamp() + InputEvents.flushing_interval
+        self.key_pressed: dict[int, bool] = {}
 
     def subscribe(self, subscriber_name: str, keys: Controls):
         if subscriber_name in self.subscribers:
@@ -94,22 +94,26 @@ class InputEvents:
             self.next_flush = Timer.current_timestamp() + InputEvents.flushing_interval
 
     def listen(self, ticks: int):
-        pressed = pygame.key.get_pressed()
+        pressed = self.key_pressed
         for idx, key in enumerate(self.keys_down):
 
             if key not in self.key_map:
                 self.keys_down.pop(idx)
                 continue
 
+            key_pressed = pressed.get(key, False)
+
             if (self.is_down_event_expired(key)
-                    or (not pressed[key] and not self.scheduler.is_pressed(key) and not self.gamepads.pressed(key))):
+                    or (not key_pressed and not self.scheduler.is_pressed(key) and not self.gamepads.pressed(key))):
                 self.key_map[key].down = False
                 self.key_map[key].log.append(KeyPressLogRecord(dt=ticks, down=False, processed=False))
                 self.keys_down.pop(idx)
 
         for key, events_log in self.key_map.items():
+            key_pressed = pressed.get(key, False)
+
             if (events_log.down is not True
-                    and (pressed[key] or self.scheduler.is_pressed(key) or self.gamepads.pressed(key))):
+                    and (key_pressed or self.scheduler.is_pressed(key) or self.gamepads.pressed(key))):
 
                 self.key_map[key].down = True
                 self.key_map[key].log.append(KeyPressLogRecord(dt=ticks, down=True, processed=False))

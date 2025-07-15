@@ -17,6 +17,10 @@ class Actor(ActorProtocol):
         self.pending_actions: deque[BehaviourAction] = deque()
         self.behaviours: BehaviourCollectionProtocol = BehaviourCollection()
 
+    @property
+    def id(self) -> str:
+        return self.name
+
     def on_message(self, message_body: MessageBody) -> deque[BehaviourAction]:
         filtered_behaviours = self.behaviours.can_respond_to(message_body.message_type)
         response_actions: deque[BehaviourAction] = deque()
