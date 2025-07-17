@@ -30,7 +30,7 @@ class BehaviourRegistry:
 
 _registry_instance: BehaviourRegistry | None = None
 
-def get_registry() -> BehaviourRegistry:
+def get_behaviour_registry() -> BehaviourRegistry:
     global _registry_instance
     if _registry_instance is None:
         _registry_instance = BehaviourRegistry()

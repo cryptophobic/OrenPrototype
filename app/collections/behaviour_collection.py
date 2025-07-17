@@ -5,7 +5,7 @@ from app.config import Behaviours
 from app.core.collection_base import CollectionBase
 from app.protocols.behaviours.behaviour_protocol import BehaviourProtocol
 from app.protocols.collections.behaviour_collection_protocol import BehaviourCollectionProtocol
-from app.registry.behaviour_registry import get_registry
+from app.registry.behaviour_registry import get_behaviour_registry
 
 
 class BehaviourCollection(CollectionBase[Behaviours, Behaviours | BehaviourProtocol], BehaviourCollectionProtocol):
@@ -13,7 +13,7 @@ class BehaviourCollection(CollectionBase[Behaviours, Behaviours | BehaviourProto
         value = super().get(item)
 
         if isinstance(value, Behaviours):
-            behaviour = get_registry().get(value)
+            behaviour = get_behaviour_registry().get(value)
             self.items[item] = behaviour
             return behaviour
 

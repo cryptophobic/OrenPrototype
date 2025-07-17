@@ -16,7 +16,7 @@ from app.objects.orchestrator import Orchestrator
 from app.objects.puppeteer import Puppeteer
 from app.protocols.collections.actor_collection_protocol import ActorCollectionProtocol
 from app.protocols.objects.orchestrator_protocol import OrchestratorProtocol
-from app.registry.behaviour_registry import get_registry
+from app.registry.behaviour_registry import get_behaviour_registry
 
 
 class GameView(arcade.View):
@@ -69,7 +69,7 @@ class GameView(arcade.View):
 
         self.register_actors()
 
-        base_behaviour = get_registry().get(Behaviours.BEHAVIOUR)
+        base_behaviour = get_behaviour_registry().get(Behaviours.BEHAVIOUR)
         base_behaviour.register_grid(self.current_level.grid)
         base_behaviour.register_messenger(self.message_broker)
 

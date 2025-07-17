@@ -13,7 +13,7 @@ from app.objects.puppeteer import Puppeteer
 from app.objects.static_object import StaticObject
 from app.objects.types import UnitStats
 from app.objects.unit import Unit
-from app.resources.index import Icons, get_icon_path
+from app.registry.icon_registry import get_icon_path, Icons
 
 
 def maze(width, height):
