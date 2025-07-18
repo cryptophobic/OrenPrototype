@@ -1,4 +1,5 @@
 import arcade
+from pyglet.resource import animation
 
 from app import config as cfg
 from app.collections.coordinate_holder_collection import CoordinateHolderCollection
@@ -17,6 +18,22 @@ from app.objects.puppeteer import Puppeteer
 from app.protocols.collections.actor_collection_protocol import ActorCollectionProtocol
 from app.protocols.objects.orchestrator_protocol import OrchestratorProtocol
 from app.registry.behaviour_registry import get_behaviour_registry
+
+class Player(arcade.Sprite):
+    def __init__(self, texture_list: list[arcade.Texture]):
+        super().__init__(texture_list[0])
+        self.time_elapsed = 0
+
+        self.textures = texture_list
+        self.frames = len(texture_list)
+
+    def update(self, delta_time: float = 1/60,  *args, **kwargs) -> None:
+        self.time_elapsed += delta_time
+
+        if self.time_elapsed > 0.1:
+            self.time_elapsed = 0
+            self.set_texture(self.cur_texture_index)
+            self.cur_texture_index = (self.cur_texture_index + 1) % self.frames
 
 
 class GameView(arcade.View):
@@ -115,11 +132,17 @@ class GameView(arcade.View):
                 current_actor_ids.add(coordinate_holder.id)
                 x = coordinate_holder.coordinates.x
                 y = coordinate_holder.coordinates.y
-                icon_path = coordinate_holder.shape.icon_path
 
+                # TODO: just for testing purpose
+                icon_path = coordinate_holder.shape.icon_path
+                current_animation_index = next(iter(coordinate_holder.shape.animations))
+                current_animation = coordinate_holder.shape.animations.get(current_animation_index).front
+                print(f"Icon path: {current_animation}")
                 if coordinate_holder.name not in self.actor_sprite_map:
                     # Create and add new sprite
-                    sprite = arcade.Sprite(icon_path, scale=self.tile_size / 16)
+                    # TODO: just for testing purpose
+                    # sprite = arcade.Sprite(icon_path, scale=self.tile_size / 16)
+                    sprite = Player(current_animation)
                     self.actor_sprite_map[coordinate_holder.name] = sprite
                     if coordinate_holder.name == "Cursor":
                         self.cursor_sprite_list.append(sprite)
@@ -148,23 +171,23 @@ class GameView(arcade.View):
             events = self.input_events.slice_flat(self.ticker.last_timestamp, render_threshold)
             self.ticker.tick()
 
-            if not events:
-                return
-
-            # TODO: Maybe later move this logic to some behaviour as currently only behaviours sending messages
-            message = Message(
-                sender="Application",
-                body=MessageBody(
-                    message_type=MessageTypes.INPUT,
-                    payload=InputPayload(events),
+            if events:
+                # TODO: Maybe later move this logic to some behaviour as currently only behaviours sending messages
+                message = Message(
+                    sender="Application",
+                    body=MessageBody(
+                        message_type=MessageTypes.INPUT,
+                        payload=InputPayload(events),
+                    )
                 )
-            )
-            _, pending_actions = self.message_broker.send_message(message, self.orchestrator)
-            self.orchestrator.pending_actions.extend(pending_actions)
+                _, pending_actions = self.message_broker.send_message(message, self.orchestrator)
+                self.orchestrator.pending_actions.extend(pending_actions)
 
-            # TODO: think twice if it is logical enough to pass self.orchestrator
-            self.state_changed = self.command_pipeline.process(self.orchestrator)
-            self.context.tick() # frame number increment
+                # TODO: think twice if it is logical enough to pass self.orchestrator
+                self.state_changed = self.command_pipeline.process(self.orchestrator)
+                self.context.tick() # frame number increment
+
+        self.actor_sprite_list.update()
 
     def on_key_press(self, key: int, modifiers: int):
         if key == arcade.key.ESCAPE:
@@ -174,7 +197,6 @@ class GameView(arcade.View):
             length = len(self.puppets)
             self.orchestrator.set_puppet(self.puppets[self.i % length].name)
             self.i += 1
-
 
         self.input_events.key_pressed[key] = True
 

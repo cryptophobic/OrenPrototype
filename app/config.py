@@ -51,7 +51,7 @@ animation_paths: dict[NpcAnimations, AnimationFileDetails] = {
     NpcAnimations.ENEMY_ATTACK: AnimationFileDetails("goblin/Attack_full.png", 64, 64, 8),
     NpcAnimations.ENEMY_DEATH: AnimationFileDetails("goblin/Death_full.png", 64, 64, 7),
     NpcAnimations.ENEMY_HURT: AnimationFileDetails("goblin/Hurt_full.png", 64, 64, 5),
-    NpcAnimations.ENEMY_IDLE: AnimationFileDetails("goblin/Idle_full.png", 64, 64, 12),
+    NpcAnimations.ENEMY_IDLE: AnimationFileDetails("goblin/Idle_full.png", 64, 64, 4),
     NpcAnimations.ENEMY_RUN: AnimationFileDetails("goblin/Run_full.png", 64, 64, 8),
     NpcAnimations.ENEMY_RUN_ATTACK: AnimationFileDetails("goblin/Run_Attack_full.png", 64, 64, 8),
     NpcAnimations.ENEMY_WALK: AnimationFileDetails("goblin/Walk_full.png", 64, 64, 6),

@@ -1,11 +1,13 @@
 from pathlib import Path
 
-from app.core.animations import ArmedAnimations
+from app.collections.animation_collection import AnimationCollection
+from app.config import NpcAnimations
+from app.protocols.collections.animation_collection_protocol import AnimationCollectionProtocol
 
 
 class Shape:
-    def __init__(self, icon_path: Path, animations: dict[ArmedAnimations, list[Path]] = None):
+    def __init__(self, icon_path: Path):
         self.icon_path: Path = icon_path
-        self.animations: dict[ArmedAnimations, list[Path]] = animations or {}
-        self.current_animation: ArmedAnimations = ArmedAnimations.IDLE
+        self.animations: AnimationCollectionProtocol = AnimationCollection()
+        self.current_animation: NpcAnimations = NpcAnimations.ARMED_IDLE
         pass

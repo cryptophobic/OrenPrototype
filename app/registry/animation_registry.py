@@ -14,7 +14,7 @@ class LoadedAnimation:
     left: list[Texture] = field(default_factory=list)
     right: list[Texture] = field(default_factory=list)
 
-animation_dir = current_path = Path(__file__).parent / "resources" / "animations"
+animation_dir = current_path = Path(__file__).parent.parent / "resources" / "animations"
 
 class AnimationRegistry:
 
