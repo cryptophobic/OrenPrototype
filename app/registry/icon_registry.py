@@ -13,7 +13,7 @@ icons_storage_path: Dict[Icons, Path] = {}
 
 def get_icon_path(name: Icons):
     if name not in icons_storage_path:
-        current_path = Path(__file__).parent
+        current_path = Path(__file__).parent.parent / "resources"
         icon_path = current_path / name.value
         icons_storage_path[name] = icon_path
 

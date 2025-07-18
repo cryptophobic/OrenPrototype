@@ -53,7 +53,7 @@ class LevelFactory:
             coordinates=CustomVec2(4, 8),
             name="Cursor")
         cursor_actor.add_behaviour(Behaviours.MOVEABLE)
-        # level.actors_collection.add(cursor_actor)
+        level.actors_collection.add(cursor_actor)
         # End of Cursor setup
 
         # Player setup
@@ -106,8 +106,8 @@ class LevelFactory:
         # Prison walls
         # for coordinates in [CustomVec2(1, 0), CustomVec2(1, 1), CustomVec2(0, 1)]:
 
-        # for prison in maze(level.grid_width, level.grid_height):
-        #     level.actors_collection.add(prison)
+        for prison in maze(level.grid_width, level.grid_height):
+            level.actors_collection.add(prison)
 
         # for coordinates in [CustomVec2(1, 1), CustomVec2(0, 1)]:
         #    prison_body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))

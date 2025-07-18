@@ -19,11 +19,15 @@ from app.protocols.collections.actor_collection_protocol import ActorCollectionP
 from app.protocols.objects.orchestrator_protocol import OrchestratorProtocol
 from app.registry.behaviour_registry import get_behaviour_registry
 
-class Player(arcade.Sprite):
+class Animated(arcade.Sprite):
     def __init__(self, texture_list: list[arcade.Texture]):
         super().__init__(texture_list[0])
         self.time_elapsed = 0
+        self.textures = []
+        self.frames = 0
+        self.set_animation(texture_list)
 
+    def set_animation(self, texture_list: list[arcade.Texture]) -> None:
         self.textures = texture_list
         self.frames = len(texture_list)
 
@@ -133,16 +137,17 @@ class GameView(arcade.View):
                 x = coordinate_holder.coordinates.x
                 y = coordinate_holder.coordinates.y
 
-                # TODO: just for testing purpose
-                icon_path = coordinate_holder.shape.icon_path
-                current_animation_index = next(iter(coordinate_holder.shape.animations))
-                current_animation = coordinate_holder.shape.animations.get(current_animation_index).front
-                print(f"Icon path: {current_animation}")
                 if coordinate_holder.name not in self.actor_sprite_map:
-                    # Create and add new sprite
-                    # TODO: just for testing purpose
-                    # sprite = arcade.Sprite(icon_path, scale=self.tile_size / 16)
-                    sprite = Player(current_animation)
+
+                    if len(coordinate_holder.shape.animations) == 0:
+                        icon_path = coordinate_holder.shape.icon_path
+                        sprite = arcade.Sprite(icon_path, scale=self.tile_size / 16)
+                    else:
+                        # TODO: just for testing purpose
+                        current_animation_index = next(iter(coordinate_holder.shape.animations))
+                        current_animation = coordinate_holder.shape.animations.get(current_animation_index).front
+                        sprite = Animated(current_animation)
+
                     self.actor_sprite_map[coordinate_holder.name] = sprite
                     if coordinate_holder.name == "Cursor":
                         self.cursor_sprite_list.append(sprite)
