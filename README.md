@@ -18,6 +18,7 @@ This document outlines the recommended strategy for managing actors and lifecycl
    - [4. Receive Input Log Records](#4-receive-input-log-records)
    - [5. Access to Global State](#5-access-to-global-state)
    - [Suggested File Layout](#-suggested-file-layout)
+7. [Movement, Animation, and Conflict Resolution](#movement-animation-and-conflict-resolution)
 
 ---
 
