@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from app.core.types import KeyPressEventLogRecords
-from app.core.vectors import CustomVec2
+from app.core.vectors import CustomVec2i
 
 
 class MessageTypes(Enum):
@@ -26,17 +26,17 @@ class ControlsPayload(Payload):
 @dataclass
 class PushedByPayload(Payload):
     force: int
-    direction: CustomVec2
+    direction: CustomVec2i
 
 @dataclass
 class IntentionToMovePayload(Payload):
-    direction: CustomVec2
+    direction: CustomVec2i
 
 @dataclass
 class StrokedByPayload(Payload):
     damage: int
     damage_type: str
-    direction: CustomVec2
+    direction: CustomVec2i
 
 @dataclass
 class MessageBody:

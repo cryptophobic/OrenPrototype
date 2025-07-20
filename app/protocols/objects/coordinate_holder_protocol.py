@@ -2,7 +2,7 @@ from typing import runtime_checkable, Protocol, Self
 
 from app.core.geometry.shape import Shape
 from app.core.physics.body import Body
-from app.core.vectors import CustomVec2
+from app.core.vectors import CustomVec2i
 from app.protocols.objects.actor_protocol import ActorProtocol
 
 
@@ -12,7 +12,7 @@ class CoordinateHolderProtocol(ActorProtocol, Protocol):
 
     body: Body
     shape: Shape
-    coordinates: CustomVec2
+    coordinates: CustomVec2i
 
     def blocks(self, other: Self) -> bool: ...
     def overlaps(self, other: Self) -> bool: ...

@@ -1,12 +1,12 @@
 from app.collections.coordinate_holder_collection import CoordinateHolderCollection
-from app.core.vectors import CustomVec2
+from app.core.vectors import CustomVec2i
 from app.engine.grid.types import PlaceToPositionResult
 from app.protocols.engine.grid.cell_protocol import CellProtocol
 from app.protocols.objects.coordinate_holder_protocol import CoordinateHolderProtocol
 
 
 class Cell(CellProtocol):
-    def __init__(self, coordinates: CustomVec2):
+    def __init__(self, coordinates: CustomVec2i):
         self.coordinates = coordinates
         self.coordinate_holders: CoordinateHolderCollection = CoordinateHolderCollection()
 
@@ -14,7 +14,7 @@ class Cell(CellProtocol):
         return self.coordinate_holders.remove(coordinate_holder.name)
 
 
-    def place(self, coordinate_holder: CoordinateHolderProtocol, to_place: CustomVec2) -> PlaceToPositionResult:
+    def place(self, coordinate_holder: CoordinateHolderProtocol, to_place: CustomVec2i) -> PlaceToPositionResult:
         blocked = self.coordinate_holders.get_blocking_actors(coordinate_holder)
         if blocked:
             return PlaceToPositionResult(placed=False, blocked=blocked)
