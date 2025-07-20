@@ -169,7 +169,7 @@ orchestrator/
 │   ├── input_handler.py            # From KeyPressEventLogRecord
 │   ├── pending_manager.py          # Clears actor pending_actions
 │   └── lifecycle_manager.py        # Handles REQUEST_DELETE, etc.
-
+```
 
 ---
 
