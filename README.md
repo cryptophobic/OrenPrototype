@@ -169,3 +169,18 @@ orchestrator/
 │   ├── input_handler.py            # From KeyPressEventLogRecord
 │   ├── pending_manager.py          # Clears actor pending_actions
 │   └── lifecycle_manager.py        # Handles REQUEST_DELETE, etc.
+
+
+---
+
+## Movement, Animation, and Conflict Resolution
+
+For detailed information about the movement system, animation handling, and conflict resolution mechanics, see:
+
+📖 **[Movement, Animation, and Conflict Resolution](animation_conflict_resolving.md)**
+
+This document covers:
+- Grid-based movement with smooth visual animations
+- Strength-based push mechanics between actors
+- Conflict resolution without rollback systems
+- Visual overlapping and animation decoupling

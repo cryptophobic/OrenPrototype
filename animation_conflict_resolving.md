@@ -1,5 +1,28 @@
 # 🧭 Movement, Animation, and Conflict Resolution — Oren RPG
 
+## Table of Contents
+
+1. [Goals](#-goals)
+2. [Core Concepts](#-core-concepts)
+   - [CoordinateHolder](#coordinateholder)
+3. [Movement Mechanics](#-movement-mechanics)
+   - [Movement Accumulation](#movement-accumulation)
+   - [Directional Speed Control](#directional-speed-control)
+4. [Conflict Resolution](#-conflict-resolution)
+   - [Cell Ownership](#cell-ownership)
+   - [PUSHED_BY Protocol](#pushed_by-protocol)
+   - [Strength-Based Push Logic](#strength-based-push-logic)
+   - [Pusher Behavior](#pusher-behavior)
+5. [Animation & Visual Logic](#-animation--visual-logic)
+   - [Visual Movement](#visual-movement)
+   - [Overlapping Sprites](#overlapping-sprites)
+6. [No Rollback Required](#-no-rollback-required)
+7. [Flow Summary](#-flow-summary)
+8. [Extensions for Future](#-extensions-for-future)
+9. [Summary](#-summary)
+
+---
+
 ## 🎯 Goals
 
 - Maintain a discrete, grid-based logic system.
