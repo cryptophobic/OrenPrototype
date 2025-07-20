@@ -1,34 +1,39 @@
 from dataclasses import dataclass
-import math
+from typing import Generic, TypeVar
 
 from app.config import Y_MODIFIER
 
+T = TypeVar("T")  # Value type — e.g. int, float.
 
 @dataclass
-class CustomVec2:
-    x: int
-    y: int
+class CustomVec2(Generic[T]):
+    x: T
+    y: T
 
     X = 0
     Y = 1
 
     @staticmethod
-    def up(magnitude: int = 1):
+    def up(magnitude: T = 1):
         return CustomVec2(0, -magnitude * Y_MODIFIER)
 
     @staticmethod
-    def down(magnitude: int = 1):
+    def down(magnitude: T = 1):
         return CustomVec2(0, magnitude * Y_MODIFIER)
 
     @staticmethod
-    def left(magnitude: int = 1):
+    def left(magnitude: T = 1):
         return CustomVec2(-magnitude, 0)
 
     @staticmethod
-    def right(magnitude: int = 1):
+    def right(magnitude: T = 1):
         return CustomVec2(magnitude, 0)
 
-    def __getitem__(self, item: int) -> int:
+    @staticmethod
+    def zero(magnitude: T = 1):
+        return CustomVec2(magnitude, 0)
+
+    def __getitem__(self, item: int) -> T:
         if item > 1:
             raise IndexError("Out of range of 2 dimensional vector")
 
@@ -55,30 +60,24 @@ class CustomVec2:
     def is_not_zero(self) -> bool:
         return self.x != 0 or self.y != 0
 
-    def iterate_to(self, other):
-        return iterate_path(self, other)
-
-    def iterate_from(self, other):
-        return iterate_path(other, self)
-
-    def distance_to(self, other):
-        dx = self.x - other.x
-        dy = self.y - other.y
-        return math.sqrt(dx * dx + dy * dy)
+    def length(self) -> T:
+        return (self.x ** 2 + self.y ** 2) ** 0.5
 
     def scalar_multiply(self, scalar):
         return CustomVec2(int(self.x * scalar), int(self.y * scalar))
 
 
-def iterate_path(from_vec: CustomVec2, to_vec: CustomVec2):
-    incr = CustomVec2(1 if to_vec.x > from_vec.x else -1, 1 if to_vec.y > from_vec.y else -1)
-    res = CustomVec2(from_vec.x, from_vec.y)
+@dataclass
+class CustomVec2i(CustomVec2[int]):
+    def to_float(self) -> 'CustomVec2f':
+        return CustomVec2f(float(self.x), float(self.y))
 
-    while res != to_vec:
-        if res.x != to_vec.x:
-            res.x += incr.x
-            yield res
+    def manhattan_distance(self, other: 'CustomVec2i') -> int:
+        return abs(self.x - other.x) + abs(self.y - other.y)
 
-        if res.y != to_vec.y:
-            res.y += incr.y
-            yield res
+
+@dataclass
+class CustomVec2f(CustomVec2[float]):
+    def to_int(self) -> 'CustomVec2i':
+        return CustomVec2i(int(self.x), int(self.y))
+

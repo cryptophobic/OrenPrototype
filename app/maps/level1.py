@@ -1,10 +1,10 @@
 import arcade
 
 from app.collections.coordinate_holder_collection import CoordinateHolderCollection
-from app.config import Behaviours
+from app.config import Behaviours, NpcAnimations
 from app.core.geometry.shape import Shape
 from app.core.physics.body import Body, CollisionMatrix, CollisionResponse
-from app.core.vectors import CustomVec2
+from app.core.vectors import CustomVec2i
 from app.engine.grid.grid import Grid
 from app.engine.message_broker.types import Controls, KeyBinding, MessageBody, MessageTypes, IntentionToMovePayload
 from app.maps.level import Level
@@ -13,7 +13,7 @@ from app.objects.puppeteer import Puppeteer
 from app.objects.static_object import StaticObject
 from app.objects.types import UnitStats
 from app.objects.unit import Unit
-from app.resources.index import Icons, get_icon_path
+from app.registry.icon_registry import get_icon_path, Icons
 
 
 def maze(width, height):
@@ -22,7 +22,7 @@ def maze(width, height):
     for x in range(width):
         for y in range(height):
             if walls[index] == '1':
-                coordinates = CustomVec2(x, y)
+                coordinates = CustomVec2i(x, y)
                 prison_body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))
                 prison_shape = Shape(get_icon_path(Icons.WALLS))
                 prison = StaticObject(
@@ -50,7 +50,7 @@ class LevelFactory:
         cursor_actor = CoordinateHolder(
             body=cursor_body,
             shape=cursor_shape,
-            coordinates=CustomVec2(4, 8),
+            coordinates=CustomVec2i(4, 8),
             name="Cursor")
         cursor_actor.add_behaviour(Behaviours.MOVEABLE)
         level.actors_collection.add(cursor_actor)
@@ -59,8 +59,17 @@ class LevelFactory:
         # Player setup
         player_body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))
         player_shape = Shape(get_icon_path(Icons.PLAYER))
+        player_shape.animations.set(NpcAnimations.ARMED_IDLE)
+        player_shape.animations.set(NpcAnimations.ARMED_RUN)
+        player_shape.animations.set(NpcAnimations.ARMED_HURT)
+        player_shape.animations.set(NpcAnimations.ARMED_WALK)
+        player_shape.animations.set(NpcAnimations.ARMED_DEATH)
+        player_shape.animations.set(NpcAnimations.ARMED_ATTACK)
+        player_shape.animations.set(NpcAnimations.ARMED_RUN_ATTACK)
+        player_shape.animations.set(NpcAnimations.ARMED_WALK_ATTACK)
+
         player_stats = UnitStats(STR=5, DEX=1, CON=5, INT=2, WIS=2, CHA=1, HP=10, initiative=1)
-        unit = Unit(body=player_body, shape=player_shape, coordinates=CustomVec2(1, 1), stats=player_stats, name="Adventurer")
+        unit = Unit(body=player_body, shape=player_shape, coordinates=CustomVec2i(1, 1), stats=player_stats, name="Adventurer")
         unit.add_behaviour(Behaviours.MOVEABLE)
         level.actors_collection.add(unit)
         # End of player setup
@@ -68,18 +77,26 @@ class LevelFactory:
         # Enemy setup
         enemy_body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))
         enemy_shape = Shape(get_icon_path(Icons.ENEMY))
+        enemy_shape.animations.set(NpcAnimations.ENEMY_IDLE)
+        enemy_shape.animations.set(NpcAnimations.ENEMY_RUN)
+        enemy_shape.animations.set(NpcAnimations.ENEMY_HURT)
+        enemy_shape.animations.set(NpcAnimations.ENEMY_WALK)
+        enemy_shape.animations.set(NpcAnimations.ENEMY_DEATH)
+        enemy_shape.animations.set(NpcAnimations.ENEMY_ATTACK)
+        enemy_shape.animations.set(NpcAnimations.ENEMY_RUN_ATTACK)
+        enemy_shape.animations.set(NpcAnimations.ENEMY_WALK_ATTACK)
         enemy_stats = UnitStats(STR=5, DEX=1, CON=5, INT=2, WIS=2, CHA=1, HP=10, initiative=1)
-        enemy_unit = Unit(body=enemy_body, shape=enemy_shape, coordinates=CustomVec2(1, 2), stats=enemy_stats, name="Enemy")
+        enemy_unit = Unit(body=enemy_body, shape=enemy_shape, coordinates=CustomVec2i(1, 2), stats=enemy_stats, name="Enemy")
         enemy_unit.add_behaviour(Behaviours.MOVEABLE)
         level.actors_collection.add(enemy_unit)
         # End of player setup
 
         # Puppeteer setup
         controls = Controls()
-        controls[arcade.key.UP] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=IntentionToMovePayload(CustomVec2.up())))
-        controls[arcade.key.DOWN] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=IntentionToMovePayload(CustomVec2.down())))
-        controls[arcade.key.LEFT] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=IntentionToMovePayload(CustomVec2.left())))
-        controls[arcade.key.RIGHT] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=IntentionToMovePayload(CustomVec2.right())))
+        controls[arcade.key.UP] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=IntentionToMovePayload(CustomVec2i.up())))
+        controls[arcade.key.DOWN] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=IntentionToMovePayload(CustomVec2i.down())))
+        controls[arcade.key.LEFT] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=IntentionToMovePayload(CustomVec2i.left())))
+        controls[arcade.key.RIGHT] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=IntentionToMovePayload(CustomVec2i.right())))
 
         puppeteer = Puppeteer(puppet=unit, controls=controls)
         puppeteer.add_behaviour(Behaviours.POSSESSOR)
@@ -87,12 +104,12 @@ class LevelFactory:
         # End of Puppeteer setup
 
         # Prison walls
-        # for coordinates in [CustomVec2(1, 0), CustomVec2(1, 1), CustomVec2(0, 1)]:
+        # for coordinates in [CustomVec2i(1, 0), CustomVec2i(1, 1), CustomVec2i(0, 1)]:
 
         for prison in maze(level.grid_width, level.grid_height):
             level.actors_collection.add(prison)
 
-        # for coordinates in [CustomVec2(1, 1), CustomVec2(0, 1)]:
+        # for coordinates in [CustomVec2i(1, 1), CustomVec2i(0, 1)]:
         #    prison_body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))
         #    prison_shape = Shape(get_icon_path(Icons.WALLS))
         #    # Unique name would be created automatically.

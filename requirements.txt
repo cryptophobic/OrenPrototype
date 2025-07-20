@@ -1,2 +1,4 @@
 petname==2.6
 arcade~=3.3.2
+pillow~=11.0.0
+pyglet~=2.1.6
