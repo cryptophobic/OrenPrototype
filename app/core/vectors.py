@@ -30,8 +30,8 @@ class CustomVec2(Generic[T]):
         return CustomVec2(magnitude, 0)
 
     @staticmethod
-    def zero(magnitude: T = 1):
-        return CustomVec2(magnitude, 0)
+    def zero():
+        return CustomVec2(0, 0)
 
     def __getitem__(self, item: int) -> T:
         if item > 1:
@@ -44,6 +44,9 @@ class CustomVec2(Generic[T]):
 
     def __sub__(self, other):
         return CustomVec2(self.x - other[CustomVec2.X], self.y - other[CustomVec2.Y])
+
+    def __mul__(self, n: T):
+        return CustomVec2(self.x * n, self.y * n)
 
     def __neg__(self):
         return CustomVec2(-self.x, -self.y)
