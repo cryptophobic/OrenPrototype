@@ -73,6 +73,10 @@ class CustomVec2(Generic[T]):
 
 @dataclass
 class CustomVec2i(CustomVec2[int]):
+    def __init__(self, x: int, y: int):
+        self.x = int(x)
+        self.y = int(y)
+
     def to_float(self) -> 'CustomVec2f':
         return CustomVec2f(float(self.x), float(self.y))
 
