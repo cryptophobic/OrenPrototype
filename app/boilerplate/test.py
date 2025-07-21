@@ -143,7 +143,7 @@ class GameView(arcade.View):
         self.player.position = self.get_tile_center(self.player.coordinates.x), self.get_tile_center(self.player.coordinates.y)
 
         self.enemy = Player(self.animations.get(NpcAnimations.ENEMY_RUN_ATTACK).front, CustomVec2i(15, 10))
-        self.enemy.scale = 1.5
+        self.enemy.scale = 2.0
         self.enemy.position = self.get_tile_center(self.enemy.coordinates.x), self.get_tile_center(self.enemy.coordinates.y)
 
         self.sprite_list.append(self.player)
