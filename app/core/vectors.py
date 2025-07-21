@@ -1,3 +1,4 @@
+import math
 from dataclasses import dataclass
 from typing import Generic, TypeVar
 
@@ -63,8 +64,8 @@ class CustomVec2(Generic[T]):
     def is_not_zero(self) -> bool:
         return self.x != 0 or self.y != 0
 
-    def length(self) -> T:
-        return (self.x ** 2 + self.y ** 2) ** 0.5
+    def length(self) -> float:
+        return math.sqrt(self.x ** 2 + self.y ** 2)
 
     def scalar_multiply(self, scalar):
         return CustomVec2(int(self.x * scalar), int(self.y * scalar))
@@ -83,4 +84,14 @@ class CustomVec2i(CustomVec2[int]):
 class CustomVec2f(CustomVec2[float]):
     def to_int(self) -> 'CustomVec2i':
         return CustomVec2i(int(self.x), int(self.y))
+
+    def normalized(self) -> 'CustomVec2f':
+        l = self.length()
+        if l == 0:
+            return CustomVec2f(0.0, 0.0)
+        return CustomVec2f(self.x / l, self.y / l)
+
+    def scale_to(self, magnitude: float) -> 'CustomVec2f':
+        return self.normalized() * magnitude
+
 
