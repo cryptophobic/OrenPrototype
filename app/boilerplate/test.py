@@ -1,17 +1,3 @@
-"""
-Array Backed Grid Shown By Sprites
-
-Show how to use a two-dimensional list/array to back the display of a
-grid on-screen.
-
-This version makes a grid of sprites instead of numbers. Instead of
-iterating all the cells when the grid changes we simply just
-swap the color of the selected sprite. This means this version
-can handle very large grids and still have the same performance.
-
-If Python and Arcade are installed, this example can be run from the command line with:
-python -m arcade.examples.array_backed_grid_sprites_2
-"""
 import arcade
 from PIL import Image
 from arcade import Texture
@@ -79,7 +65,6 @@ class Player(arcade.Sprite):
         return candidate
 
 
-
 def slice_animation_strip(image_path: str, start_x: int, start_y: int, frame_width: int, frame_height: int, count: int) -> list[Texture]:
     pil_image = Image.open(image_path)
     frames = []
@@ -134,10 +119,8 @@ class GameView(arcade.View):
         self.animations.set(NpcAnimations.ARMED_IDLE)
         self.animations.set(NpcAnimations.ENEMY_RUN_ATTACK)
 
-        # frames = slice_animation_strip("resources/craftpix/male/PNG/Sword_attack/Sword_attack_full.png",
-        #                               0, 0, 64, 64, 8)
-
         self.keys_held = set()
+
         self.player = Player(self.animations.get(NpcAnimations.ARMED_RUN).front, CustomVec2i(12, 14))
         self.player.scale = 2.0
         self.player.position = self.get_tile_center(self.player.coordinates.x), self.get_tile_center(self.player.coordinates.y)
@@ -204,7 +187,16 @@ class GameView(arcade.View):
                                                                  self.player.velocity.y).normalized().scale_to(WIDTH // 2)
 
         index = self.get_tile_index_from_pixel(normalized)
-        # self.grid_sprites[index.y][index.x].color = arcade.color.GRANNY_SMITH_APPLE
+        self.grid_sprites[index.y][index.x].color = arcade.color.GRANNY_SMITH_APPLE
+        if index == self.enemy.coordinates:
+            if index.x != self.player.coordinates.x:
+                print("HITx")
+                self.player.buffer.x = 0.0
+                self.player.velocity.x = 0.0
+            elif index.y != self.player.coordinates.y:
+                print("HITy")
+                self.player.buffer.y = 0.0
+                self.player.velocity.y = 0.0
 
         if self.player.velocity.y < 0:
             self.player.textures = self.animations.get(NpcAnimations.ARMED_RUN).front
