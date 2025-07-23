@@ -199,11 +199,9 @@ class GameView(arcade.View):
         # self.grid_sprites[index.y][index.x].color = arcade.color.GRANNY_SMITH_APPLE
         if index == self.enemy.coordinates:
             if index.x != self.player.coordinates.x:
-                print("HITx")
                 self.player.buffer.x = 0.0
                 self.player.velocity.x = 0.0
             elif index.y != self.player.coordinates.y:
-                print("HITy")
                 self.player.buffer.y = 0.0
                 self.player.velocity.y = 0.0
 
