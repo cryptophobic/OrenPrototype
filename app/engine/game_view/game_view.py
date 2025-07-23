@@ -30,11 +30,10 @@ class GameView(arcade.View):
 
         self.tile_size = min(tile_width, tile_height)
 
-        # Create a list of solid-color sprites to represent each grid location
         for row in range(self.grid.height):
             self.grid_sprites.append([])
             for column in range(self.grid.width):
-                sprite = arcade.SpriteSolidColor(self.tile_size, self.tile_size, color=arcade.color.WHITE)
+                sprite = arcade.SpriteSolidColor(self.tile_size, self.tile_size, color=arcade.color.GRAY_ASPARAGUS)
                 sprite.center_x = self.get_tile_center(column)
                 sprite.center_y = self.get_tile_center(row)
                 self.grid_sprite_list.append(sprite)

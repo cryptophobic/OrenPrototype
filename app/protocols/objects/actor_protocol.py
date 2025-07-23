@@ -1,7 +1,7 @@
 from collections import deque
 from typing import Protocol, List, runtime_checkable, Self
 from app.engine.message_broker.types import MessageBody
-from app.behaviours.types import BehaviourAction
+from app.behaviours.types import BehaviourAction, BehaviourStates
 from app.config import Behaviours
 from app.protocols.collections.behaviour_collection_protocol import BehaviourCollectionProtocol
 
@@ -13,6 +13,7 @@ class ActorProtocol(Protocol):
     is_deleted: bool
     pending_actions: deque[BehaviourAction]
     behaviours: BehaviourCollectionProtocol
+    behaviour_state: BehaviourStates
 
     @property
     def id(self) -> str: ...

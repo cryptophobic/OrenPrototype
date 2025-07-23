@@ -4,7 +4,7 @@ from typing import List
 from app.collections.behaviour_collection import BehaviourCollection
 from app.engine.message_broker.types import MessageBody
 from app.config import Behaviours
-from app.behaviours.types import BehaviourAction
+from app.behaviours.types import BehaviourAction, BehaviourStates
 from app.protocols.collections.behaviour_collection_protocol import BehaviourCollectionProtocol
 from app.protocols.objects.actor_protocol import ActorProtocol
 
@@ -12,6 +12,7 @@ from app.protocols.objects.actor_protocol import ActorProtocol
 class Actor(ActorProtocol):
     def __init__(self, name: str = None):
         self.name: str = name
+        self.behaviour_state: BehaviourStates = {}
         self.is_active: bool = True
         self.is_deleted: bool = False
         self.pending_actions: deque[BehaviourAction] = deque()

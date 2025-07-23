@@ -20,7 +20,7 @@ HEIGHT = 64
 MARGIN = 5
 
 CELL_WIDTH = 1.0  # logical cell size
-VELOCITY_PER_CELL_150MS = 1 / 0.40  # ~6.67 cells/sec
+VELOCITY_PER_CELL_150MS = 1 / 0.40
 VELOCITY_PER_CELL_300MS = 1 / 0.40
 
 
