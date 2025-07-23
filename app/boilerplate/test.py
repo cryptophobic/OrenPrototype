@@ -4,7 +4,7 @@ from arcade import Texture
 
 from app.collections.animation_collection import AnimationCollection
 from app.config import NpcAnimations
-from app.core.vectors import CustomVec2i, CustomVec2f
+from app.core.vectors import CustomVec2i, CustomVec2f, angle_to_vector, vector_to_angle, point_in_sector_dot
 from app.protocols.collections.animation_collection_protocol import AnimationCollectionProtocol
 
 # Set how many rows and columns we will have
@@ -30,14 +30,15 @@ WINDOW_HEIGHT = (HEIGHT + MARGIN) * ROW_COUNT + MARGIN
 WINDOW_TITLE = "Array Backed Grid Buffered Example"
 
 class Player(arcade.Sprite):
-    def __init__(self, texture_list: list[arcade.Texture], position: CustomVec2i):
+    def __init__(self, texture_list: list[arcade.Texture], position: CustomVec2f):
         super().__init__(texture_list[0])
         self.time_elapsed = 0
-        self.coordinates: CustomVec2i = position
-        self.velocity: CustomVec2f = CustomVec2f.zero()
+        self.coordinates: CustomVec2f = position
+        self.velocity: CustomVec2f = CustomVec2f(0.0, 0.0)
         self.buffer: CustomVec2f = CustomVec2f(0.0, 0.0)
         self.cell_size = 1.0
 
+        self.normalized_velocity = self.coordinates
         self.textures = texture_list
 
     def update(self, delta_time: float = 1/60,  *args, **kwargs) -> None:
@@ -50,7 +51,7 @@ class Player(arcade.Sprite):
 
     def update_movement(self, delta_time, keys_held):
         self.buffer += self.velocity * delta_time
-        candidate = CustomVec2i(self.coordinates.x, self.coordinates.y)
+        candidate = CustomVec2f(self.coordinates.x, self.coordinates.y)
 
         if abs(self.buffer.x) >= self.cell_size:
             step = int(self.buffer.x)
@@ -84,11 +85,17 @@ class GameView(arcade.View):
     """
     Main application class.
     """
-    def get_tile_center(self, index: int) -> int:
+    def get_tile_center(self, index: float) -> float:
         return MARGIN + (WIDTH + MARGIN) * index + WIDTH // 2
 
-    def get_tile_index_from_pixel(self, pixel: CustomVec2i) -> CustomVec2i:
-        return CustomVec2i(
+    def get_tile_center_vector(self, index: CustomVec2f) -> CustomVec2f:
+        return CustomVec2f(
+            self.get_tile_center(index.x),
+            self.get_tile_center(index.y)
+        )
+
+    def get_tile_index_from_pixel(self, pixel: CustomVec2f) -> CustomVec2f:
+        return CustomVec2f(
             (pixel.x - MARGIN) // (WIDTH + MARGIN),
             (pixel.y - MARGIN) // (HEIGHT + MARGIN),
         )
@@ -104,7 +111,7 @@ class GameView(arcade.View):
         for row in range(ROW_COUNT):
             self.grid_sprites.append([])
             for column in range(COLUMN_COUNT):
-                sprite = arcade.SpriteSolidColor(WIDTH, HEIGHT, color=arcade.color.WHITE)
+                sprite = arcade.SpriteSolidColor(WIDTH, HEIGHT, color=arcade.color.GRAY_ASPARAGUS)
 
                 sprite.center_x = self.get_tile_center(column)
                 sprite.center_y = self.get_tile_center(row)
@@ -112,20 +119,21 @@ class GameView(arcade.View):
                 self.grid_sprites[row].append(sprite)
 
         self.sprite_list = arcade.SpriteList()
-        self.background_color = arcade.color.GRAY_ASPARAGUS
+        self.background_color = arcade.color.BLACK
 
         self.animations: AnimationCollectionProtocol = AnimationCollection()
         self.animations.set(NpcAnimations.ARMED_RUN)
         self.animations.set(NpcAnimations.ARMED_IDLE)
         self.animations.set(NpcAnimations.ENEMY_RUN_ATTACK)
+        self.animations.set(NpcAnimations.ENEMY_HURT)
 
         self.keys_held = set()
 
-        self.player = Player(self.animations.get(NpcAnimations.ARMED_RUN).front, CustomVec2i(12, 14))
+        self.player = Player(self.animations.get(NpcAnimations.ARMED_RUN).front, CustomVec2f(12, 14))
         self.player.scale = 2.0
         self.player.position = self.get_tile_center(self.player.coordinates.x), self.get_tile_center(self.player.coordinates.y)
 
-        self.enemy = Player(self.animations.get(NpcAnimations.ENEMY_RUN_ATTACK).front, CustomVec2i(15, 10))
+        self.enemy = Player(self.animations.get(NpcAnimations.ENEMY_RUN_ATTACK).front, CustomVec2f(15, 10))
         self.enemy.scale = 2.0
         self.enemy.position = self.get_tile_center(self.enemy.coordinates.x), self.get_tile_center(self.enemy.coordinates.y)
 
@@ -176,18 +184,19 @@ class GameView(arcade.View):
         if self.enemy.coordinates != candidate:
             self.player.coordinates = candidate
 
-        start_x = self.get_tile_center(self.player.coordinates.x) + self.player.buffer.x * WIDTH
-        start_y = self.get_tile_center(self.player.coordinates.y) + self.player.buffer.y * HEIGHT
+        start = self.get_tile_center_vector(self.player.coordinates)
+        start += CustomVec2f(self.player.buffer.x * WIDTH, self.player.buffer.y * HEIGHT)
 
         # Update sprite position based on grid coordinates
-        self.player.center_x = start_x
-        self.player.center_y = start_y
+        self.player.center_x = start.x
+        self.player.center_y = start.y
         # self.grid_sprites[self.player.coordinates.y][self.player.coordinates.x].color = arcade.color.RUST
-        normalized = CustomVec2f(start_x, start_y) + CustomVec2f(self.player.velocity.x,
-                                                                 self.player.velocity.y).normalized().scale_to(WIDTH // 2)
 
-        index = self.get_tile_index_from_pixel(normalized)
-        self.grid_sprites[index.y][index.x].color = arcade.color.GRANNY_SMITH_APPLE
+        if self.player.velocity.is_not_zero():
+            self.player.normalized_velocity = self.player.velocity.normalized()
+
+        index = self.get_tile_index_from_pixel(start + self.player.normalized_velocity.scale_to(WIDTH // 2))
+        # self.grid_sprites[index.y][index.x].color = arcade.color.GRANNY_SMITH_APPLE
         if index == self.enemy.coordinates:
             if index.x != self.player.coordinates.x:
                 print("HITx")
@@ -229,13 +238,39 @@ class GameView(arcade.View):
         self.grid_sprite_list.draw()
         self.sprite_list.draw()
 
-        start_x = self.get_tile_center(self.player.coordinates.x) + self.player.buffer.x * WIDTH
-        start_y = self.get_tile_center(self.player.coordinates.y) + self.player.buffer.y * HEIGHT
+        start = self.get_tile_center_vector(self.player.coordinates)
+        start += CustomVec2f(self.player.buffer.x * WIDTH, self.player.buffer.y * HEIGHT)
 
-        # Scale vector visually (e.g., exaggerate length for clarity)
-        normalized = CustomVec2f(start_x, start_y) + CustomVec2f(self.player.velocity.x, self.player.velocity.y).normalized().scale_to(WIDTH // 2)
+        normalized = self.player.normalized_velocity
+        line = start + normalized.scale_to(WIDTH // 2)
 
-        arcade.draw_line(start_x, start_y, normalized.x, normalized.y, arcade.color.BLUE, 2)
+        arcade.draw_line(start.x, start.y, line.x, line.y, arcade.color.BLUE, 2)
+        self.draw_lines_angle(start, 45, arcade.color.GREEN, WIDTH * 3)
+        self.draw_lines_angle(start, 25, arcade.color.YELLOW, WIDTH * 4.5)
+        self.draw_lines_angle(start, 10, arcade.color.RED, WIDTH * 6)
+
+        point = self.get_tile_center_vector(self.enemy.coordinates)
+        if point_in_sector_dot(point, start, normalized, 20, WIDTH * 6)\
+                or point_in_sector_dot(point, start, normalized, 50, WIDTH * 4.5)\
+                or point_in_sector_dot(point, start, normalized, 100, WIDTH * 3):
+            self.enemy.textures = self.animations.get(NpcAnimations.ENEMY_HURT).front
+        else:
+            self.enemy.textures = self.animations.get(NpcAnimations.ENEMY_RUN_ATTACK).front
+
+
+    def draw_lines_angle(self, start, angle, color, draw_length):
+        base_angle = vector_to_angle(start, start+self.player.normalized_velocity)
+        direction_left = angle_to_vector(angle + base_angle)
+        direction_right = angle_to_vector(base_angle - angle)
+
+        end = CustomVec2i(
+            int(start.x + direction_left.x * draw_length),
+            int(start.y + direction_left.y * draw_length))
+        arcade.draw_line(start.x, start.y, end.x, end.y, color)
+        end = CustomVec2i(
+            int(start.x + direction_right.x * draw_length),
+            int(start.y + direction_right.y * draw_length))
+        arcade.draw_line(start.x, start.y, end.x, end.y, color)
 
 
 def boilerplate():

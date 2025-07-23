@@ -1,6 +1,6 @@
 import math
 from dataclasses import dataclass
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Self
 
 from app.config import Y_MODIFIER
 
@@ -41,16 +41,16 @@ class CustomVec2(Generic[T]):
         return (self.x, self.y)[item]
 
     def __add__(self, other):
-        return CustomVec2(self.x + other[CustomVec2.X], self.y + other[CustomVec2.Y])
+        return type(self)(self.x + other[CustomVec2.X], self.y + other[CustomVec2.Y])
 
     def __sub__(self, other):
-        return CustomVec2(self.x - other[CustomVec2.X], self.y - other[CustomVec2.Y])
+        return type(self)(self.x - other[CustomVec2.X], self.y - other[CustomVec2.Y])
 
     def __mul__(self, n: T):
-        return CustomVec2(self.x * n, self.y * n)
+        return type(self)(self.x * n, self.y * n)
 
     def __neg__(self):
-        return CustomVec2(-self.x, -self.y)
+        return type(self)(-self.x, -self.y)
 
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
@@ -68,7 +68,7 @@ class CustomVec2(Generic[T]):
         return math.sqrt(self.x ** 2 + self.y ** 2)
 
     def scalar_multiply(self, scalar):
-        return CustomVec2(int(self.x * scalar), int(self.y * scalar))
+        return type(self)(int(self.x * scalar), int(self.y * scalar))
 
 
 @dataclass
@@ -86,16 +86,47 @@ class CustomVec2i(CustomVec2[int]):
 
 @dataclass
 class CustomVec2f(CustomVec2[float]):
-    def to_int(self) -> 'CustomVec2i':
+
+    def dot(self, other: Self) -> float:
+        return self.x * other.x + self.y * other.y
+
+    def to_int(self) -> Self:
         return CustomVec2i(int(self.x), int(self.y))
 
-    def normalized(self) -> 'CustomVec2f':
+    def normalized(self) -> Self:
         l = self.length()
         if l == 0:
             return CustomVec2f(0.0, 0.0)
         return CustomVec2f(self.x / l, self.y / l)
 
-    def scale_to(self, magnitude: float) -> 'CustomVec2f':
+    def scale_to(self, magnitude: float) -> Self:
         return self.normalized() * magnitude
 
+def angle_to_vector(degrees: float):
+    radians = math.radians(degrees)
+    return CustomVec2f(math.cos(radians), math.sin(radians))
 
+def vector_to_angle(start: CustomVec2, end: CustomVec2) -> float:
+    dx = end.x - start.x
+    dy = end.y - start.y
+    return math.degrees(math.atan2(dy, dx))  # returns angle in degrees
+
+def point_in_sector_dot(point: CustomVec2f, origin: CustomVec2f, facing_dir: CustomVec2f, cone_angle_deg, radius):
+    delta: CustomVec2f = point - origin
+    distance_squared = delta.x * delta.x + delta.y * delta.y
+    if distance_squared > radius * radius:
+        return False
+
+    len_v = math.sqrt(distance_squared)
+    if len_v == 0:
+        return True  # target is at the origin
+
+    # Normalize V (vector to point)
+    vector_to_point: CustomVec2f = delta * (1/len_v)
+
+    # Compute cosine of angle between V and facing_dir
+    dot = vector_to_point.x * facing_dir.x + vector_to_point.y * facing_dir.y
+
+    # Precompute cosine of half the cone angle
+    cos_half_angle = math.cos(math.radians(cone_angle_deg / 2))
+    return dot >= cos_half_angle
