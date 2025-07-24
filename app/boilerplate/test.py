@@ -20,7 +20,7 @@ HEIGHT = 64
 MARGIN = 5
 
 CELL_WIDTH = 1.0  # logical cell size
-VELOCITY_PER_CELL_150MS = 1 / 0.40  # ~6.67 cells/sec
+VELOCITY_PER_CELL_150MS = 1 / 0.40
 VELOCITY_PER_CELL_300MS = 1 / 0.40
 
 
@@ -199,11 +199,9 @@ class GameView(arcade.View):
         # self.grid_sprites[index.y][index.x].color = arcade.color.GRANNY_SMITH_APPLE
         if index == self.enemy.coordinates:
             if index.x != self.player.coordinates.x:
-                print("HITx")
                 self.player.buffer.x = 0.0
                 self.player.velocity.x = 0.0
-            elif index.y != self.player.coordinates.y:
-                print("HITy")
+            if index.y != self.player.coordinates.y:
                 self.player.buffer.y = 0.0
                 self.player.velocity.y = 0.0
 

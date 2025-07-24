@@ -91,22 +91,23 @@ class Behaviours(Enum):
     BEHAVIOUR = ".behaviour.Behaviour"
 
     # Orchestrator
-    INPUT_HANDLER = ".orchestrator.input_handler.InputHandler"
+    INPUT_HANDLER = ".actor.orchestrator.input_handler.InputHandler"
 
     # Puppeteer
-    POSSESSOR = ".puppeteer.possessor.Possessor"
+    POSSESSOR = ".actor.puppeteer.possessor.Possessor"
 
     # Unit
-    VULNERABLE = ".units.vulnerable.Vulnerable"
-    AGGRESSIVE = ".units.aggressive.Aggressive"
-    FRIGHTENED = ".units.frightened.Frightened"
-    ENEMY = ".units.frightened.Frightened"
-    FRIEND = ".units.friend.friend"
-    NEUTRAL = ".units.neutral.neutral"
+    VULNERABLE = ".actor.coordinate_holder.units.vulnerable.Vulnerable"
+    AGGRESSIVE = ".actor.coordinate_holder.units.aggressive.Aggressive"
+    FRIGHTENED = ".actor.coordinate_holder.units.frightened.Frightened"
+    ENEMY = ".actor.coordinate_holder.units.enemy.Enemy"
+    FRIEND = ".actor.coordinate_holder.units.friend.Friend"
+    NEUTRAL = ".actor.coordinate_holder.units.neutral.Neutral"
+    MOBILE = ".actor.coordinate_holder.units.mobile.Mobile"
 
     # CoordinateHolder and descendants
-    MOVEABLE = ".coordinate_holder.moveable.Moveable"
+    MOVEABLE = ".actor.coordinate_holder.moveable.Moveable"
 
     # StaticObject
-    DESTRUCTIBLE = ".static_objects.destructible.Destructible"
-    TRANSPORTABLE = ".static_objects.transportable.Transportable"
+    DESTRUCTIBLE = ".actor.coordinate_holder.static_objects.destructible.Destructible"
+    TRANSPORTABLE = ".actor.coordinate_holder.static_objects.transportable.Transportable"

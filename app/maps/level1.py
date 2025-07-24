@@ -69,7 +69,7 @@ class LevelFactory:
         player_shape.animations.set(NpcAnimations.ARMED_WALK_ATTACK)
 
         player_stats = UnitStats(STR=5, DEX=1, CON=5, INT=2, WIS=2, CHA=1, HP=10, initiative=1)
-        unit = Unit(body=player_body, shape=player_shape, coordinates=CustomVec2i(1, 1), stats=player_stats, name="Adventurer")
+        unit = Unit(body=player_body, shape=player_shape, coordinates=CustomVec2i(1, 2), stats=player_stats, name="Adventurer")
         unit.add_behaviour(Behaviours.MOVEABLE)
         level.actors_collection.add(unit)
         # End of player setup
@@ -86,7 +86,7 @@ class LevelFactory:
         enemy_shape.animations.set(NpcAnimations.ENEMY_RUN_ATTACK)
         enemy_shape.animations.set(NpcAnimations.ENEMY_WALK_ATTACK)
         enemy_stats = UnitStats(STR=5, DEX=1, CON=5, INT=2, WIS=2, CHA=1, HP=10, initiative=1)
-        enemy_unit = Unit(body=enemy_body, shape=enemy_shape, coordinates=CustomVec2i(1, 2), stats=enemy_stats, name="Enemy")
+        enemy_unit = Unit(body=enemy_body, shape=enemy_shape, coordinates=CustomVec2i(1, 3), stats=enemy_stats, name="Enemy")
         enemy_unit.add_behaviour(Behaviours.MOVEABLE)
         level.actors_collection.add(enemy_unit)
         # End of player setup
@@ -106,20 +106,20 @@ class LevelFactory:
         # Prison walls
         # for coordinates in [CustomVec2i(1, 0), CustomVec2i(1, 1), CustomVec2i(0, 1)]:
 
-        for prison in maze(level.grid_width, level.grid_height):
-            level.actors_collection.add(prison)
+        # for prison in maze(level.grid_width, level.grid_height):
+        #    level.actors_collection.add(prison)
 
-        # for coordinates in [CustomVec2i(1, 1), CustomVec2i(0, 1)]:
-        #    prison_body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))
-        #    prison_shape = Shape(get_icon_path(Icons.WALLS))
-        #    # Unique name would be created automatically.
-        #    level.actors_collection.add(StaticObject(
-        #        body=prison_body,
-        #        shape=prison_shape,
-        #        coordinates=coordinates,
-        #        height=100,
-        #        weight=100,
-        #    ))
+        for coordinates in [CustomVec2i(1, 1), CustomVec2i(0, 1)]:
+           prison_body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))
+           prison_shape = Shape(get_icon_path(Icons.WALLS))
+           # Unique name would be created automatically.
+           level.actors_collection.add(StaticObject(
+               body=prison_body,
+               shape=prison_shape,
+               coordinates=coordinates,
+               height=100,
+               weight=100,
+           ))
         # End of prison walls
 
         for coordinate_holder in level.actors_collection.get_by_type(CoordinateHolder, CoordinateHolderCollection):

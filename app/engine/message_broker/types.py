@@ -7,13 +7,14 @@ from app.core.vectors import CustomVec2i
 
 
 class MessageTypes(Enum):
+    ANIMATE = "animate"
     INPUT = "input"
+    INTENTION_TO_MOVE = "intention_to_move"
     KEY_DOWN = "key_down"
     KEY_UP = "key_up"
-    PUSHED_BY = "pushed_by"
     OVERLAPPED_BY = "overlapped_by"
+    PUSHED_BY = "pushed_by"
     STROKED_BY = "stroked_by"
-    INTENTION_TO_MOVE = "intention_to_move"
 
 @dataclass
 class Payload:
@@ -31,6 +32,9 @@ class PushedByPayload(Payload):
 @dataclass
 class IntentionToMovePayload(Payload):
     direction: CustomVec2i
+
+class AnimatePayload(Payload):
+    delta_time: float
 
 @dataclass
 class StrokedByPayload(Payload):
@@ -62,11 +66,12 @@ class Controls(UserDict[int, KeyBinding]):
     pass
 
 MessagePayloadMap: dict[MessageTypes, type[Payload]] = {
+    MessageTypes.ANIMATE: AnimatePayload,
+    MessageTypes.INPUT: InputPayload,
+    MessageTypes.INTENTION_TO_MOVE: IntentionToMovePayload,
     MessageTypes.KEY_DOWN: ControlsPayload,
     MessageTypes.KEY_UP: ControlsPayload,
-    MessageTypes.PUSHED_BY: PushedByPayload,
     MessageTypes.OVERLAPPED_BY: Payload,
+    MessageTypes.PUSHED_BY: PushedByPayload,
     MessageTypes.STROKED_BY: StrokedByPayload,
-    MessageTypes.INTENTION_TO_MOVE: IntentionToMovePayload,
-    MessageTypes.INPUT: InputPayload,
 }
