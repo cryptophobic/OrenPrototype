@@ -16,23 +16,23 @@ class CustomVec2(Generic[T]):
 
     @classmethod
     def up(cls, magnitude: T = 1):
-        return type(cls)(0, -magnitude * Y_MODIFIER)
+        return cls(0, -magnitude * Y_MODIFIER)
 
     @classmethod
     def down(cls, magnitude: T = 1):
-        return type(cls)(0, magnitude * Y_MODIFIER)
+        return cls(0, magnitude * Y_MODIFIER)
 
     @classmethod
     def left(cls, magnitude: T = 1):
-        return type(cls)(-magnitude, 0)
+        return cls(-magnitude, 0)
 
     @classmethod
     def right(cls, magnitude: T = 1):
-        return type(cls)(magnitude, 0)
+        return cls(magnitude, 0)
 
     @classmethod
     def zero(cls):
-        return type(cls)(0, 0)
+        return cls(0, 0)
 
     def copy(self):
         return type(self)(self.x, self.y)
