@@ -201,7 +201,7 @@ class GameView(arcade.View):
             if index.x != self.player.coordinates.x:
                 self.player.buffer.x = 0.0
                 self.player.velocity.x = 0.0
-            elif index.y != self.player.coordinates.y:
+            if index.y != self.player.coordinates.y:
                 self.player.buffer.y = 0.0
                 self.player.velocity.y = 0.0
 

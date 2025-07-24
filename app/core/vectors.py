@@ -14,25 +14,28 @@ class CustomVec2(Generic[T]):
     X = 0
     Y = 1
 
-    @staticmethod
-    def up(magnitude: T = 1):
-        return CustomVec2(0, -magnitude * Y_MODIFIER)
+    @classmethod
+    def up(cls, magnitude: T = 1):
+        return type(cls)(0, -magnitude * Y_MODIFIER)
 
-    @staticmethod
-    def down(magnitude: T = 1):
-        return CustomVec2(0, magnitude * Y_MODIFIER)
+    @classmethod
+    def down(cls, magnitude: T = 1):
+        return type(cls)(0, magnitude * Y_MODIFIER)
 
-    @staticmethod
-    def left(magnitude: T = 1):
-        return CustomVec2(-magnitude, 0)
+    @classmethod
+    def left(cls, magnitude: T = 1):
+        return type(cls)(-magnitude, 0)
 
-    @staticmethod
-    def right(magnitude: T = 1):
-        return CustomVec2(magnitude, 0)
+    @classmethod
+    def right(cls, magnitude: T = 1):
+        return type(cls)(magnitude, 0)
 
-    @staticmethod
-    def zero():
-        return CustomVec2(0, 0)
+    @classmethod
+    def zero(cls):
+        return type(cls)(0, 0)
+
+    def copy(self):
+        return type(self)(self.x, self.y)
 
     def __getitem__(self, item: int) -> T:
         if item > 1:

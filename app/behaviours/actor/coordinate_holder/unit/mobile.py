@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from typing import cast
 
-from app.behaviours.behaviour import register_message_handler, Behaviour
+from app.behaviours.actor.coordinate_holder.moveable import Moveable
+from app.behaviours.behaviour import register_message_handler
 from app.behaviours.types import BehaviourState
 from app.config import Behaviours
 from app.core.vectors import CustomVec2f
@@ -18,9 +18,10 @@ from app.protocols.objects.unit_protocol import UnitProtocol
 
 @dataclass
 class MobileState(BehaviourState):
-    moving_buffer: CustomVec2f = CustomVec2f(0.0, 0.0)
+    moving_buffer: CustomVec2f
+    force: int = 0
 
-class Mobile(Behaviour):
+class Mobile(Moveable):
     name = Behaviours.MOBILE
     supported_receivers = (UnitProtocol,)
 
@@ -29,15 +30,29 @@ class Mobile(Behaviour):
     '''
     @classmethod
     def __animate(cls, unit: UnitProtocol, payload: AnimatePayload) -> bool:
-        state = cast(MobileState, unit.behaviour_state.get(cls.name)) # type: MobileState
+        state = unit.behaviour_state.get(cls.name)
+
+        if (not isinstance(state, MobileState) or state.moving_buffer.is_zero()) and unit.velocity.is_zero():
+            unit.behaviour_state.pop(cls.name, None)
+            return True
+
+        if not isinstance(state, MobileState):
+            unit.behaviour_state[cls.name] = MobileState(
+                moving_buffer=CustomVec2f(0.0, 0.0),
+                force=unit.stats.STR,
+            )
+            state = unit.behaviour_state.get(cls.name)
 
         state.moving_buffer += unit.velocity * payload.delta_time
-        candidate = CustomVec2f(unit.coordinates.x, unit.coordinates.y)
+        direction = CustomVec2f.zero()
 
+        for n in [0, 1]:
+            if abs(state.moving_buffer[n]) >= 1:
+                step = int(state.moving_buffer[n])
+                direction[n] += step
+                state.moving_buffer[n] -= step
 
-        return True
-
-
+        return cls.__move(unit, direction, state.force) if direction.is_not_zero() else True
 
     '''
     Handlers to execute by command pipeline
