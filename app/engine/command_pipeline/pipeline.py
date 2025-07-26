@@ -55,7 +55,7 @@ class CommandPipeline:
         self.actor_collection: Optional[ActorCollectionProtocol[ActorProtocol]] = None
         self._queue: StagedQueue[ActorAction] = StagedQueue[ActorAction]()
 
-    def process(self, initiators: ActorCollectionProtocol[ActorProtocol]) -> bool:
+    def process(self, initiators: Iterable[ActorProtocol]) -> bool:
         queue = StagedQueue[ActorAction]()
         queue.middle = self.drained_wrapped_actions(initiators)
         state_changed = self.process_queue(queue)
