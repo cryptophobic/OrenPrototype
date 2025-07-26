@@ -30,57 +30,52 @@ class ActorAction:
         self.resolved = method(self.actor, self.behaviour_action.payload)
         return self.resolved
 
-def wrap_action(actor: ActorProtocol, behaviour_action: BehaviourAction) -> ActorAction:
-    return ActorAction(actor, behaviour_action)
-
-def wrap_actions(actor: ActorProtocol, behaviour_actions: deque[BehaviourAction]) -> Iterator[ActorAction]:
-    for action in behaviour_actions:
-        yield wrap_action(actor, action)
-
 class CommandPipeline:
     MAX_RECURSION_DEPTH = 5
+
+    @classmethod
+    def wrap_action(cls, actor: ActorProtocol, behaviour_action: BehaviourAction) -> ActorAction:
+        return ActorAction(actor, behaviour_action)
+
+    @classmethod
+    def wrap_actions(cls, actor: ActorProtocol, behaviour_actions: deque[BehaviourAction]) -> Iterator[ActorAction]:
+        for action in behaviour_actions:
+            yield cls.wrap_action(actor, action)
+
+    @classmethod
+    def drained_wrapped_actions(cls, initiators: ActorCollectionProtocol[ActorProtocol]) -> Iterator[ActorAction]:
+        for initiator in initiators:
+            pending_actions = initiator.pending_actions
+            # setting to new deque() because it is important to keep untouched
+            # the one that passed as a parameter to wrap_actions
+            initiator.pending_actions = deque()
+            yield from cls.wrap_actions(initiator, pending_actions)
 
     def __init__(self):
         self.actor_collection: Optional[ActorCollectionProtocol[ActorProtocol]] = None
         self._queue: StagedQueue[ActorAction] = StagedQueue[ActorAction]()
 
-    '''Runs every frame, clears all possible leftovers from previous frame'''
-    def flush_pending_actions(self) -> deque:
-        queue: deque[ActorAction] = deque()
-        if self.actor_collection:
-            for actor in self.actor_collection.get_pending_actors():
-                queue.extend(wrap_actions(actor, actor.pending_actions))
-                actor.pending_actions = deque()
-
-        return queue
-
-    def process(self, orchestrator: ActorProtocol) -> bool:
-        pending_actions = orchestrator.pending_actions
-        queue = StagedQueue[ActorAction](middle=iter(wrap_actions(orchestrator, pending_actions)))
-        orchestrator.pending_actions = deque()
+    def process(self, initiators: ActorCollectionProtocol[ActorProtocol]) -> bool:
+        queue = StagedQueue[ActorAction]()
+        queue.middle = self.drained_wrapped_actions(initiators)
         state_changed = self.process_queue(queue)
+
         return state_changed
 
-    def __flush_pending(self, state_changed, depth):
-        leftovers = self.flush_pending_actions()
-
-        if leftovers:
-            queue = StagedQueue[ActorAction](first=leftovers,)
-
-            state_changed = self.process_queue(
-                queue=queue,
-                state_changed=state_changed,
-                depth=depth + 1)
+    def __flush_pending(self, state_changed, depth) -> bool:
+        queue = StagedQueue[ActorAction]()
+        queue.middle = self.drained_wrapped_actions(self.actor_collection.get_pending_actors())
+        state_changed = self.process_queue(
+            queue=queue,
+            state_changed=state_changed,
+            depth=depth + 1)
 
         return state_changed
 
     def __flush_pending_actor(self, actor: ActorProtocol, state_changed, depth):
         if actor.pending_actions:
-            queue = StagedQueue[ActorAction](
-                    first=None,
-                    middle=wrap_actions(actor, actor.pending_actions),
-                    last=None,
-                )
+            queue = StagedQueue[ActorAction]()
+            queue.middle = self.wrap_actions(actor, actor.pending_actions)
             actor.pending_actions = deque()
 
             state_changed = self.process_queue(

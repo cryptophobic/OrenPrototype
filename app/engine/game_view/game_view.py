@@ -1,5 +1,6 @@
 import arcade
 
+from app.collections.actor_collection import ActorCollection
 from app.collections.coordinate_holder_collection import CoordinateHolderCollection
 from app.collections.puppeteer_collection import PuppeteerCollection
 from app.config import Behaviours
@@ -60,7 +61,7 @@ class GameView(arcade.View):
         self.input_events = InputEvents()
         self.message_broker = MessageBroker()
 
-        self.orchestrator: OrchestratorProtocol = Orchestrator(self.current_level.actors_collection)
+        self.orchestrator: OrchestratorProtocol = Orchestrator(self.current_level.actors_collection, "Orchestrator")
         self.orchestrator.behaviours.set(Behaviours.INPUT_HANDLER)
 
         self.command_pipeline = CommandPipeline()
@@ -167,7 +168,7 @@ class GameView(arcade.View):
                 self.orchestrator.pending_actions.extend(pending_actions)
 
                 # TODO: think twice if it is logical enough to pass self.orchestrator
-                self.state_changed = self.command_pipeline.process(self.orchestrator)
+                self.state_changed = self.command_pipeline.process(ActorCollection({self.orchestrator.name: self.orchestrator}))
                 self.context.tick() # frame number increment
 
         self.actor_sprite_list.update()

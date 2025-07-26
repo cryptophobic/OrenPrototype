@@ -12,3 +12,5 @@ class Animator(Actor, AnimatorProtocol):
         super().__init__(name)
         self.actor_collection: ActorCollectionProtocol = actor_collection
         self.coordinate_holders: CoordinateHolderCollectionProtocol = actor_collection.get_by_type(CoordinateHolder, CoordinateHolderCollection)
+
+    def animate(self) -> None:
