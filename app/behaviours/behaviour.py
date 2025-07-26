@@ -1,6 +1,7 @@
 from collections import deque
 from typing import ClassVar
 
+from app.behaviours.logic.movement_utils import MovementUtils
 from app.behaviours.types import MessageHandlersDict, MessageTypeHandlersDict, BehaviourAction
 from app.protocols.engine.grid.grid_protocol import GridProtocol
 from app.protocols.engine.message_broker.broker_protocol import MessageBrokerProtocol
@@ -19,6 +20,7 @@ def register_message_handler(message_type: MessageTypes, handlers: dict[type, st
 
 # Base Behaviour class
 class Behaviour:
+    _movement_utils = None
     name: ClassVar[Behaviours] = Behaviours.BEHAVIOUR
     message_handlers: ClassVar[MessageHandlersDict] = {}
     supported_receivers = (ActorProtocol,)
@@ -56,16 +58,11 @@ class Behaviour:
 
     @classmethod
     def can_handle(cls, receiver: ActorProtocol, message_type: MessageTypes) -> bool:
-        return (
-                isinstance(receiver, cls.supported_receivers)
-                and cls.can_respond_to(message_type)
-        )
+        return isinstance(receiver, cls.supported_receivers) and cls.can_respond_to(message_type)
 
     @classmethod
     def can_respond_to(cls, message_type: MessageTypes) -> bool:
-        return (
-                message_type in cls.message_handlers
-        )
+        return message_type in cls.message_handlers
 
     @classmethod
     def register_messenger(cls, broker: MessageBrokerProtocol):
@@ -75,6 +72,7 @@ class Behaviour:
     def get_messenger(cls) -> MessageBrokerProtocol:
         if cls._messenger is None:
             raise RuntimeError("MessageBroker not registered in Behaviour.")
+
         return cls._messenger
 
     @classmethod
@@ -85,7 +83,15 @@ class Behaviour:
     def get_grid(cls) -> GridProtocol:
         if cls._grid is None:
             raise RuntimeError("Grid not registered in Behaviour.")
+
         return cls._grid
+
+    @classmethod
+    def get_movement_utils(cls) -> MovementUtils:
+        if cls._movement_utils is None:
+            cls._movement_utils = MovementUtils(cls.get_grid(), cls.get_messenger())
+
+        return cls._movement_utils
 
     @classmethod
     def register_handlers(cls):

@@ -52,7 +52,7 @@ class LevelFactory:
             shape=cursor_shape,
             coordinates=CustomVec2i(4, 8),
             name="Cursor")
-        cursor_actor.add_behaviour(Behaviours.MOVEABLE)
+        cursor_actor.add_behaviour(Behaviours.DISCRETE_MOVER)
         level.actors_collection.add(cursor_actor)
         # End of Cursor setup
 
@@ -70,7 +70,7 @@ class LevelFactory:
 
         player_stats = UnitStats(STR=5, DEX=1, CON=5, INT=2, WIS=2, CHA=1, HP=10, initiative=1)
         unit = Unit(body=player_body, shape=player_shape, coordinates=CustomVec2i(1, 2), stats=player_stats, name="Adventurer")
-        unit.add_behaviour(Behaviours.MOVEABLE)
+        unit.add_behaviour(Behaviours.DISCRETE_MOVER)
         level.actors_collection.add(unit)
         # End of player setup
 
@@ -87,7 +87,7 @@ class LevelFactory:
         enemy_shape.animations.set(NpcAnimations.ENEMY_WALK_ATTACK)
         enemy_stats = UnitStats(STR=5, DEX=1, CON=5, INT=2, WIS=2, CHA=1, HP=10, initiative=1)
         enemy_unit = Unit(body=enemy_body, shape=enemy_shape, coordinates=CustomVec2i(1, 3), stats=enemy_stats, name="Enemy")
-        enemy_unit.add_behaviour(Behaviours.MOVEABLE)
+        enemy_unit.add_behaviour(Behaviours.DISCRETE_MOVER)
         level.actors_collection.add(enemy_unit)
         # End of player setup
 

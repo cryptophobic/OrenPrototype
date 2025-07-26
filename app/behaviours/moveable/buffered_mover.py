@@ -5,7 +5,7 @@ from app.behaviours.behaviour import register_message_handler
 from app.behaviours.types import BehaviourState
 from app.config import Behaviours
 from app.core.vectors import CustomVec2f
-from app.engine.message_broker.types import MessageTypes, PushedByPayload, IntentionToMovePayload, AnimatePayload
+from app.engine.message_broker.types import MessageTypes, AnimatePayload, SetVelocityPayload
 from app.protocols.objects.unit_protocol import UnitProtocol
 
 
@@ -17,12 +17,12 @@ from app.protocols.objects.unit_protocol import UnitProtocol
 )
 
 @dataclass
-class MobileState(BehaviourState):
+class AnimatedMoverState(BehaviourState):
     moving_buffer: CustomVec2f
     force: int = 0
 
-class Mobile(Moveable):
-    name = Behaviours.MOBILE
+class AnimatedMover(Moveable):
+    name = Behaviours.ANIMATED_MOVER
     supported_receivers = (UnitProtocol,)
 
     '''
@@ -32,12 +32,12 @@ class Mobile(Moveable):
     def __animate(cls, unit: UnitProtocol, payload: AnimatePayload) -> bool:
         state = unit.behaviour_state.get(cls.name)
 
-        if (not isinstance(state, MobileState) or state.moving_buffer.is_zero()) and unit.velocity.is_zero():
+        if (not isinstance(state, AnimatedMoverState) or state.moving_buffer.is_zero()) and unit.velocity.is_zero():
             unit.behaviour_state.pop(cls.name, None)
             return True
 
-        if not isinstance(state, MobileState):
-            unit.behaviour_state[cls.name] = MobileState(
+        if not isinstance(state, AnimatedMoverState):
+            unit.behaviour_state[cls.name] = AnimatedMoverState(
                 moving_buffer=CustomVec2f(0.0, 0.0),
                 force=unit.stats.STR,
             )
@@ -52,19 +52,16 @@ class Mobile(Moveable):
                 direction[n] += step
                 state.moving_buffer[n] -= step
 
-        return cls.__move(unit, direction, state.force) if direction.is_not_zero() else True
+        return cls.get_movement_utils().try_move(unit, direction, state.force) if direction.is_not_zero() else True
 
     '''
     Handlers to execute by command pipeline
     '''
     @classmethod
-    def pushed_by(cls, unit: UnitProtocol, payload: PushedByPayload) -> bool:
-        return cls.__move(unit, payload.direction, payload.force - 1)
+    def animate(cls, unit: UnitProtocol, payload: AnimatePayload) -> bool:
+        return cls.__animate(unit, payload)
 
     @classmethod
-    def intention_to_move(cls, unit: UnitProtocol, payload: IntentionToMovePayload) -> bool:
-        return cls.__move(
-            coordinate_holder=unit,
-            direction=payload.direction,
-            force=unit.stats.STR
-        )
+    def intention_to_move(cls, unit: UnitProtocol, payload: SetVelocityPayload) -> bool:
+        unit.velocity += payload.velocity
+        return True

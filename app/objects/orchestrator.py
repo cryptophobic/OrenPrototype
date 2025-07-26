@@ -12,7 +12,7 @@ from app.protocols.objects.puppeteer_protocol import PuppeteerProtocol
 class Orchestrator(Actor, OrchestratorProtocol):
     def __init__(self, actors_collection: ActorCollectionProtocol[ActorProtocol], name: str = None):
         super().__init__(name)
-        self.moveable_actors = actors_collection.get_behave_as_this(Behaviours.MOVEABLE)
+        self.moveable_actors = actors_collection.get_behave_as_this(Behaviours.DISCRETE_MOVER)
         self.actors_collection: ActorCollectionProtocol = actors_collection
         puppeteers = self.get_puppeteers()
         for puppeteer in puppeteers:

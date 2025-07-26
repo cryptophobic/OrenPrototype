@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from app.core.types import KeyPressEventLogRecords
-from app.core.vectors import CustomVec2i
+from app.core.vectors import CustomVec2i, CustomVec2f
 
 
 class MessageTypes(Enum):
@@ -33,6 +33,11 @@ class PushedByPayload(Payload):
 class IntentionToMovePayload(Payload):
     direction: CustomVec2i
 
+@dataclass
+class SetVelocityPayload(Payload):
+    velocity: CustomVec2f
+
+@dataclass
 class AnimatePayload(Payload):
     delta_time: float
 
