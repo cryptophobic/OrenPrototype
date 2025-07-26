@@ -1,6 +1,6 @@
 from collections import deque
 from dataclasses import dataclass
-from typing import Iterator, Callable, Optional
+from typing import Iterator, Callable, Optional, Iterable
 
 from app.behaviours.types import BehaviourAction
 from app.core.staged_queue import StagedQueue
@@ -43,7 +43,7 @@ class CommandPipeline:
             yield cls.wrap_action(actor, action)
 
     @classmethod
-    def drained_wrapped_actions(cls, initiators: ActorCollectionProtocol[ActorProtocol]) -> Iterator[ActorAction]:
+    def drained_wrapped_actions(cls, initiators: Iterable[ActorProtocol]) -> Iterator[ActorAction]:
         for initiator in initiators:
             pending_actions = initiator.pending_actions
             # setting to new deque() because it is important to keep untouched
@@ -75,11 +75,7 @@ class CommandPipeline:
     def __flush_pending_actor(self, actor: ActorProtocol, state_changed, depth):
         if actor.pending_actions:
             queue = StagedQueue[ActorAction]()
-            queue.middle = self.wrap_actions(actor, actor.pending_actions)
-            # setting to new deque() because it is important to keep untouched
-            # the one that passed as a parameter to wrap_actions
-
-            actor.pending_actions = deque()
+            queue.middle = self.drained_wrapped_actions([actor])
 
             state_changed = self.process_queue(
                 queue=queue,
