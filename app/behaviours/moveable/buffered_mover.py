@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
-from app.behaviours.actor.coordinate_holder.moveable import Moveable
-from app.behaviours.behaviour import register_message_handler
+from app.behaviours.behaviour import register_message_handler, Behaviour
 from app.behaviours.types import BehaviourState
 from app.config import Behaviours
 from app.core.vectors import CustomVec2f
@@ -21,7 +20,7 @@ class AnimatedMoverState(BehaviourState):
     moving_buffer: CustomVec2f
     force: int = 0
 
-class AnimatedMover(Moveable):
+class AnimatedMover(Behaviour):
     name = Behaviours.ANIMATED_MOVER
     supported_receivers = (UnitProtocol,)
 

@@ -13,6 +13,7 @@ from app.objects.puppeteer import Puppeteer
 from app.objects.static_object import StaticObject
 from app.objects.types import UnitStats
 from app.objects.unit import Unit
+from app.protocols.objects.unit_protocol import UnitProtocol
 from app.registry.icon_registry import get_icon_path, Icons
 
 
@@ -69,7 +70,7 @@ class LevelFactory:
         player_shape.animations.set(NpcAnimations.ARMED_WALK_ATTACK)
 
         player_stats = UnitStats(STR=5, DEX=1, CON=5, INT=2, WIS=2, CHA=1, HP=10, initiative=1)
-        unit = Unit(body=player_body, shape=player_shape, coordinates=CustomVec2i(1, 2), stats=player_stats, name="Adventurer")
+        unit: UnitProtocol = Unit(body=player_body, shape=player_shape, coordinates=CustomVec2i(1, 2), stats=player_stats, name="Adventurer")
         unit.add_behaviour(Behaviours.DISCRETE_MOVER)
         level.actors_collection.add(unit)
         # End of player setup
