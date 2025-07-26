@@ -76,6 +76,9 @@ class CommandPipeline:
         if actor.pending_actions:
             queue = StagedQueue[ActorAction]()
             queue.middle = self.wrap_actions(actor, actor.pending_actions)
+            # setting to new deque() because it is important to keep untouched
+            # the one that passed as a parameter to wrap_actions
+
             actor.pending_actions = deque()
 
             state_changed = self.process_queue(
