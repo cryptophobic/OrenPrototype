@@ -37,9 +37,7 @@ class Possessor(Behaviour):
 
         forward = Message(sender=puppeteer.name, body=mapped)
         messenger = cls.get_messenger()
-        _, response_actions = messenger.send_message(forward, puppeteer.puppet)
-        if response_actions:
-            puppeteer.puppet.pending_actions.extend(response_actions)
+        messenger.send_message(forward, puppeteer.puppet)
 
         return True
 

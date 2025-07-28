@@ -25,9 +25,7 @@ class MovementUtils:
                     )
                 )
             )
-            _, response_actions = self._messenger.send_message(message, actor)
-            if response_actions:
-                actor.pending_actions.extend(response_actions)
+            self._messenger.send_message(message, actor)
 
         for actor in result.overlapped:
             message = Message(

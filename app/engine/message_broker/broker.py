@@ -16,7 +16,7 @@ class MessageBroker(MessageBrokerProtocol):
         self.promise_queue.clear()
         self.last_message_number = 0
 
-    def send_message(self, message: Message, responder: ActorProtocol) -> tuple[int, deque[BehaviourAction]]:
+    def send_message(self, message: Message, responder: ActorProtocol) -> int:
         self.last_message_number += 1
         promise = deque()
         if responder.is_active:
@@ -24,7 +24,10 @@ class MessageBroker(MessageBrokerProtocol):
             message_number = self.last_message_number
             self.promise_queue[message_number] = promise
 
-        return self.last_message_number, promise
+        if promise:
+            responder.pending_actions.extend(promise)
+
+        return self.last_message_number
 
     def get_response(self, message_number) -> Optional[deque[BehaviourAction]]:
         return self.promise_queue.pop(message_number, None)

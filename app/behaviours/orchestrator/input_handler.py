@@ -36,9 +36,7 @@ class InputHandler(Behaviour):
                             payload=ControlsPayload(key_code=log_record.key)
                         )
                     )
-                    _, response_actions = messenger.send_message(message, puppeteer)
-                    if response_actions:
-                        puppeteer.pending_actions.extend(response_actions)
+                    messenger.send_message(message, puppeteer)
 
         return sent
 

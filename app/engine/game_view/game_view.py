@@ -1,6 +1,5 @@
 import arcade
 
-from app.collections.actor_collection import ActorCollection
 from app.collections.coordinate_holder_collection import CoordinateHolderCollection
 from app.collections.puppeteer_collection import PuppeteerCollection
 from app.config import Behaviours
@@ -12,10 +11,13 @@ from app.engine.input_processor.Timer import Timer
 from app.engine.message_broker.broker import MessageBroker
 from app.engine.message_broker.types import Message, MessageBody, MessageTypes, InputPayload
 from app.maps.level1 import LevelFactory
+from app.objects.actor import Actor
 from app.objects.coordinate_holder import CoordinateHolder
 from app.objects.orchestrator import Orchestrator
 from app.objects.puppeteer import Puppeteer
 from app.protocols.collections.actor_collection_protocol import ActorCollectionProtocol
+
+from app.protocols.objects.actor_protocol import ActorProtocol
 from app.protocols.objects.orchestrator_protocol import OrchestratorProtocol
 from app.registry.behaviour_registry import get_behaviour_registry
 
@@ -164,8 +166,7 @@ class GameView(arcade.View):
                         payload=InputPayload(events),
                     )
                 )
-                _, pending_actions = self.message_broker.send_message(message, self.orchestrator)
-                self.orchestrator.pending_actions.extend(pending_actions)
+                self.message_broker.send_message(message, self.orchestrator)
 
                 # TODO: think twice if it is logical enough to pass self.orchestrator
                 self.state_changed = self.command_pipeline.process([self.orchestrator])

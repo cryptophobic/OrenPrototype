@@ -7,6 +7,7 @@ from app.core.vectors import CustomVec2i, CustomVec2f
 
 
 class MessageTypes(Enum):
+    START_ANIMATION = "start_animation"
     ANIMATE = "animate"
     INPUT = "input"
     INTENTION_TO_MOVE = "intention_to_move"
@@ -71,6 +72,7 @@ class Controls(UserDict[int, KeyBinding]):
     pass
 
 MessagePayloadMap: dict[MessageTypes, type[Payload]] = {
+    MessageTypes.START_ANIMATION: AnimatePayload,
     MessageTypes.ANIMATE: AnimatePayload,
     MessageTypes.INPUT: InputPayload,
     MessageTypes.INTENTION_TO_MOVE: IntentionToMovePayload,
