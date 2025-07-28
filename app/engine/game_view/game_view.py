@@ -4,20 +4,16 @@ from app.collections.coordinate_holder_collection import CoordinateHolderCollect
 from app.collections.puppeteer_collection import PuppeteerCollection
 from app.config import Behaviours
 from app.engine.command_pipeline.pipeline import CommandPipeline
-from app.engine.context.game_context import GameContext
 from app.engine.game_view.animated_sprite import Animated
 from app.engine.input_processor.InputEvents import InputEvents
 from app.engine.input_processor.Timer import Timer
 from app.engine.message_broker.broker import MessageBroker
-from app.engine.message_broker.types import Message, MessageBody, MessageTypes, InputPayload
 from app.maps.level1 import LevelFactory
-from app.objects.actor import Actor
 from app.objects.coordinate_holder import CoordinateHolder
 from app.objects.orchestrator import Orchestrator
 from app.objects.puppeteer import Puppeteer
 from app.protocols.collections.actor_collection_protocol import ActorCollectionProtocol
 
-from app.protocols.objects.actor_protocol import ActorProtocol
 from app.protocols.objects.orchestrator_protocol import OrchestratorProtocol
 from app.registry.behaviour_registry import get_behaviour_registry
 
@@ -53,17 +49,20 @@ class GameView(arcade.View):
         super().__init__()
 
         self.config = config
+        self.rendered = False
 
         self.interval = 1000 / self.config.FPS
 
         self.level_factory = LevelFactory()
         self.current_level = self.level_factory.levels["level1"]
         self.grid = self.current_level.grid
-        self.context = GameContext()
         self.input_events = InputEvents()
         self.message_broker = MessageBroker()
 
-        self.orchestrator: OrchestratorProtocol = Orchestrator(self.current_level.actors_collection, "Orchestrator")
+        self.orchestrator: OrchestratorProtocol = Orchestrator(
+            self.current_level.actors_collection,
+            self.message_broker,
+            "Orchestrator")
         self.orchestrator.behaviours.set(Behaviours.INPUT_HANDLER)
 
         self.command_pipeline = CommandPipeline()
@@ -108,8 +107,9 @@ class GameView(arcade.View):
         self.grid_sprite_list.draw()
 
         # We should always start by clearing the window pixels
-        if self.state_changed:
+        if not self.rendered or self.state_changed:
             self.state_changed = False
+            self.rendered = True
 
             current_actor_ids = set()
 
@@ -156,21 +156,11 @@ class GameView(arcade.View):
         if current_timestamp >= render_threshold:
             events = self.input_events.slice_flat(self.ticker.last_timestamp, render_threshold)
             self.ticker.tick()
-
-            if events:
-                # TODO: Maybe later move this logic to some behaviour as currently only behaviours sending messages
-                message = Message(
-                    sender="Application",
-                    body=MessageBody(
-                        message_type=MessageTypes.INPUT,
-                        payload=InputPayload(events),
-                    )
-                )
-                self.message_broker.send_message(message, self.orchestrator)
-
-                # TODO: think twice if it is logical enough to pass self.orchestrator
-                self.state_changed = self.command_pipeline.process([self.orchestrator])
-                self.context.tick() # frame number increment
+            self.orchestrator.process_tick(delta_time)
+            self.orchestrator.process_input(events)
+            self.state_changed = self.command_pipeline.process(
+                self.orchestrator.actors_collection.get_pending_actors()
+            )
 
         self.actor_sprite_list.update()
 
@@ -187,26 +177,3 @@ class GameView(arcade.View):
 
     def on_key_release(self, key: int, modifiers: int):
         self.input_events.key_pressed.pop(key, None)
-
-    def on_mouse_press(self, x, y, button, modifiers):
-        """
-        Called when the user presses a mouse button.
-        """
-
-        # Convert the clicked mouse position into grid coordinates
-        # column = int(x // (WIDTH + MARGIN))
-        # row = int(y // (HEIGHT + MARGIN))
-
-        print(f"Click coordinates: ({x}, {y}). Grid coordinates: (?, ?)")
-
-        # Make sure we are on-grid. It is possible to click in the upper right
-        # corner in the margin and go to a grid location that doesn't exist
-        # if row >= ROW_COUNT or column >= COLUMN_COUNT:
-        #    # Simply return from this method since nothing needs updating
-        #    return
-
-        # Flip the color of the sprite
-        # if self.grid_sprites[row][column].color == arcade.color.WHITE:
-        #    self.grid_sprites[row][column].color = arcade.color.GREEN
-        # else:
-        #    self.grid_sprites[row][column].color = arcade.color.WHITE

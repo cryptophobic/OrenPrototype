@@ -92,6 +92,7 @@ class Behaviours(Enum):
 
     # Orchestrator
     INPUT_HANDLER = ".orchestrator.input_handler.InputHandler"
+    ANIMATED = ".animate.animated.Animated"
 
     # Puppeteer
     POSSESSOR = ".puppeteer.possessor.Possessor"
@@ -107,6 +108,7 @@ class Behaviours(Enum):
 
     # CoordinateHolder and descendants
     DISCRETE_MOVER = ".moveable.discrete_mover.DiscreteMover"
+    BUFFERED_MOVER = ".moveable.buffered_mover.BufferedMover"
 
     # StaticObject
     DESTRUCTIBLE = ".static_objects.destructible.Destructible"
