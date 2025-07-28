@@ -66,7 +66,7 @@ class Orchestrator(Actor, OrchestratorProtocol):
             message = Message(
                 sender=self.name,
                 body=MessageBody(
-                    message_type=MessageTypes.ANIMATE,
+                    message_type=MessageTypes.BUFFERED_MOVE,
                     payload=AnimatePayload(delta_time=self.delta_time)
                 )
             )

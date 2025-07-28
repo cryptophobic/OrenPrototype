@@ -91,7 +91,6 @@ class Behaviours(Enum):
     BEHAVIOUR = ".behaviour.Behaviour"
 
     # Orchestrator
-    INPUT_HANDLER = ".orchestrator.input_handler.InputHandler"
     ANIMATED = ".animate.animated.Animated"
 
     # Puppeteer
@@ -104,7 +103,6 @@ class Behaviours(Enum):
     ENEMY = ".units.enemy.Enemy"
     FRIEND = ".units.friend.Friend"
     NEUTRAL = ".units.neutral.Neutral"
-    ANIMATED_MOVER = ".units.animated_mover.AnimatedMover"
 
     # CoordinateHolder and descendants
     DISCRETE_MOVER = ".moveable.discrete_mover.DiscreteMover"

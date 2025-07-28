@@ -63,7 +63,6 @@ class GameView(arcade.View):
             self.current_level.actors_collection,
             self.message_broker,
             "Orchestrator")
-        self.orchestrator.behaviours.set(Behaviours.INPUT_HANDLER)
 
         self.command_pipeline = CommandPipeline()
         self.command_pipeline.actor_collection = self.orchestrator.actors_collection
