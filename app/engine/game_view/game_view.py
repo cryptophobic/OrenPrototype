@@ -168,7 +168,7 @@ class GameView(arcade.View):
                 self.orchestrator.pending_actions.extend(pending_actions)
 
                 # TODO: think twice if it is logical enough to pass self.orchestrator
-                self.state_changed = self.command_pipeline.process(ActorCollection({self.orchestrator.name: self.orchestrator}))
+                self.state_changed = self.command_pipeline.process([self.orchestrator])
                 self.context.tick() # frame number increment
 
         self.actor_sprite_list.update()
