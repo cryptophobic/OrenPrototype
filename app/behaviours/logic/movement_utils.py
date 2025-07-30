@@ -12,8 +12,8 @@ class MovementUtils:
         self._grid = grid
         self._messenger = messenger
 
+    @staticmethod
     def calculate_buffered_move(
-            self,
             coordinate_holder: CoordinateHolderProtocol,
             state: BufferedMoverState,
             delta_time: float
