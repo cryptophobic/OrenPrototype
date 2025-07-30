@@ -1,10 +1,11 @@
 from collections import deque
-from typing import List
+from typing import List, Optional
 
 from app.collections.behaviour_collection import BehaviourCollection
 from app.engine.message_broker.types import MessageBody
 from app.config import Behaviours
 from app.behaviours.types import BehaviourAction, BehaviourStates
+from app.protocols.behaviours.readonly_behaviour_state_protocol import ReadonlyBehaviourStateProtocol
 from app.protocols.collections.behaviour_collection_protocol import BehaviourCollectionProtocol
 from app.protocols.objects.actor_protocol import ActorProtocol
 
@@ -29,6 +30,9 @@ class Actor(ActorProtocol):
             response_actions.extend(behaviour.on_message(self, message_body))
 
         return response_actions
+
+    def extract_behaviour_data(self, behaviour: Behaviours) -> Optional[ReadonlyBehaviourStateProtocol]:
+        return self.behaviour_state.get(behaviour)
 
     def is_behave_as_this(self, behaviour: Behaviours) -> bool:
         return self.is_behave_as_them([behaviour])

@@ -1,8 +1,9 @@
 from collections import deque
-from typing import Protocol, List, runtime_checkable, Self
+from typing import Protocol, List, runtime_checkable, Self, Optional
 from app.engine.message_broker.types import MessageBody
 from app.behaviours.types import BehaviourAction, BehaviourStates
 from app.config import Behaviours
+from app.protocols.behaviours.readonly_behaviour_state_protocol import ReadonlyBehaviourStateProtocol
 from app.protocols.collections.behaviour_collection_protocol import BehaviourCollectionProtocol
 
 
@@ -22,3 +23,4 @@ class ActorProtocol(Protocol):
     def is_behave_as_them(self, behaviours: List[Behaviours]) -> bool: ...
     def add_behaviour(self, behaviour: Behaviours) -> Self: ...
     def remove_behaviour(self, behaviour: Behaviours) -> Self: ...
+    def extract_behaviour_data(self, behaviour: Behaviours) -> Optional[ReadonlyBehaviourStateProtocol]: ...

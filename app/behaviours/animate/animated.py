@@ -24,14 +24,5 @@ class Animated(Behaviour):
 
     @classmethod
     def animate(cls, coordinate_holder: CoordinateHolderProtocol, payload: AnimatePayload) -> bool:
-        state = coordinate_holder.behaviour_state.get(cls.name)
-
-        if not isinstance(state, AnimatedState):
-            state = AnimatedState()
-
-        state.aggregated_delta += payload.delta_time
-        if state.aggregated_delta > state.threshold:
-
-
 
         return True

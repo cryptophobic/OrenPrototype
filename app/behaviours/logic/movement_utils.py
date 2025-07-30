@@ -1,7 +1,9 @@
+from app.behaviours.types import BufferedMoverState
 from app.core.vectors import CustomVec2i
 from app.engine.message_broker.types import Message, MessageBody, MessageTypes, PushedByPayload, Payload
 from app.protocols.engine.grid.grid_protocol import GridProtocol
 from app.protocols.engine.message_broker.broker_protocol import MessageBrokerProtocol
+from app.protocols.objects.coordinate_holder_protocol import CoordinateHolderProtocol
 
 
 class MovementUtils:
@@ -10,7 +12,24 @@ class MovementUtils:
         self._grid = grid
         self._messenger = messenger
 
-    def try_move(self, coordinate_holder, direction: CustomVec2i, force: int) -> bool:
+    def calculate_buffered_move(
+            self,
+            coordinate_holder: CoordinateHolderProtocol,
+            state: BufferedMoverState,
+            delta_time: float
+    ) -> tuple[BufferedMoverState, CustomVec2i]:
+        state.moving_buffer += coordinate_holder.velocity * delta_time
+        direction = CustomVec2i.zero()
+
+        for n in [0, 1]:
+            if abs(state.moving_buffer[n]) >= 1.0:
+                step = int(state.moving_buffer[n])
+                direction[n] += step
+                state.moving_buffer[n] -= step
+
+        return state, direction
+
+    def try_move(self, coordinate_holder: CoordinateHolderProtocol, direction: CustomVec2i, force: int) -> bool:
 
         result = self._grid.move(coordinate_holder, coordinate_holder.coordinates + direction)
 

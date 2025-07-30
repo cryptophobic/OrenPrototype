@@ -6,6 +6,4 @@ from app.protocols.objects.coordinate_holder_protocol import CoordinateHolderPro
 
 @runtime_checkable
 class UnitProtocol(CoordinateHolderProtocol, Protocol):
-    """Protocol for units that have stats and can perform actions."""
-
     stats: UnitStats
