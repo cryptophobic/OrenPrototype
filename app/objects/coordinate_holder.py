@@ -13,6 +13,7 @@ class CoordinateHolder(Actor, CoordinateHolderProtocol):
         self.body: Body = body
         self.shape: Shape = shape
         self.velocity: CustomVec2f = CustomVec2f.zero()
+        self.intent_velocity: CustomVec2f = CustomVec2f.zero()
         self.coordinates: CustomVec2i = coordinates
 
     def blocks(self, other: Self) -> bool:

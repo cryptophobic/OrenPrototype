@@ -154,9 +154,10 @@ class GameView(arcade.View):
         self.input_events.listen(current_timestamp)
         if current_timestamp >= render_threshold:
             events = self.input_events.slice_flat(self.ticker.last_timestamp, render_threshold)
+            keys_down = self.input_events.keys_down
             self.ticker.tick()
             self.orchestrator.process_tick(delta_time)
-            self.orchestrator.process_input(events)
+            self.orchestrator.process_input(keys_down, events)
             self.state_changed = self.command_pipeline.process(
                 self.orchestrator.actors_collection.get_pending_actors()
             )

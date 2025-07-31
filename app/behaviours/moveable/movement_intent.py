@@ -18,5 +18,6 @@ class BufferedMover(Behaviour):
 
     @classmethod
     def intention_to_move(cls, unit: UnitProtocol, payload: SetVelocityPayload) -> bool:
-        unit.velocity += payload.velocity
+        intent_velocity = payload.velocity.normalized() * unit.stats.speed
+        unit.intent_velocity = intent_velocity
         return True
