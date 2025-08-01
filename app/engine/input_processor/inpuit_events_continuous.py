@@ -15,8 +15,9 @@ class KeyPressLogRecord:
 class KeyPressLog:
     down: bool
     interval: int
-    log: list[KeyPressLogRecord]
     subscriber: str
+    log: list[KeyPressLogRecord]
+    updated: int = 0
 
 @dataclass
 class KeysUpDownState:
@@ -32,9 +33,6 @@ class InputEventsContinuous:
         self.ticks = ticks
         self.next_flush = self.ticks + self.flushing_interval
 
-        self.keys_down: dict[int, int] = {}
-        self.keys_up: dict[int, int] = {}
-
         self.key_pressed: set[int] = set()
 
 
@@ -42,9 +40,10 @@ class InputEventsContinuous:
         for key, binding in keys.items():
             if self.key_map.get(key) is None:
                 self.key_map[key] = KeyPressLog(
+                    down=False,
+                    interval=binding.repeat_delta,
                     subscriber=subscriber_name,
                     log=[],
-                    interval=binding.repeat_delta
                 )
 
         self.subscribers[subscriber_name] = tuple(k for k in keys.keys())
@@ -80,20 +79,18 @@ class InputEventsContinuous:
         else:
             self.key_pressed.add(key)
 
-    def is_key_down(self, key: int) -> bool:
-        down = self.keys_down.get(key, 0)
-        up = self.keys_up.get(key, 0)
-        return down > up
+    def is_key_registered(self, key: int) -> bool:
+        return key in self.key_map
 
     def is_down_event_expired(self, key: int) -> bool:
-        if not self.is_key_down(key):
+        if not self.is_key_registered(key):
             return False
 
         key_map = self.key_map.get(key)
-        if key_map is None or key_map.interval < 0:
+        if not key_map.down or key_map.interval < 0:
             return False
 
-        if self.keys_down[key] <= self.ticks - key_map.interval:
+        if key_map.updated <= self.ticks - key_map.interval:
             return True
 
         return False
@@ -103,49 +100,42 @@ class InputEventsContinuous:
         pressed = self.key_pressed
 
         for key in pressed:
-            is_key_down = self.is_key_down(key)
+            if not self.is_key_registered(key):
+                continue
 
-            if is_key_down:
+            key_map = self.key_map.get(key)
+
+            if key_map.down:
                 is_key_down = not self.is_down_event_expired(key)
-
-            if is_key_down:
-                self.keys_down[key] = ticks
             else:
-                self.keys_up[key] = ticks
+                is_key_down = True
 
-            '''
-            Not sure if I would need this.
-            What could I achieve with the information 
-            about the key repeatedly pressed during the ONE frame.
-            '''
             self.key_map[key].down = is_key_down
             self.key_map[key].log.append(
                 KeyPressLogRecord(dt=ticks, down=is_key_down, processed=False))
 
         self.flush()
 
-    def read(self, start: int, end: int) -> KeysUpDownState:
+    def read(self, start: int, end: int) -> dict[int, KeyPressLog]:
         sliced = {}
 
         for key, value in self.key_map.items():
-            before = []
+            before: list[KeyPressLogRecord] = []
             for log in value.log:
                 if start <= log.dt < end and not log.processed:
                     log.processed = True
                     before.append(log)
 
-            sliced[key] = KeyPressLog(
-                down=before[-1].down if len(before) > 0 else False,
-                interval=value.interval,
-                log=before,
-                subscriber=value.subscribers,
+            if len(before) > 0:
+                sliced[key] = KeyPressLog(
+                    down=before[-1].down,
+                    interval=value.interval,
+                    log=before,
+                    subscriber=value.subscriber,
+                    updated=before[-1].dt,
+                )
 
-            )
-
-        return KeysUpDownState(
-            down=self.keys_down,
-            up=self.keys_up,
-        )
+        return sliced
 
 
 

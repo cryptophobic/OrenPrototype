@@ -64,12 +64,12 @@ class KeyBinding:
     repeat_delta: int = -1
     key_up: MessageBody = None
 
+class Controls(UserDict[int, KeyBinding]):
+    pass
+
 @dataclass
 class InputPayload(Payload):
     input: KeyPressEventLogRecords
-
-class Controls(UserDict[int, KeyBinding]):
-    pass
 
 MessagePayloadMap: dict[MessageTypes, type[Payload]] = {
     MessageTypes.BUFFERED_MOVE: AnimatePayload,
