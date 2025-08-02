@@ -7,6 +7,7 @@ from app.engine.command_pipeline.pipeline import CommandPipeline
 from app.engine.game_view.animated_sprite import Animated
 from app.engine.input_processor.InputEvents import InputEvents
 from app.engine.input_processor.Timer import Timer
+from app.engine.input_processor.inpuit_events_continuous import InputEventsContinuous
 from app.engine.message_broker.broker import MessageBroker
 from app.maps.level1 import LevelFactory
 from app.objects.coordinate_holder import CoordinateHolder
@@ -43,6 +44,9 @@ class GameView(arcade.View):
 
     def register_actors(self):
         for puppeteer in self.orchestrator.actors_collection.get_by_type(Puppeteer, PuppeteerCollection):
+            self.input_events_continuous.subscribe(puppeteer.name, puppeteer.controls)
+
+            # TODO: Deprecated
             self.input_events.subscribe(puppeteer.name, puppeteer.controls)
 
     def __init__(self, config):
@@ -57,6 +61,7 @@ class GameView(arcade.View):
         self.current_level = self.level_factory.levels["level1"]
         self.grid = self.current_level.grid
         self.input_events = InputEvents()
+        self.input_events_continuous = InputEventsContinuous()
         self.message_broker = MessageBroker()
 
         self.orchestrator: OrchestratorProtocol = Orchestrator(
@@ -152,12 +157,16 @@ class GameView(arcade.View):
         current_timestamp = self.ticker.current_timestamp()
         render_threshold = int(self.ticker.last_timestamp + self.interval)
         self.input_events.listen(current_timestamp)
+        self.input_events_continuous.listen(current_timestamp)
         if current_timestamp >= render_threshold:
             events = self.input_events.slice_flat(self.ticker.last_timestamp, render_threshold)
-            keys_down = self.input_events.keys_down
+            check = self.input_events_continuous.read(self.ticker.last_timestamp, render_threshold)
+            if check:
+               print(check)
+
             self.ticker.tick()
             self.orchestrator.process_tick(delta_time)
-            self.orchestrator.process_input(keys_down, events)
+            self.orchestrator.process_input(events)
             self.state_changed = self.command_pipeline.process(
                 self.orchestrator.actors_collection.get_pending_actors()
             )
@@ -173,7 +182,15 @@ class GameView(arcade.View):
             self.orchestrator.set_puppet(self.puppets[self.i % length].name)
             self.i += 1
 
+        current_timestamp = self.ticker.current_timestamp()
+        self.input_events_continuous.register_key_pressed(key, True, current_timestamp)
+
+        # TODO: deprecated
         self.input_events.key_pressed[key] = True
 
     def on_key_release(self, key: int, modifiers: int):
+        current_timestamp = self.ticker.current_timestamp()
+        self.input_events_continuous.register_key_pressed(key, False, current_timestamp)
+
+        # TODO: deprecated
         self.input_events.key_pressed.pop(key, None)

@@ -36,7 +36,7 @@ class Orchestrator(Actor, OrchestratorProtocol):
         puppet = self.moveable_actors.get(name)
         self.puppeteer.puppet = puppet
 
-    def process_input(self, keys_down: list[int], key_press_input: KeyPressEventLogRecords):
+    def process_input(self, key_press_input: KeyPressEventLogRecords):
         for log_record in key_press_input:
             if self.puppeteer:
                 message = Message(
