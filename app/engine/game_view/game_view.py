@@ -44,7 +44,7 @@ class GameView(arcade.View):
 
     def register_actors(self):
         for puppeteer in self.orchestrator.actors_collection.get_by_type(Puppeteer, PuppeteerCollection):
-            self.input_events_continuous.subscribe(puppeteer.name, puppeteer.controls)
+            self.input_events_continuous.subscribe(puppeteer.puppet.name, puppeteer.controls)
 
             # TODO: Deprecated
             self.input_events.subscribe(puppeteer.name, puppeteer.controls)
@@ -159,11 +159,16 @@ class GameView(arcade.View):
         self.input_events.listen(current_timestamp)
         self.input_events_continuous.listen(current_timestamp)
         if current_timestamp >= render_threshold:
+            # TODO: Deprecated
             events = self.input_events.slice_flat(self.ticker.last_timestamp, render_threshold)
-            check = self.input_events_continuous.read(self.ticker.last_timestamp, render_threshold)
+
+            input_events = self.input_events_continuous.read(self.ticker.last_timestamp, render_threshold)
 
             self.ticker.tick()
             self.orchestrator.process_tick(delta_time)
+            self.orchestrator.process_continuous_input(input_events)
+
+            # TODO: Deprecated
             self.orchestrator.process_input(events)
             self.state_changed = self.command_pipeline.process(
                 self.orchestrator.actors_collection.get_pending_actors()

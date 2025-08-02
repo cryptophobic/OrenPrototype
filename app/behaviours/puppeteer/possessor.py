@@ -1,6 +1,6 @@
 from app.behaviours.behaviour import register_message_handler, Behaviour
 from app.config import Behaviours
-from app.engine.message_broker.types import MessageTypes, ControlsPayload, Message
+from app.engine.message_broker.types import MessageTypes, ControlsPayload, Message, InputPayload
 from app.protocols.objects.puppeteer_protocol import PuppeteerProtocol
 
 
@@ -18,6 +18,12 @@ from app.protocols.objects.puppeteer_protocol import PuppeteerProtocol
     }
 )
 
+@register_message_handler(
+    MessageTypes.INPUT,
+    {
+        PuppeteerProtocol: "on_input",
+    }
+)
 
 class Possessor(Behaviour):
     name = Behaviours.POSSESSOR
@@ -41,6 +47,15 @@ class Possessor(Behaviour):
 
         return True
 
+
+    @classmethod
+    def _on_input_process(cls, puppeteer: PuppeteerProtocol, payload: InputPayload) -> bool:
+        if puppeteer.puppet.name != payload.actor_name:
+            print(f"puppet name is not recognised: {payload.actor_name} vs {puppeteer.puppet.name}")
+            return False
+
+        return True
+
     @classmethod
     def key_down(cls, puppeteer: PuppeteerProtocol, payload: ControlsPayload) -> bool:
         return cls.__key_process(puppeteer, payload, is_down=True)
@@ -48,3 +63,7 @@ class Possessor(Behaviour):
     @classmethod
     def key_up(cls, puppeteer: PuppeteerProtocol, payload: ControlsPayload) -> bool:
         return cls.__key_process(puppeteer, payload, is_down=False)
+
+    @classmethod
+    def on_input(cls, puppeteer: PuppeteerProtocol, payload: InputPayload) -> bool:
+        return cls._on_input_process(puppeteer, payload)

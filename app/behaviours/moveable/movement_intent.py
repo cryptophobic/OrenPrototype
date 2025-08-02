@@ -6,9 +6,9 @@ from app.protocols.objects.unit_protocol import UnitProtocol
 
 
 @register_message_handler(
-    MessageTypes.INTENTION_TO_MOVE,
+    MessageTypes.INTENTION_TO_PLACE,
     {
-        CoordinateHolder: "intention_to_move",
+        CoordinateHolder: "intention_to_place",
     }
 )
 

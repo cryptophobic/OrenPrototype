@@ -2,7 +2,7 @@ from collections import UserDict
 from dataclasses import dataclass
 from enum import Enum
 
-from app.core.types import KeyPressEventLogRecords
+from app.core.types import ContinuousKeyPressEventLogRecords
 from app.core.vectors import CustomVec2i, CustomVec2f
 
 
@@ -10,6 +10,7 @@ class MessageTypes(Enum):
     BUFFERED_MOVE = "buffered_move"
     ANIMATE = "animate"
     INPUT = "input"
+    INTENTION_TO_PLACE = "intention_to_place"
     INTENTION_TO_MOVE = "intention_to_move"
     INTENTION_TO_STOP = "intention_to_stop"
     KEY_DOWN = "key_down"
@@ -32,8 +33,12 @@ class PushedByPayload(Payload):
     direction: CustomVec2i
 
 @dataclass
-class IntentionToMovePayload(Payload):
+class IntentionToPlacePayload(Payload):
     direction: CustomVec2i
+
+@dataclass
+class SetProperties(Payload):
+    properties: dict[str, float|int|str]
 
 @dataclass
 class SetVelocityPayload(Payload):
@@ -41,6 +46,10 @@ class SetVelocityPayload(Payload):
 
 @dataclass
 class StopPayload(Payload):
+    direction: CustomVec2i
+
+@dataclass
+class MovePayload(Payload):
     direction: CustomVec2i
 
 @dataclass
@@ -74,13 +83,15 @@ class Controls(UserDict[int, KeyBinding]):
 
 @dataclass
 class InputPayload(Payload):
-    input: KeyPressEventLogRecords
+    actor_name: str
+    input: ContinuousKeyPressEventLogRecords
 
 MessagePayloadMap: dict[MessageTypes, type[Payload]] = {
     MessageTypes.BUFFERED_MOVE: AnimatePayload,
     MessageTypes.ANIMATE: AnimatePayload,
     MessageTypes.INPUT: InputPayload,
-    MessageTypes.INTENTION_TO_MOVE: IntentionToMovePayload,
+    MessageTypes.INTENTION_TO_PLACE: IntentionToPlacePayload,
+    MessageTypes.INTENTION_TO_MOVE: SetProperties,
     MessageTypes.INTENTION_TO_STOP: StopPayload,
     MessageTypes.KEY_DOWN: ControlsPayload,
     MessageTypes.KEY_UP: ControlsPayload,

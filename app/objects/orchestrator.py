@@ -1,7 +1,8 @@
 from app.collections.puppeteer_collection import PuppeteerCollection
 from app.config import Behaviours
-from app.core.types import KeyPressEventLogRecords
-from app.engine.message_broker.types import Message, MessageBody, MessageTypes, ControlsPayload, AnimatePayload
+from app.core.types import KeyPressEventLogRecords, ContinuousKeyPressEventLogRecords
+from app.engine.message_broker.types import Message, MessageBody, MessageTypes, ControlsPayload, AnimatePayload, \
+    InputPayload
 from app.objects.actor import Actor
 from app.objects.puppeteer import Puppeteer
 from app.protocols.collections.actor_collection_protocol import ActorCollectionProtocol
@@ -35,6 +36,18 @@ class Orchestrator(Actor, OrchestratorProtocol):
     def set_puppet(self, name: str) -> None:
         puppet = self.moveable_actors.get(name)
         self.puppeteer.puppet = puppet
+
+    def process_continuous_input(self, key_press_input: dict[str, ContinuousKeyPressEventLogRecords]):
+        for actor_name, log_records in key_press_input.items():
+            if self.puppeteer:
+                message = Message(
+                    sender=self.name,
+                    body=MessageBody(
+                        message_type=MessageTypes.INPUT,
+                        payload=InputPayload(actor_name=actor_name, input=log_records)
+                    )
+                )
+                self.messenger.send_message(message, self.puppeteer)
 
     def process_input(self, key_press_input: KeyPressEventLogRecords):
         for log_record in key_press_input:

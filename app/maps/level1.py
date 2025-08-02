@@ -1,4 +1,5 @@
 import arcade
+from PIL.ImageCms import Direction
 
 from app.collections.coordinate_holder_collection import CoordinateHolderCollection
 from app.config import Behaviours, NpcAnimations
@@ -6,7 +7,8 @@ from app.core.geometry.shape import Shape
 from app.core.physics.body import Body, CollisionMatrix, CollisionResponse
 from app.core.vectors import CustomVec2i
 from app.engine.grid.grid import Grid
-from app.engine.message_broker.types import Controls, KeyBinding, MessageBody, MessageTypes, IntentionToMovePayload
+from app.engine.message_broker.types import Controls, KeyBinding, MessageBody, MessageTypes, IntentionToPlacePayload, \
+    SetProperties, StopPayload, MovePayload
 from app.maps.level import Level
 from app.objects.coordinate_holder import CoordinateHolder
 from app.objects.puppeteer import Puppeteer
@@ -94,10 +96,30 @@ class LevelFactory:
 
         # Puppeteer setup
         controls = Controls()
-        controls[arcade.key.UP] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=IntentionToMovePayload(CustomVec2i.up())))
-        controls[arcade.key.DOWN] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=IntentionToMovePayload(CustomVec2i.down())))
-        controls[arcade.key.LEFT] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=IntentionToMovePayload(CustomVec2i.left())))
-        controls[arcade.key.RIGHT] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=IntentionToMovePayload(CustomVec2i.right())))
+        controls[arcade.key.UP] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_PLACE, payload=IntentionToPlacePayload(CustomVec2i.up())))
+        controls[arcade.key.DOWN] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_PLACE, payload=IntentionToPlacePayload(CustomVec2i.down())))
+        controls[arcade.key.LEFT] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_PLACE, payload=IntentionToPlacePayload(CustomVec2i.left())))
+        controls[arcade.key.RIGHT] = KeyBinding(key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_PLACE, payload=IntentionToPlacePayload(CustomVec2i.right())))
+
+        controls[arcade.key.W] = KeyBinding(
+            key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=MovePayload(direction=CustomVec2i.up())),
+            key_up=MessageBody(message_type=MessageTypes.INTENTION_TO_STOP, payload=StopPayload(direction=CustomVec2i.up()))
+        )
+
+        controls[arcade.key.S] = KeyBinding(
+            key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=MovePayload(direction=CustomVec2i.down())),
+            key_up=MessageBody(message_type=MessageTypes.INTENTION_TO_STOP, payload=StopPayload(direction=CustomVec2i.down()))
+        )
+
+        controls[arcade.key.A] = KeyBinding(
+            key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=MovePayload(direction=CustomVec2i.left())),
+            key_up=MessageBody(message_type=MessageTypes.INTENTION_TO_STOP, payload=StopPayload(direction=CustomVec2i.left()))
+        )
+
+        controls[arcade.key.D] = KeyBinding(
+            key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE, payload=MovePayload(direction=CustomVec2i.right())),
+            key_up=MessageBody(message_type=MessageTypes.INTENTION_TO_STOP, payload=StopPayload(direction=CustomVec2i.right()))
+        )
 
         puppeteer = Puppeteer(puppet=unit, controls=controls)
         puppeteer.add_behaviour(Behaviours.POSSESSOR)
