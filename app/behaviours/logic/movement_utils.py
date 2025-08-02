@@ -18,7 +18,7 @@ class MovementUtils:
             state: BufferedMoverState,
             delta_time: float
     ) -> tuple[BufferedMoverState, CustomVec2i]:
-        state.moving_buffer += coordinate_holder.velocity * delta_time
+        state.moving_buffer += (coordinate_holder.velocity + coordinate_holder.intent_velocity) * delta_time
         direction = CustomVec2i.zero()
 
         for n in [0, 1]:

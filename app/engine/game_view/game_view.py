@@ -161,8 +161,6 @@ class GameView(arcade.View):
         if current_timestamp >= render_threshold:
             events = self.input_events.slice_flat(self.ticker.last_timestamp, render_threshold)
             check = self.input_events_continuous.read(self.ticker.last_timestamp, render_threshold)
-            if check:
-               print(check)
 
             self.ticker.tick()
             self.orchestrator.process_tick(delta_time)

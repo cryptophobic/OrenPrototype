@@ -16,8 +16,3 @@ class BufferedMover(Behaviour):
     name = Behaviours.BUFFERED_MOVER
     supported_receivers = (CoordinateHolder,)
 
-    @classmethod
-    def intention_to_move(cls, unit: UnitProtocol, payload: SetVelocityPayload) -> bool:
-        intent_velocity = payload.velocity.normalized() * unit.stats.speed
-        unit.intent_velocity = intent_velocity
-        return True

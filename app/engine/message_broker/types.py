@@ -11,6 +11,7 @@ class MessageTypes(Enum):
     ANIMATE = "animate"
     INPUT = "input"
     INTENTION_TO_MOVE = "intention_to_move"
+    INTENTION_TO_STOP = "intention_to_stop"
     KEY_DOWN = "key_down"
     KEY_UP = "key_up"
     OVERLAPPED_BY = "overlapped_by"
@@ -37,6 +38,10 @@ class IntentionToMovePayload(Payload):
 @dataclass
 class SetVelocityPayload(Payload):
     velocity: CustomVec2f
+
+@dataclass
+class StopPayload(Payload):
+    direction: CustomVec2i
 
 @dataclass
 class AnimatePayload(Payload):
@@ -76,6 +81,7 @@ MessagePayloadMap: dict[MessageTypes, type[Payload]] = {
     MessageTypes.ANIMATE: AnimatePayload,
     MessageTypes.INPUT: InputPayload,
     MessageTypes.INTENTION_TO_MOVE: IntentionToMovePayload,
+    MessageTypes.INTENTION_TO_STOP: StopPayload,
     MessageTypes.KEY_DOWN: ControlsPayload,
     MessageTypes.KEY_UP: ControlsPayload,
     MessageTypes.OVERLAPPED_BY: Payload,
