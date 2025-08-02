@@ -54,6 +54,8 @@ class Possessor(Behaviour):
             print(f"puppet name is not recognised: {payload.actor_name} vs {puppeteer.puppet.name}")
             return False
 
+        print (payload)
+
         return True
 
     @classmethod

@@ -44,7 +44,7 @@ class Orchestrator(Actor, OrchestratorProtocol):
                     sender=self.name,
                     body=MessageBody(
                         message_type=MessageTypes.INPUT,
-                        payload=InputPayload(actor_name=actor_name, input=log_records)
+                        payload=InputPayload(actor_name=actor_name, input=sorted(log_records))
                     )
                 )
                 self.messenger.send_message(message, self.puppeteer)
