@@ -33,6 +33,8 @@ class InputEventsContinuous:
         self.last_timestamp: int = -1
         self.micro_tick: int = 0
 
+        self.len = 0
+
         self.key_pressed: set[int] = set()
 
     def subscribe(self, subscriber_name: str, keys: Controls):
@@ -115,6 +117,7 @@ class InputEventsContinuous:
 
         self.flush(timestamp)
 
+
     def read(self, start: int, end: int) -> dict[str, ContinuousKeyPressEventLogRecords]:
         sliced = {}
 
@@ -127,5 +130,4 @@ class InputEventsContinuous:
                             dt=(log.dt, log.micro_tick), key=key, down=log.down
                         )
                     )
-
         return sliced

@@ -159,12 +159,15 @@ class GameView(arcade.View):
         self.input_events.listen(current_timestamp)
         self.input_events_continuous.listen(current_timestamp)
         if current_timestamp >= render_threshold:
-            # TODO: Deprecated
-            events = self.input_events.slice_flat(self.ticker.last_timestamp, render_threshold)
-
-            input_events = self.input_events_continuous.read(self.ticker.last_timestamp, render_threshold)
-
+            prev_timestamp = self.ticker.last_timestamp
             self.ticker.tick()
+            last_timestamp = self.ticker.last_timestamp
+
+            # TODO: Deprecated
+            events = self.input_events.slice_flat(prev_timestamp, last_timestamp)
+
+            input_events = self.input_events_continuous.read(prev_timestamp, last_timestamp)
+
             self.orchestrator.process_tick(delta_time)
             self.orchestrator.process_continuous_input(input_events)
 

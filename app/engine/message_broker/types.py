@@ -75,7 +75,7 @@ class Message:
 @dataclass
 class KeyBinding:
     key_down: MessageBody
-    repeat_delta: int = 150
+    repeat_delta: int = -1
     key_up: MessageBody = None
 
 class Controls(UserDict[int, KeyBinding]):

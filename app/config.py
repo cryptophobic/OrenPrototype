@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum, auto
 
-from pyglet.image import Animation
-
 FPS = 60
 SCREEN_SIZE = (1300, 1100)
 
