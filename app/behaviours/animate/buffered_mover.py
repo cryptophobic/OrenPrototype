@@ -61,16 +61,17 @@ class BufferedMover(Behaviour):
         if isinstance(coordinate_holder, UnitProtocol):
             intent_velocity *= coordinate_holder.stats.speed
 
-        coordinate_holder.intent_velocity = intent_velocity
         state = coordinate_holder.behaviour_state.get(cls.name)
 
         if not isinstance(state, BufferedMoverState):
             state = BufferedMoverState()
 
         if payload.velocity.x != 0:
+            state.intent_velocity.x = intent_velocity.x
             state.clear_velocity.x = 0
 
         if payload.velocity.y != 0:
+            state.intent_velocity.y = intent_velocity.y
             state.clear_velocity.y = 0
 
         coordinate_holder.behaviour_state[cls.name] = state
