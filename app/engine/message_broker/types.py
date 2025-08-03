@@ -24,10 +24,6 @@ class Payload:
     pass
 
 @dataclass
-class ControlsPayload(Payload):
-    key_code: int
-
-@dataclass
 class PushedByPayload(Payload):
     force: int
     direction: CustomVec2i
@@ -93,8 +89,6 @@ MessagePayloadMap: dict[MessageTypes, type[Payload]] = {
     MessageTypes.INTENTION_TO_PLACE: IntentionToPlacePayload,
     MessageTypes.INTENTION_TO_MOVE: MovePayload,
     MessageTypes.INTENTION_TO_STOP: StopPayload,
-    MessageTypes.KEY_DOWN: ControlsPayload,
-    MessageTypes.KEY_UP: ControlsPayload,
     MessageTypes.OVERLAPPED_BY: Payload,
     MessageTypes.PUSHED_BY: PushedByPayload,
     MessageTypes.STROKED_BY: StrokedByPayload,

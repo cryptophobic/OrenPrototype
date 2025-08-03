@@ -178,6 +178,7 @@ class GameView(arcade.View):
         if key == arcade.key.ESCAPE:
             arcade.exit()
 
+        # playground
         if key == arcade.key.TAB:
             length = len(self.puppets)
             self.orchestrator.set_puppet(self.puppets[self.i % length].name)

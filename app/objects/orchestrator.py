@@ -1,7 +1,7 @@
 from app.collections.puppeteer_collection import PuppeteerCollection
 from app.config import Behaviours
-from app.core.types import KeyPressEventLogRecords, ContinuousKeyPressEventLogRecords
-from app.engine.message_broker.types import Message, MessageBody, MessageTypes, ControlsPayload, AnimatePayload, \
+from app.core.types import ContinuousKeyPressEventLogRecords
+from app.engine.message_broker.types import Message, MessageBody, MessageTypes, AnimatePayload, \
     InputPayload
 from app.objects.actor import Actor
 from app.objects.puppeteer import Puppeteer
@@ -51,18 +51,6 @@ class Orchestrator(Actor, OrchestratorProtocol):
                 )
                 self.messenger.send_message(message, self.puppeteer)
 
-    def process_input(self, key_press_input: KeyPressEventLogRecords):
-        for log_record in key_press_input:
-            if self.puppeteer:
-                message = Message(
-                    sender=self.name,
-                    body=MessageBody(
-                        message_type=MessageTypes.KEY_DOWN if log_record.down is True else MessageTypes.KEY_UP,
-                        payload=ControlsPayload(key_code=log_record.key)
-                    )
-                )
-                self.messenger.send_message(message, self.puppeteer)
-
     def __process_animation(self):
         animated = self.actors_collection.get_behave_as_this(Behaviours.ANIMATED)
         for actor in animated:
@@ -96,5 +84,3 @@ class Orchestrator(Actor, OrchestratorProtocol):
         self.__process_animation()
         self.__process_buffered_mover()
         self.delta_time = 0.0
-
-
