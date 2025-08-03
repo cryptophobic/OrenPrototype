@@ -7,7 +7,6 @@ from app.config import Behaviours
 from app.core.vectors import CustomVec2f
 from app.engine.command_pipeline.pipeline import CommandPipeline
 from app.engine.game_view.animated_sprite import Animated
-from app.engine.input_processor.InputEvents import InputEvents
 from app.engine.input_processor.Timer import Timer
 from app.engine.input_processor.inpuit_events_continuous import InputEventsContinuous
 from app.engine.message_broker.broker import MessageBroker
@@ -48,9 +47,6 @@ class GameView(arcade.View):
         for puppeteer in self.orchestrator.actors_collection.get_by_type(Puppeteer, PuppeteerCollection):
             self.input_events_continuous.subscribe(puppeteer.name, puppeteer.controls)
 
-            # TODO: Deprecated
-            self.input_events.subscribe(puppeteer.name, puppeteer.controls)
-
     def __init__(self, config):
         super().__init__()
 
@@ -62,7 +58,7 @@ class GameView(arcade.View):
         self.level_factory = LevelFactory()
         self.current_level = self.level_factory.levels["level1"]
         self.grid = self.current_level.grid
-        self.input_events = InputEvents()
+
         self.input_events_continuous = InputEventsContinuous()
         self.message_broker = MessageBroker()
 
@@ -161,23 +157,17 @@ class GameView(arcade.View):
     def on_update(self, delta_time: float):
         current_timestamp = self.ticker.current_timestamp()
         render_threshold = int(self.ticker.last_timestamp + self.interval)
-        self.input_events.listen(current_timestamp)
         self.input_events_continuous.listen(current_timestamp)
         if current_timestamp >= render_threshold:
             prev_timestamp = self.ticker.last_timestamp
             self.ticker.tick()
             last_timestamp = self.ticker.last_timestamp
 
-            # TODO: Deprecated
-            events = self.input_events.slice_flat(prev_timestamp, last_timestamp)
-
             input_events = self.input_events_continuous.read(prev_timestamp, last_timestamp)
 
             self.orchestrator.process_tick(delta_time)
             self.orchestrator.process_continuous_input(input_events)
 
-            # TODO: Deprecated
-            self.orchestrator.process_input(events)
             self.state_changed = self.command_pipeline.process(
                 self.orchestrator.actors_collection.get_pending_actors()
             )
@@ -196,12 +186,6 @@ class GameView(arcade.View):
         current_timestamp = self.ticker.current_timestamp()
         self.input_events_continuous.register_key_pressed(key, True, current_timestamp)
 
-        # TODO: deprecated
-        self.input_events.key_pressed[key] = True
-
     def on_key_release(self, key: int, modifiers: int):
         current_timestamp = self.ticker.current_timestamp()
         self.input_events_continuous.register_key_pressed(key, False, current_timestamp)
-
-        # TODO: deprecated
-        self.input_events.key_pressed.pop(key, None)
