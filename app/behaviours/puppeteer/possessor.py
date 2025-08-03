@@ -54,7 +54,16 @@ class Possessor(Behaviour):
             print(f"puppet name is not recognised: {payload.actor_name} vs {puppeteer.puppet.name}")
             return False
 
-        print (payload)
+        for event in payload.input:
+            key_code = event.key
+            binding = puppeteer.controls.get(key_code)
+
+            message = binding.key_down if event.down else binding.key_up
+            if not message:
+                continue
+            forward = Message(sender=puppeteer.name, body=message)
+            messenger = cls.get_messenger()
+            messenger.send_message(forward, puppeteer.puppet)
 
         return True
 

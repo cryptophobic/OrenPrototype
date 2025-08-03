@@ -1,7 +1,7 @@
 from app.behaviours.behaviour import register_message_handler, Behaviour
 from app.behaviours.types import BufferedMoverState
 from app.config import Behaviours
-from app.engine.message_broker.types import MessageTypes, AnimatePayload, SetVelocityPayload, StopPayload
+from app.engine.message_broker.types import MessageTypes, AnimatePayload, StopPayload, MovePayload
 from app.objects.coordinate_holder import CoordinateHolder
 from app.protocols.objects.coordinate_holder_protocol import CoordinateHolderProtocol
 from app.protocols.objects.unit_protocol import UnitProtocol
@@ -44,6 +44,8 @@ class BufferedMover(Behaviour):
         if not isinstance(state, BufferedMoverState):
             state = BufferedMoverState()
 
+        print(state)
+
         state, direction = movement_utils.calculate_buffered_move(coordinate_holder, state, payload.delta_time)
 
         if direction.x != 0 and state.clear_velocity.x:
@@ -56,23 +58,23 @@ class BufferedMover(Behaviour):
         return movement_utils.try_move(coordinate_holder, direction, force) if direction.is_not_zero() else True
 
     @classmethod
-    def intention_to_move(cls, coordinate_holder: CoordinateHolderProtocol, payload: SetVelocityPayload) -> bool:
-        intent_velocity = payload.velocity.normalized()
-        if isinstance(coordinate_holder, UnitProtocol):
-            intent_velocity *= coordinate_holder.stats.speed
-
+    def intention_to_move(cls, coordinate_holder: CoordinateHolderProtocol, payload: MovePayload) -> bool:
         state = coordinate_holder.behaviour_state.get(cls.name)
 
         if not isinstance(state, BufferedMoverState):
             state = BufferedMoverState()
 
-        if payload.velocity.x != 0:
-            state.intent_velocity.x = intent_velocity.x
+        if payload.direction.x != 0:
+            state.intent_velocity.x = payload.direction.x
             state.clear_velocity.x = 0
 
-        if payload.velocity.y != 0:
-            state.intent_velocity.y = intent_velocity.y
+        if payload.direction.y != 0:
+            state.intent_velocity.y = payload.direction.y
             state.clear_velocity.y = 0
+
+        state.intent_velocity = state.intent_velocity.normalized()
+        if isinstance(coordinate_holder, UnitProtocol):
+            state.intent_velocity *= coordinate_holder.stats.speed
 
         coordinate_holder.behaviour_state[cls.name] = state
 
