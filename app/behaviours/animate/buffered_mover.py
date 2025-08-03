@@ -50,6 +50,11 @@ class BufferedMover(Behaviour):
             if isinstance(coordinate_holder, UnitProtocol):
                 state.intent_velocity_normalised *= coordinate_holder.stats.speed
 
+        if isinstance(coordinate_holder, UnitProtocol):
+            animation, direction_str = movement_utils.get_animation_and_textures(state.intent_velocity_normalised, coordinate_holder)
+            coordinate_holder.shape.current_animation = animation
+            coordinate_holder.shape.direction = direction_str
+
         coordinate_holder.behaviour_state[cls.name] = state
         return movement_utils.try_move(coordinate_holder, direction, force) if direction.is_not_zero() else True
 

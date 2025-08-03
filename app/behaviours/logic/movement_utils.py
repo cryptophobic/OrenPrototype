@@ -1,9 +1,12 @@
 from app.behaviours.types import BufferedMoverState
-from app.core.vectors import CustomVec2i
+from app.config import CommonAnimations
+from app.core.vectors import CustomVec2i, CustomVec2
 from app.engine.message_broker.types import Message, MessageBody, MessageTypes, PushedByPayload, Payload
 from app.protocols.engine.grid.grid_protocol import GridProtocol
 from app.protocols.engine.message_broker.broker_protocol import MessageBrokerProtocol
 from app.protocols.objects.coordinate_holder_protocol import CoordinateHolderProtocol
+from app.protocols.objects.unit_protocol import UnitProtocol
+from app.registry.animation_registry import LoadedAnimation
 
 
 class MovementUtils:
@@ -66,5 +69,26 @@ class MovementUtils:
             )
             self._messenger.send_message(message=message, responder=actor)
 
+        print(coordinate_holder.coordinates + direction)
+
         return result.placed
 
+    # TODO: remove the playground
+    @staticmethod
+    def get_animation_and_textures(velocity: CustomVec2, unit: UnitProtocol) -> tuple[CommonAnimations, str]:
+        if velocity.y < 0:
+            return CommonAnimations.RUN, 'front'
+        elif velocity.y > 0:
+            return CommonAnimations.RUN, 'back'
+        elif velocity.x < 0:
+            return CommonAnimations.RUN, 'left'
+        elif velocity.x > 0:
+            return CommonAnimations.RUN, 'right'
+        elif unit.shape.direction == 'front':
+            return CommonAnimations.IDLE, 'front'
+        elif unit.shape.direction == 'back':
+            return CommonAnimations.IDLE, 'back'
+        elif unit.shape.direction == 'left':
+            return CommonAnimations.IDLE, 'left'
+        elif unit.shape.direction == 'right':
+            return CommonAnimations.IDLE, 'right'

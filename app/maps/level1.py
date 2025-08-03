@@ -2,7 +2,7 @@ import arcade
 from PIL.ImageCms import Direction
 
 from app.collections.coordinate_holder_collection import CoordinateHolderCollection
-from app.config import Behaviours, NpcAnimations
+from app.config import Behaviours, NpcAnimations, animation_paths
 from app.core.geometry.shape import Shape
 from app.core.physics.body import Body, CollisionMatrix, CollisionResponse
 from app.core.vectors import CustomVec2i
@@ -62,14 +62,14 @@ class LevelFactory:
         # Player setup
         player_body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))
         player_shape = Shape(get_icon_path(Icons.PLAYER))
-        player_shape.animations.set(NpcAnimations.ARMED_IDLE)
-        player_shape.animations.set(NpcAnimations.ARMED_RUN)
-        player_shape.animations.set(NpcAnimations.ARMED_HURT)
-        player_shape.animations.set(NpcAnimations.ARMED_WALK)
-        player_shape.animations.set(NpcAnimations.ARMED_DEATH)
-        player_shape.animations.set(NpcAnimations.ARMED_ATTACK)
-        player_shape.animations.set(NpcAnimations.ARMED_RUN_ATTACK)
-        player_shape.animations.set(NpcAnimations.ARMED_WALK_ATTACK)
+        player_shape.animations.set(animation_paths[NpcAnimations.ARMED_IDLE].animation, NpcAnimations.ARMED_IDLE)
+        player_shape.animations.set(animation_paths[NpcAnimations.ARMED_RUN].animation, NpcAnimations.ARMED_RUN)
+        player_shape.animations.set(animation_paths[NpcAnimations.ARMED_HURT].animation, NpcAnimations.ARMED_HURT)
+        player_shape.animations.set(animation_paths[NpcAnimations.ARMED_WALK].animation, NpcAnimations.ARMED_WALK)
+        player_shape.animations.set(animation_paths[NpcAnimations.ARMED_DEATH].animation, NpcAnimations.ARMED_DEATH)
+        player_shape.animations.set(animation_paths[NpcAnimations.ARMED_ATTACK].animation, NpcAnimations.ARMED_ATTACK)
+        player_shape.animations.set(animation_paths[NpcAnimations.ARMED_RUN_ATTACK].animation, NpcAnimations.ARMED_RUN_ATTACK)
+        player_shape.animations.set(animation_paths[NpcAnimations.ARMED_WALK_ATTACK].animation, NpcAnimations.ARMED_WALK_ATTACK)
 
         player_stats = UnitStats(STR=5, DEX=1, CON=5, INT=2, WIS=2, CHA=1, HP=10, initiative=1)
         unit: UnitProtocol = Unit(body=player_body, shape=player_shape, coordinates=CustomVec2i(1, 2), stats=player_stats, name="Adventurer")
@@ -81,16 +81,16 @@ class LevelFactory:
         # Enemy setup
         enemy_body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))
         enemy_shape = Shape(get_icon_path(Icons.ENEMY))
-        enemy_shape.animations.set(NpcAnimations.ENEMY_IDLE)
-        enemy_shape.animations.set(NpcAnimations.ENEMY_RUN)
-        enemy_shape.animations.set(NpcAnimations.ENEMY_HURT)
-        enemy_shape.animations.set(NpcAnimations.ENEMY_WALK)
-        enemy_shape.animations.set(NpcAnimations.ENEMY_DEATH)
-        enemy_shape.animations.set(NpcAnimations.ENEMY_ATTACK)
-        enemy_shape.animations.set(NpcAnimations.ENEMY_RUN_ATTACK)
-        enemy_shape.animations.set(NpcAnimations.ENEMY_WALK_ATTACK)
+        enemy_shape.animations.set(animation_paths[NpcAnimations.ENEMY_IDLE].animation, NpcAnimations.ENEMY_IDLE)
+        enemy_shape.animations.set(animation_paths[NpcAnimations.ENEMY_RUN].animation, NpcAnimations.ENEMY_RUN)
+        enemy_shape.animations.set(animation_paths[NpcAnimations.ENEMY_HURT].animation, NpcAnimations.ENEMY_HURT)
+        enemy_shape.animations.set(animation_paths[NpcAnimations.ENEMY_WALK].animation, NpcAnimations.ENEMY_WALK)
+        enemy_shape.animations.set(animation_paths[NpcAnimations.ENEMY_DEATH].animation, NpcAnimations.ENEMY_DEATH)
+        enemy_shape.animations.set(animation_paths[NpcAnimations.ENEMY_ATTACK].animation, NpcAnimations.ENEMY_ATTACK)
+        enemy_shape.animations.set(animation_paths[NpcAnimations.ENEMY_RUN_ATTACK].animation, NpcAnimations.ENEMY_RUN_ATTACK)
+        enemy_shape.animations.set(animation_paths[NpcAnimations.ENEMY_WALK_ATTACK].animation, NpcAnimations.ENEMY_WALK_ATTACK)
         enemy_stats = UnitStats(STR=5, DEX=1, CON=5, INT=2, WIS=2, CHA=1, HP=10, initiative=1)
-        enemy_unit = Unit(body=enemy_body, shape=enemy_shape, coordinates=CustomVec2i(1, 3), stats=enemy_stats, name="Enemy")
+        enemy_unit = Unit(body=enemy_body, shape=enemy_shape, coordinates=CustomVec2i(59, 49), stats=enemy_stats, name="Enemy")
         enemy_unit.add_behaviour(Behaviours.DISCRETE_MOVER)
         enemy_unit.add_behaviour(Behaviours.BUFFERED_MOVER)
         level.actors_collection.add(enemy_unit)
@@ -143,20 +143,20 @@ class LevelFactory:
         # Prison walls
         # for coordinates in [CustomVec2i(1, 0), CustomVec2i(1, 1), CustomVec2i(0, 1)]:
 
-        # for prison in maze(level.grid_width, level.grid_height):
-        #    level.actors_collection.add(prison)
+        for prison in maze(level.grid_width, level.grid_height):
+           level.actors_collection.add(prison)
 
-        for coordinates in [CustomVec2i(1, 1), CustomVec2i(0, 1)]:
-           prison_body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))
-           prison_shape = Shape(get_icon_path(Icons.WALLS))
-           # Unique name would be created automatically.
-           level.actors_collection.add(StaticObject(
-               body=prison_body,
-               shape=prison_shape,
-               coordinates=coordinates,
-               height=100,
-               weight=100,
-           ))
+        #for coordinates in [CustomVec2i(1, 1), CustomVec2i(0, 1)]:
+        #   prison_body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))
+        #   prison_shape = Shape(get_icon_path(Icons.WALLS))
+        #   # Unique name would be created automatically.
+        #   level.actors_collection.add(StaticObject(
+        #       body=prison_body,
+        #       shape=prison_shape,
+        #       coordinates=coordinates,
+        #       height=100,
+        #       weight=100,
+        #   ))
         # End of prison walls
 
         for coordinate_holder in level.actors_collection.get_by_type(CoordinateHolder, CoordinateHolderCollection):

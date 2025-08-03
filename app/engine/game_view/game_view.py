@@ -1,21 +1,18 @@
 import arcade
 
 from app.behaviours.types import BufferedMoverState
-from app.collections.coordinate_holder_collection import CoordinateHolderCollection
 from app.collections.puppeteer_collection import PuppeteerCollection
 from app.config import Behaviours
-from app.core.vectors import CustomVec2f
 from app.engine.command_pipeline.pipeline import CommandPipeline
-from app.engine.game_view.animated_sprite import Animated
+from app.engine.game_view.camera import Camera
+from app.engine.game_view.sprite_renderer import SpriteRenderer
 from app.engine.input_processor.Timer import Timer
 from app.engine.input_processor.inpuit_events_continuous import InputEventsContinuous
 from app.engine.message_broker.broker import MessageBroker
 from app.maps.level1 import LevelFactory
-from app.objects.coordinate_holder import CoordinateHolder
 from app.objects.orchestrator import Orchestrator
 from app.objects.puppeteer import Puppeteer
 from app.protocols.collections.actor_collection_protocol import ActorCollectionProtocol
-
 from app.protocols.objects.orchestrator_protocol import OrchestratorProtocol
 from app.registry.behaviour_registry import get_behaviour_registry
 
@@ -49,6 +46,8 @@ class GameView(arcade.View):
 
     def __init__(self, config):
         super().__init__()
+
+        self.camera = Camera(initial_zoom=1.0)
 
         self.config = config
         self.rendered = False
@@ -84,74 +83,32 @@ class GameView(arcade.View):
         self.ticker = Timer()
         self.state_changed = True
 
-        self.x_offset: int = 0
-        self.y_offset: int = 0
-        self.tile_size: int = 0
         self.actor_collection: ActorCollectionProtocol = self.current_level.actors_collection
         self.background_color = arcade.color.BLACK
         self.margin = 2
 
         self.tile_size = 0
         self.grid_sprite_list = arcade.SpriteList()
-        self.actor_sprite_list = arcade.SpriteList()
-        self.cursor_sprite_list = arcade.SpriteList()
-
         self.grid_sprites = []
-        self.actor_sprite_map = {}
+        
         self.__calculate_settings()
+        self.sprite_renderer = SpriteRenderer(self.tile_size, self.get_tile_center)
 
 
     def on_draw(self):
-        """
-        Render the screen.
-        """
+        """Render the screen."""
         self.clear()
+        self.camera.use()
+
         self.grid_sprite_list.draw()
 
         if not self.rendered or self.state_changed:
             self.state_changed = False
             self.rendered = True
+            self.sprite_renderer.update_sprites(self.actor_collection)
 
-            current_actor_ids = set()
+        self.sprite_renderer.draw()
 
-            for coordinate_holder in self.actor_collection.get_by_type(CoordinateHolder, CoordinateHolderCollection):
-                current_actor_ids.add(coordinate_holder.id)
-                x = coordinate_holder.coordinates.x
-                y = coordinate_holder.coordinates.y
-
-                if coordinate_holder.name not in self.actor_sprite_map:
-
-                    if len(coordinate_holder.shape.animations) == 0:
-                        icon_path = coordinate_holder.shape.icon_path
-                        sprite = arcade.Sprite(icon_path, scale=self.tile_size / 16)
-                    else:
-                        # TODO: just for testing purpose
-                        current_animation_index = next(iter(coordinate_holder.shape.animations))
-                        current_animation = coordinate_holder.shape.animations.get(current_animation_index).front
-                        sprite = Animated(current_animation)
-
-                    self.actor_sprite_map[coordinate_holder.name] = sprite
-                    if coordinate_holder.name == "Cursor":
-                        self.cursor_sprite_list.append(sprite)
-                    else:
-                        self.actor_sprite_list.append(sprite)
-                else:
-                    sprite = self.actor_sprite_map[coordinate_holder.name]
-
-                state = coordinate_holder.extract_behaviour_data(Behaviours.BUFFERED_MOVER)
-                moving_buffer = state.moving_buffer if isinstance(state, BufferedMoverState) else CustomVec2f(0.0, 0.0)
-
-                sprite.center_x = self.get_tile_center(x) + moving_buffer.x * self.tile_size
-                sprite.center_y = self.get_tile_center(y) + moving_buffer.y * self.tile_size
-
-            # Remove sprites of actors that no longer exist
-            to_remove = [actor_id for actor_id in self.actor_sprite_map if actor_id not in current_actor_ids]
-            for actor_id in to_remove:
-                sprite = self.actor_sprite_map.pop(actor_id)
-                self.actor_sprite_list.remove(sprite)
-
-        self.actor_sprite_list.draw()
-        self.cursor_sprite_list.draw()
 
     def on_update(self, delta_time: float):
         current_timestamp = self.ticker.current_timestamp()
@@ -171,7 +128,25 @@ class GameView(arcade.View):
                 self.orchestrator.actors_collection.get_pending_actors()
             )
 
-        self.actor_sprite_list.update()
+        sprite = self.sprite_renderer.actor_sprite_map.get(self.orchestrator.puppeteer.puppet.name, None)
+        if sprite:
+            self.camera.set_follow_target(sprite, smooth=True, speed=0.1)
+
+        state = self.orchestrator.puppeteer.puppet.extract_behaviour_data(Behaviours.BUFFERED_MOVER)
+        if isinstance(state, BufferedMoverState):
+            velocity = state.intent_velocity
+            zoom = self.camera.zoom
+            if velocity.is_not_zero():
+                if zoom < 2.5:
+                    zoom += 0.01
+                self.camera.set_zoom(zoom)
+            else:
+                if zoom > 1.0:
+                    zoom -= 0.1
+                self.camera.set_zoom(zoom)
+
+        self.camera.update()
+        self.sprite_renderer.update()
 
     def on_key_press(self, key: int, modifiers: int):
         if key == arcade.key.ESCAPE:
