@@ -108,7 +108,6 @@ class GameView(arcade.View):
         self.clear()
         self.grid_sprite_list.draw()
 
-        # We should always start by clearing the window pixels
         if not self.rendered or self.state_changed:
             self.state_changed = False
             self.rendered = True

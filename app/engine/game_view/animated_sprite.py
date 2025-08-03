@@ -1,6 +1,5 @@
 import arcade
 
-
 class Animated(arcade.Sprite):
     def __init__(self, texture_list: list[arcade.Texture]):
         super().__init__(texture_list[0])
