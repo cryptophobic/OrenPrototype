@@ -50,8 +50,8 @@ class Possessor(Behaviour):
 
     @classmethod
     def _on_input_process(cls, puppeteer: PuppeteerProtocol, payload: InputPayload) -> bool:
-        if puppeteer.puppet.name != payload.actor_name:
-            print(f"puppet name is not recognised: {payload.actor_name} vs {puppeteer.puppet.name}")
+        if puppeteer.name != payload.actor_name:
+            print(f"puppeteer name is not recognised: {payload.actor_name} vs {puppeteer.name}")
             return False
 
         for event in payload.input:
@@ -61,6 +61,7 @@ class Possessor(Behaviour):
             message = binding.key_down if event.down else binding.key_up
             if not message:
                 continue
+
             forward = Message(sender=puppeteer.name, body=message)
             messenger = cls.get_messenger()
             messenger.send_message(forward, puppeteer.puppet)
@@ -69,12 +70,16 @@ class Possessor(Behaviour):
 
     @classmethod
     def key_down(cls, puppeteer: PuppeteerProtocol, payload: ControlsPayload) -> bool:
-        return cls.__key_process(puppeteer, payload, is_down=True)
+        print(f"key_down: {payload}")
+        return True
+        # return cls.__key_process(puppeteer, payload, is_down=True)
 
     @classmethod
     def key_up(cls, puppeteer: PuppeteerProtocol, payload: ControlsPayload) -> bool:
-        return cls.__key_process(puppeteer, payload, is_down=False)
+        return True
+        # return cls.__key_process(puppeteer, payload, is_down=False)
 
     @classmethod
     def on_input(cls, puppeteer: PuppeteerProtocol, payload: InputPayload) -> bool:
+        print(f"on_input: {payload}")
         return cls._on_input_process(puppeteer, payload)

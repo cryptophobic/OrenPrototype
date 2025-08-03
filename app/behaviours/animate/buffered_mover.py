@@ -44,15 +44,11 @@ class BufferedMover(Behaviour):
         if not isinstance(state, BufferedMoverState):
             state = BufferedMoverState()
 
-        print(state)
-
         state, direction = movement_utils.calculate_buffered_move(coordinate_holder, state, payload.delta_time)
-
-        if direction.x != 0 and state.clear_velocity.x:
-            coordinate_holder.intent_velocity.x = 0
-
-        if direction.y != 0 and state.clear_velocity.y:
-            coordinate_holder.intent_velocity.y = 0
+        if direction.is_not_zero():
+            state.intent_velocity_normalised = state.intent_velocity.normalized()
+            if isinstance(coordinate_holder, UnitProtocol):
+                state.intent_velocity_normalised *= coordinate_holder.stats.speed
 
         coordinate_holder.behaviour_state[cls.name] = state
         return movement_utils.try_move(coordinate_holder, direction, force) if direction.is_not_zero() else True
@@ -72,9 +68,9 @@ class BufferedMover(Behaviour):
             state.intent_velocity.y = payload.direction.y
             state.clear_velocity.y = 0
 
-        state.intent_velocity = state.intent_velocity.normalized()
+        state.intent_velocity_normalised = state.intent_velocity.normalized()
         if isinstance(coordinate_holder, UnitProtocol):
-            state.intent_velocity *= coordinate_holder.stats.speed
+            state.intent_velocity_normalised *= coordinate_holder.stats.speed
 
         coordinate_holder.behaviour_state[cls.name] = state
 

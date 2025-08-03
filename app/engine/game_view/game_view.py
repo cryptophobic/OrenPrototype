@@ -1,8 +1,10 @@
 import arcade
 
+from app.behaviours.types import BufferedMoverState
 from app.collections.coordinate_holder_collection import CoordinateHolderCollection
 from app.collections.puppeteer_collection import PuppeteerCollection
 from app.config import Behaviours
+from app.core.vectors import CustomVec2f
 from app.engine.command_pipeline.pipeline import CommandPipeline
 from app.engine.game_view.animated_sprite import Animated
 from app.engine.input_processor.InputEvents import InputEvents
@@ -44,7 +46,7 @@ class GameView(arcade.View):
 
     def register_actors(self):
         for puppeteer in self.orchestrator.actors_collection.get_by_type(Puppeteer, PuppeteerCollection):
-            self.input_events_continuous.subscribe(puppeteer.puppet.name, puppeteer.controls)
+            self.input_events_continuous.subscribe(puppeteer.name, puppeteer.controls)
 
             # TODO: Deprecated
             self.input_events.subscribe(puppeteer.name, puppeteer.controls)
@@ -141,8 +143,11 @@ class GameView(arcade.View):
                 else:
                     sprite = self.actor_sprite_map[coordinate_holder.name]
 
-                sprite.center_x = self.get_tile_center(x)
-                sprite.center_y = self.get_tile_center(y)
+                state = coordinate_holder.extract_behaviour_data(Behaviours.BUFFERED_MOVER)
+                moving_buffer = state.moving_buffer if isinstance(state, BufferedMoverState) else CustomVec2f(0.0, 0.0)
+
+                sprite.center_x = self.get_tile_center(x) + moving_buffer.x * self.tile_size
+                sprite.center_y = self.get_tile_center(y) + moving_buffer.y * self.tile_size
 
             # Remove sprites of actors that no longer exist
             to_remove = [actor_id for actor_id in self.actor_sprite_map if actor_id not in current_actor_ids]

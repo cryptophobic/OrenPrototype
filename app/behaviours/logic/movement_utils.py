@@ -16,9 +16,9 @@ class MovementUtils:
     def calculate_buffered_move(
             coordinate_holder: CoordinateHolderProtocol,
             state: BufferedMoverState,
-            delta_time: float
+            delta_time: float,
     ) -> tuple[BufferedMoverState, CustomVec2i]:
-        state.moving_buffer += (coordinate_holder.velocity + coordinate_holder.intent_velocity) * delta_time
+        state.moving_buffer += (coordinate_holder.velocity + state.intent_velocity_normalised) * delta_time
         direction = CustomVec2i.zero()
 
         if abs(state.moving_buffer.x) >= 1.0:
@@ -27,7 +27,7 @@ class MovementUtils:
             state.moving_buffer.x -= step
             if state.clear_velocity.x:
                 state.moving_buffer.x = 0.0
-                state.intent_velocity.x = 0.0
+                state.intent_velocity.x = 0
 
         if abs(state.moving_buffer.y) >= 1.0:
             step = int(state.moving_buffer.y)
@@ -35,7 +35,7 @@ class MovementUtils:
             state.moving_buffer.y -= step
             if state.clear_velocity.y:
                 state.moving_buffer.y = 0.0
-                state.intent_velocity.y = 0.0
+                state.intent_velocity.y = 0
 
         return state, direction
 

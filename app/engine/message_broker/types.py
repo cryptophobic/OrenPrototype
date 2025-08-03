@@ -91,7 +91,7 @@ MessagePayloadMap: dict[MessageTypes, type[Payload]] = {
     MessageTypes.ANIMATE: AnimatePayload,
     MessageTypes.INPUT: InputPayload,
     MessageTypes.INTENTION_TO_PLACE: IntentionToPlacePayload,
-    MessageTypes.INTENTION_TO_MOVE: SetProperties,
+    MessageTypes.INTENTION_TO_MOVE: MovePayload,
     MessageTypes.INTENTION_TO_STOP: StopPayload,
     MessageTypes.KEY_DOWN: ControlsPayload,
     MessageTypes.KEY_UP: ControlsPayload,

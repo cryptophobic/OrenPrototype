@@ -104,7 +104,7 @@ class Behaviours(Enum):
 
     # CoordinateHolder and descendants
     DISCRETE_MOVER = ".moveable.discrete_mover.DiscreteMover"
-    BUFFERED_MOVER = ".moveable.buffered_mover.BufferedMover"
+    BUFFERED_MOVER = ".animate.buffered_mover.BufferedMover"
 
     # StaticObject
     DESTRUCTIBLE = ".static_objects.destructible.Destructible"
