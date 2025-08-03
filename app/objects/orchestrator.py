@@ -13,7 +13,6 @@ from app.protocols.objects.puppeteer_protocol import PuppeteerProtocol
 from app.protocols.engine.message_broker.broker_protocol import MessageBrokerProtocol
 
 
-
 class Orchestrator(Actor, OrchestratorProtocol):
     def __init__(self,
                  actors_collection: ActorCollectionProtocol[ActorProtocol],
