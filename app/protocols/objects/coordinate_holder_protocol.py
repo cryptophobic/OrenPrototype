@@ -14,6 +14,7 @@ class CoordinateHolderProtocol(ActorProtocol, Protocol):
     shape: Shape
     coordinates: CustomVec2i
     velocity: CustomVec2f
+    intent_velocity: CustomVec2f
 
     def blocks(self, other: Self) -> bool: ...
     def overlaps(self, other: Self) -> bool: ...

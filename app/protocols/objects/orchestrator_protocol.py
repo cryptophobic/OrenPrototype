@@ -1,6 +1,6 @@
 from typing import runtime_checkable, Protocol
 
-from app.core.types import KeyPressEventLogRecords
+from app.core.types import KeyPressEventLogRecords, ContinuousKeyPressEventLogRecords
 from app.protocols.collections.actor_collection_protocol import ActorCollectionProtocol
 from app.protocols.collections.puppeteer_collection_protocol import PuppeteerCollectionProtocol
 from app.protocols.objects.actor_protocol import ActorProtocol
@@ -17,5 +17,8 @@ class OrchestratorProtocol(ActorProtocol, Protocol):
 
     def get_puppeteers(self) -> PuppeteerCollectionProtocol: ...
     def set_puppet(self, name: str) -> None: ...
+    # TODO: Deprecated
     def process_input(self, key_press_input: KeyPressEventLogRecords) -> None: ...
+
+    def process_continuous_input(self, key_press_input: dict[str, ContinuousKeyPressEventLogRecords]) -> None: ...
     def process_tick(self, delta_time: float) -> None: ...

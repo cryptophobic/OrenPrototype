@@ -1,8 +1,7 @@
 from app.behaviours.behaviour import register_message_handler, Behaviour
 from app.behaviours.types import BufferedMoverState
 from app.config import Behaviours
-from app.core.vectors import CustomVec2f
-from app.engine.message_broker.types import MessageTypes, AnimatePayload
+from app.engine.message_broker.types import MessageTypes, AnimatePayload, StopPayload, MovePayload
 from app.objects.coordinate_holder import CoordinateHolder
 from app.protocols.objects.coordinate_holder_protocol import CoordinateHolderProtocol
 from app.protocols.objects.unit_protocol import UnitProtocol
@@ -12,6 +11,20 @@ from app.protocols.objects.unit_protocol import UnitProtocol
     MessageTypes.BUFFERED_MOVE,
     {
         CoordinateHolder: "on_buffered_move",
+    }
+)
+
+@register_message_handler(
+    MessageTypes.INTENTION_TO_MOVE,
+    {
+        CoordinateHolder: "intention_to_move",
+    }
+)
+
+@register_message_handler(
+    MessageTypes.INTENTION_TO_STOP,
+    {
+        CoordinateHolder: "intention_to_stop",
     }
 )
 
@@ -29,9 +42,50 @@ class BufferedMover(Behaviour):
         force = 1 if not isinstance(coordinate_holder, UnitProtocol) else coordinate_holder.stats.STR
 
         if not isinstance(state, BufferedMoverState):
-            state = BufferedMoverState(CustomVec2f.zero())
+            state = BufferedMoverState()
 
         state, direction = movement_utils.calculate_buffered_move(coordinate_holder, state, payload.delta_time)
+        if direction.is_not_zero():
+            state.intent_velocity_normalised = state.intent_velocity.normalized()
+            if isinstance(coordinate_holder, UnitProtocol):
+                state.intent_velocity_normalised *= coordinate_holder.stats.speed
 
         coordinate_holder.behaviour_state[cls.name] = state
         return movement_utils.try_move(coordinate_holder, direction, force) if direction.is_not_zero() else True
+
+    @classmethod
+    def intention_to_move(cls, coordinate_holder: CoordinateHolderProtocol, payload: MovePayload) -> bool:
+        state = coordinate_holder.behaviour_state.get(cls.name)
+
+        if not isinstance(state, BufferedMoverState):
+            state = BufferedMoverState()
+
+        if payload.direction.x != 0:
+            state.intent_velocity.x = payload.direction.x
+            state.clear_velocity.x = 0
+
+        if payload.direction.y != 0:
+            state.intent_velocity.y = payload.direction.y
+            state.clear_velocity.y = 0
+
+        state.intent_velocity_normalised = state.intent_velocity.normalized()
+        if isinstance(coordinate_holder, UnitProtocol):
+            state.intent_velocity_normalised *= coordinate_holder.stats.speed
+
+        coordinate_holder.behaviour_state[cls.name] = state
+
+        return True
+
+    @classmethod
+    def intention_to_stop(cls, coordinate_holder: CoordinateHolderProtocol, payload: StopPayload) -> bool:
+        state = coordinate_holder.behaviour_state.get(cls.name)
+
+        if not isinstance(state, BufferedMoverState):
+            state = BufferedMoverState()
+
+        state.clear_velocity.x |= payload.direction.x
+        state.clear_velocity.y |= payload.direction.y
+
+        coordinate_holder.behaviour_state[cls.name] = state
+
+        return True

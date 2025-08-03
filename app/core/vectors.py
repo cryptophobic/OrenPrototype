@@ -86,9 +86,19 @@ class CustomVec2i(CustomVec2[int]):
     def manhattan_distance(self, other: 'CustomVec2i') -> int:
         return abs(self.x - other.x) + abs(self.y - other.y)
 
+    def normalized(self) -> Self:
+        l = self.length()
+        if l == 0:
+            return CustomVec2f(0.0, 0.0)
+        return CustomVec2f(self.x / l, self.y / l)
+
 
 @dataclass
 class CustomVec2f(CustomVec2[float]):
+
+    def __init__(self, x: float, y: float):
+        self.x = float(x)
+        self.y = float(y)
 
     def dot(self, other: Self) -> float:
         return self.x * other.x + self.y * other.y

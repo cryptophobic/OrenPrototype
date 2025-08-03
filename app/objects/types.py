@@ -10,5 +10,5 @@ class UnitStats:
     WIS: int = 0
     CHA: int = 0
     HP: int = 0
-    speed: float = 0.4
+    speed: float = 1 / 0.1
     initiative: int = 0

@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum, auto
 
-from pyglet.image import Animation
-
 FPS = 60
 SCREEN_SIZE = (1300, 1100)
 
@@ -106,7 +104,7 @@ class Behaviours(Enum):
 
     # CoordinateHolder and descendants
     DISCRETE_MOVER = ".moveable.discrete_mover.DiscreteMover"
-    BUFFERED_MOVER = ".moveable.buffered_mover.BufferedMover"
+    BUFFERED_MOVER = ".animate.buffered_mover.BufferedMover"
 
     # StaticObject
     DESTRUCTIBLE = ".static_objects.destructible.Destructible"
