@@ -40,6 +40,9 @@ class Actor(ActorProtocol):
     def is_behave_as_them(self, behaviours: List[Behaviours]) -> bool:
         return all(behaviour in self.behaviours for behaviour in behaviours)
 
+    def is_behave_as_any(self, behaviours: List[Behaviours]) -> bool:
+        return any(behaviour in self.behaviours for behaviour in behaviours)
+
     def add_behaviour(self, behaviour: Behaviours) -> None:
         self.behaviours.set(behaviour)
 

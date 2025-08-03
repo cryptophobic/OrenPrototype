@@ -19,7 +19,13 @@ class ActorCollection(CollectionBase[str, V], Generic[V], ActorCollectionProtoco
 
     def get_behave_as_this(self, behaviour: Behaviours) -> Self:
         return self.filter(lambda a: a.is_behave_as_this(behaviour))
-    
+
+    def get_behave_as_them(self, behaviours: list[Behaviours]) -> Self:
+        return self.filter(lambda a: a.is_behave_as_them(behaviours))
+
+    def get_behave_as_any(self, behaviours: list[Behaviours]) -> Self:
+        return self.filter(lambda a: a.is_behave_as_any(behaviours))
+
     def get_deleted_actors(self) -> Self:
         return self.__class__({k: v for k, v in self.items.items() if v.is_deleted})
 

@@ -21,7 +21,7 @@ class Orchestrator(Actor, OrchestratorProtocol):
                  name: str = None):
         super().__init__(name)
         self.delta_time: float = 0.0
-        self.moveable_actors = actors_collection.get_behave_as_this(Behaviours.DISCRETE_MOVER)
+        self.moveable_actors = actors_collection.get_behave_as_this(Behaviours.BUFFERED_MOVER)
         self.messenger = messenger
         self.actors_collection: ActorCollectionProtocol = actors_collection
         puppeteers = self.get_puppeteers()
