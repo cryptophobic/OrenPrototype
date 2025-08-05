@@ -1,7 +1,10 @@
 from typing import Optional
 
+from arcade import Texture
+
 from app.config import NpcAnimations, CommonAnimations
 from app.core.collection_base import CollectionBase
+from app.core.geometry.types import Directions
 from app.protocols.collections.animation_collection_protocol import AnimationCollectionProtocol
 from app.registry.animation_registry import LoadedAnimation, get_animation_registry
 
@@ -16,6 +19,21 @@ class AnimationCollection(CollectionBase[CommonAnimations, NpcAnimations | Loade
             return animation
 
         return value
+
+    def get_direction(self, key: CommonAnimations, direction: Directions) -> Optional[list[Texture]]:
+        loaded_animation = self._ensure_loaded(key)
+
+        if direction == Directions.FRONT:
+            return loaded_animation.front
+        elif direction == Directions.BACK:
+            return loaded_animation.back
+        elif direction == Directions.LEFT:
+            return loaded_animation.left
+        elif direction == Directions.RIGHT:
+            return loaded_animation.right
+
+        return loaded_animation.front
+
 
     def set(self, key: CommonAnimations, item: NpcAnimations) -> None:
         self.items[key] = item

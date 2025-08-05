@@ -3,7 +3,8 @@ from typing import runtime_checkable, Protocol, ClassVar, Type
 
 from app.behaviours.types import BehaviourAction, MessageHandlersDict
 from app.config import Behaviours
-from app.engine.message_broker.types import MessageBody
+from app.core.event_bus.bus import EventBus
+from app.engine.message_broker.types import MessageBody, MessageTypes
 from app.protocols.engine.grid.grid_protocol import GridProtocol
 from app.protocols.engine.message_broker.broker_protocol import MessageBrokerProtocol
 from app.protocols.objects.actor_protocol import ActorProtocol
@@ -20,7 +21,13 @@ class BehaviourProtocol(Protocol):
     def on_message(cls, receiver: ActorProtocol, message_body: MessageBody) -> deque[BehaviourAction]: ...
 
     @classmethod
-    def can_handle(cls, receiver: ActorProtocol, message_type) -> bool: ...
+    def can_handle(cls, receiver: ActorProtocol, message_type: MessageTypes) -> bool: ...
+
+    @classmethod
+    def register_event_bus(cls, event_bus: EventBus): ...
+
+    @classmethod
+    def get_event_bus(cls) -> EventBus: ...
 
     @classmethod
     def can_respond_to(cls, message_type) -> bool: ...
@@ -39,4 +46,3 @@ class BehaviourProtocol(Protocol):
 
     @classmethod
     def get_grid(cls) -> GridProtocol: ...
-

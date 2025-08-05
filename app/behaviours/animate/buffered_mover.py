@@ -1,6 +1,7 @@
 from app.behaviours.behaviour import register_message_handler, Behaviour
 from app.behaviours.types import BufferedMoverState
 from app.config import Behaviours
+from app.core.event_bus.events import Events, AnimationUpdatePayload
 from app.engine.message_broker.types import MessageTypes, AnimatePayload, StopPayload, MovePayload
 from app.objects.coordinate_holder import CoordinateHolder
 from app.protocols.objects.coordinate_holder_protocol import CoordinateHolderProtocol
@@ -44,19 +45,26 @@ class BufferedMover(Behaviour):
         if not isinstance(state, BufferedMoverState):
             state = BufferedMoverState()
 
-        state, direction = movement_utils.calculate_buffered_move(coordinate_holder, state, payload.delta_time)
-        if direction.is_not_zero():
+        state, moving_direction = movement_utils.calculate_buffered_move(coordinate_holder, state, payload.delta_time)
+        if moving_direction.is_not_zero():
             state.intent_velocity_normalised = state.intent_velocity.normalized()
             if isinstance(coordinate_holder, UnitProtocol):
                 state.intent_velocity_normalised *= coordinate_holder.stats.speed
 
         if isinstance(coordinate_holder, UnitProtocol):
-            animation, direction_str = movement_utils.get_animation_and_textures(state.intent_velocity_normalised, coordinate_holder)
-            coordinate_holder.shape.current_animation = animation
-            coordinate_holder.shape.direction = direction_str
+            animation, direction = movement_utils.get_animation_and_textures(state.intent_velocity_normalised, coordinate_holder)
+            need_to_update = (coordinate_holder.shape.current_animation != animation
+                or coordinate_holder.shape.direction != direction)
+            if need_to_update:
+                coordinate_holder.shape.current_animation = animation
+                coordinate_holder.shape.direction = direction
+
+                event_bus = cls.get_event_bus()
+                event_bus.publish(Events.AnimationUpdate, AnimationUpdatePayload(coordinate_holder.name))
+
 
         coordinate_holder.behaviour_state[cls.name] = state
-        return movement_utils.try_move(coordinate_holder, direction, force) if direction.is_not_zero() else True
+        return movement_utils.try_move(coordinate_holder, moving_direction, force) if moving_direction.is_not_zero() else True
 
     @classmethod
     def intention_to_move(cls, coordinate_holder: CoordinateHolderProtocol, payload: MovePayload) -> bool:

@@ -72,7 +72,7 @@ class LevelFactory:
         player_shape.animations.set(animation_paths[NpcAnimations.ARMED_WALK_ATTACK].animation, NpcAnimations.ARMED_WALK_ATTACK)
 
         player_stats = UnitStats(STR=5, DEX=1, CON=5, INT=2, WIS=2, CHA=1, HP=10, initiative=1)
-        unit: UnitProtocol = Unit(body=player_body, shape=player_shape, coordinates=CustomVec2i(1, 2), stats=player_stats, name="Adventurer")
+        unit: UnitProtocol = Unit(body=player_body, shape=player_shape, coordinates=CustomVec2i(31, 26), stats=player_stats, name="Adventurer")
         unit.add_behaviour(Behaviours.DISCRETE_MOVER)
         unit.add_behaviour(Behaviours.BUFFERED_MOVER)
         level.actors_collection.add(unit)

@@ -3,6 +3,7 @@ from typing import ClassVar
 
 from app.behaviours.logic.movement_utils import MovementUtils
 from app.behaviours.types import MessageHandlersDict, MessageTypeHandlersDict, BehaviourAction
+from app.core.event_bus.bus import EventBus
 from app.protocols.engine.grid.grid_protocol import GridProtocol
 from app.protocols.engine.message_broker.broker_protocol import MessageBrokerProtocol
 from app.protocols.objects.actor_protocol import ActorProtocol
@@ -64,6 +65,19 @@ class Behaviour:
     def can_respond_to(cls, message_type: MessageTypes) -> bool:
         return message_type in cls.message_handlers
 
+
+    @classmethod
+    def register_event_bus(cls, event_bus: EventBus):
+        cls._event_bus = event_bus
+
+    @classmethod
+    def get_event_bus(cls) -> EventBus:
+        if cls._event_bus is None:
+            raise RuntimeError("Event bus is not registered in Behaviour.")
+
+        return cls._event_bus
+
+
     @classmethod
     def register_messenger(cls, broker: MessageBrokerProtocol):
         cls._messenger = broker
@@ -71,9 +85,10 @@ class Behaviour:
     @classmethod
     def get_messenger(cls) -> MessageBrokerProtocol:
         if cls._messenger is None:
-            raise RuntimeError("MessageBroker not registered in Behaviour.")
+            raise RuntimeError("MessageBroker is not registered in Behaviour.")
 
         return cls._messenger
+
 
     @classmethod
     def register_grid(cls, grid: GridProtocol):
@@ -82,9 +97,10 @@ class Behaviour:
     @classmethod
     def get_grid(cls) -> GridProtocol:
         if cls._grid is None:
-            raise RuntimeError("Grid not registered in Behaviour.")
+            raise RuntimeError("Grid is not registered in Behaviour.")
 
         return cls._grid
+
 
     @classmethod
     def get_movement_utils(cls) -> MovementUtils:

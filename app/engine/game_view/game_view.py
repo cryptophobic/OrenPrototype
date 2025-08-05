@@ -1,8 +1,10 @@
 import arcade
+from arcade.types import Color
 
 from app.behaviours.types import BufferedMoverState
 from app.collections.puppeteer_collection import PuppeteerCollection
 from app.config import Behaviours
+from app.core.event_bus.bus import EventBus
 from app.engine.command_pipeline.pipeline import CommandPipeline
 from app.engine.game_view.camera import Camera
 from app.engine.game_view.sprite_renderer import SpriteRenderer
@@ -31,7 +33,7 @@ class GameView(arcade.View):
         for row in range(self.grid.height):
             self.grid_sprites.append([])
             for column in range(self.grid.width):
-                sprite = arcade.SpriteSolidColor(self.tile_size, self.tile_size, color=arcade.color.GRAY_ASPARAGUS)
+                sprite = arcade.SpriteSolidColor(self.tile_size, self.tile_size, color=Color(0x1E, 0x51, 0x28, 255))
                 sprite.center_x = self.get_tile_center(column)
                 sprite.center_y = self.get_tile_center(row)
                 self.grid_sprite_list.append(sprite)
@@ -60,6 +62,7 @@ class GameView(arcade.View):
 
         self.input_events_continuous = InputEventsContinuous()
         self.message_broker = MessageBroker()
+        self.event_bus = EventBus()
 
         self.orchestrator: OrchestratorProtocol = Orchestrator(
             self.current_level.actors_collection,
@@ -72,6 +75,7 @@ class GameView(arcade.View):
         self.register_actors()
 
         base_behaviour = get_behaviour_registry().get(Behaviours.BEHAVIOUR)
+        base_behaviour.register_event_bus(self.event_bus)
         base_behaviour.register_grid(self.current_level.grid)
         base_behaviour.register_messenger(self.message_broker)
 
@@ -84,8 +88,8 @@ class GameView(arcade.View):
         self.state_changed = True
 
         self.actor_collection: ActorCollectionProtocol = self.current_level.actors_collection
-        self.background_color = arcade.color.BLACK
-        self.margin = 2
+        self.background_color = arcade.color.GRAY_ASPARAGUS
+        self.margin = 1
 
         self.tile_size = 0
         self.grid_sprite_list = arcade.SpriteList()
@@ -93,6 +97,7 @@ class GameView(arcade.View):
         
         self.__calculate_settings()
         self.sprite_renderer = SpriteRenderer(self.tile_size, self.get_tile_center)
+        self.sprite_renderer.register_event_bus(self.event_bus)
 
 
     def on_draw(self):

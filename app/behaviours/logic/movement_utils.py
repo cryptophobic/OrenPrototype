@@ -1,5 +1,6 @@
 from app.behaviours.types import BufferedMoverState
 from app.config import CommonAnimations
+from app.core.geometry.types import Directions
 from app.core.vectors import CustomVec2i, CustomVec2
 from app.engine.message_broker.types import Message, MessageBody, MessageTypes, PushedByPayload, Payload
 from app.protocols.engine.grid.grid_protocol import GridProtocol
@@ -69,26 +70,26 @@ class MovementUtils:
             )
             self._messenger.send_message(message=message, responder=actor)
 
-        print(coordinate_holder.coordinates + direction)
-
         return result.placed
 
     # TODO: remove the playground
     @staticmethod
-    def get_animation_and_textures(velocity: CustomVec2, unit: UnitProtocol) -> tuple[CommonAnimations, str]:
+    def get_animation_and_textures(velocity: CustomVec2, unit: UnitProtocol) -> tuple[CommonAnimations, Directions]:
+
         if velocity.y < 0:
-            return CommonAnimations.RUN, 'front'
+            animation = CommonAnimations.RUN
+            direction = Directions.FRONT
         elif velocity.y > 0:
-            return CommonAnimations.RUN, 'back'
+            animation = CommonAnimations.RUN
+            direction = Directions.BACK
         elif velocity.x < 0:
-            return CommonAnimations.RUN, 'left'
+            animation = CommonAnimations.RUN
+            direction = Directions.LEFT
         elif velocity.x > 0:
-            return CommonAnimations.RUN, 'right'
-        elif unit.shape.direction == 'front':
-            return CommonAnimations.IDLE, 'front'
-        elif unit.shape.direction == 'back':
-            return CommonAnimations.IDLE, 'back'
-        elif unit.shape.direction == 'left':
-            return CommonAnimations.IDLE, 'left'
-        elif unit.shape.direction == 'right':
-            return CommonAnimations.IDLE, 'right'
+            animation = CommonAnimations.RUN
+            direction = Directions.RIGHT
+        else:
+            direction = unit.shape.direction
+            animation = CommonAnimations.IDLE
+
+        return animation, direction

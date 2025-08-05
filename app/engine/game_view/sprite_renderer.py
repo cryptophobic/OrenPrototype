@@ -1,24 +1,32 @@
 import arcade
-from typing import Dict, Set
+from typing import Dict, Set, Optional, List
 
 from app.behaviours.types import BufferedMoverState
 from app.collections.coordinate_holder_collection import CoordinateHolderCollection
 from app.config import Behaviours, CommonAnimations
+from app.core.event_bus.consumer import Consumer
+from app.core.event_bus.events import Events, AnimationUpdatePayload
 from app.core.vectors import CustomVec2f
 from app.engine.game_view.animated_sprite import Animated
 from app.objects.coordinate_holder import CoordinateHolder
 from app.protocols.collections.actor_collection_protocol import ActorCollectionProtocol
 
 
-class SpriteRenderer:
+class SpriteRenderer(Consumer):
     def __init__(self, tile_size: int, get_tile_center_func):
+        super().__init__()
         self.tile_size = tile_size
         self.get_tile_center = get_tile_center_func
-        
+
         self.actor_sprite_list = arcade.SpriteList()
         self.cursor_sprite_list = arcade.SpriteList()
         self.actor_sprite_map: Dict[str, arcade.Sprite] = {}
-        
+        self._animation_pending_sprites: set[str] = set()
+        self.register_handler(Events.AnimationUpdate, self._on_animation_changed)
+
+    def _on_animation_changed(self, payload: AnimationUpdatePayload):
+        self._animation_pending_sprites.add(payload.actor_name)
+
     def update_sprites(self, actor_collection: ActorCollectionProtocol) -> bool:
         current_actor_ids = set()
         changes_made = False
@@ -46,8 +54,9 @@ class SpriteRenderer:
             sprite = self.actor_sprite_map[coordinate_holder.name]
             
         self._position_sprite(sprite, coordinate_holder)
-        if isinstance(sprite, Animated):# and coordinate_holder.shape.current_animation != sprite.animation:
-            sprite.set_animation(coordinate_holder.shape.get_textures(), coordinate_holder.shape.current_animation)
+        if isinstance(sprite, Animated) and coordinate_holder.name in self._animation_pending_sprites:
+            sprite.set_animation(coordinate_holder.shape.get_textures())
+            self._animation_pending_sprites.remove(coordinate_holder.name)
 
         return sprite_created
     
@@ -57,7 +66,7 @@ class SpriteRenderer:
             return arcade.Sprite(icon_path, scale=self.tile_size / 16)
         else:
             current_animation = coordinate_holder.shape.get_textures()
-            return Animated(current_animation, CommonAnimations.IDLE)
+            return Animated(current_animation)
     
     def _position_sprite(self, sprite: arcade.Sprite, coordinate_holder: CoordinateHolder):
         x, y = coordinate_holder.coordinates.x, coordinate_holder.coordinates.y

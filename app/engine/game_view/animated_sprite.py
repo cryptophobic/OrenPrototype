@@ -1,20 +1,16 @@
 import arcade
 
-from app.config import CommonAnimations
-
 
 class Animated(arcade.Sprite):
-    def __init__(self, texture_list: list[arcade.Texture], animation: CommonAnimations):
+    def __init__(self, texture_list: list[arcade.Texture]):
         super().__init__(texture_list[0])
         self.time_elapsed = 0
         self.textures = []
-        self.animation = None
         self.frames = 0
-        self.set_animation(texture_list, animation)
+        self.set_animation(texture_list)
 
-    def set_animation(self, texture_list: list[arcade.Texture], animation: CommonAnimations) -> None:
+    def set_animation(self, texture_list: list[arcade.Texture]) -> None:
         self.textures = texture_list
-        self.animation = animation
         self.frames = len(texture_list)
         self.cur_texture_index = self.cur_texture_index % self.frames
 

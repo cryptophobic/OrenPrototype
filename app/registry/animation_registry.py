@@ -41,11 +41,25 @@ class AnimationRegistry:
         sprites_path = animation_dir / animation_path_details.path
 
         try:
+            directions = {
+                "front": animation_path_details.front_offset,
+                "left": animation_path_details.left_offset,
+                "right": animation_path_details.right_offset,
+                "back": animation_path_details.back_offset,
+            }
+
             loaded_animation = LoadedAnimation(
-                front=self.slice_animation_strip(sprites_path, 0, 0, animation_path_details.sprite_width, animation_path_details.sprite_height, animation_path_details.frames),
-                left=self.slice_animation_strip(sprites_path, 0, animation_path_details.sprite_height, animation_path_details.sprite_width, animation_path_details.sprite_height, animation_path_details.frames),
-                right=self.slice_animation_strip(sprites_path, 0, animation_path_details.sprite_height * 2, animation_path_details.sprite_width, animation_path_details.sprite_height, animation_path_details.frames),
-                back=self.slice_animation_strip(sprites_path, 0, animation_path_details.sprite_height * 3, animation_path_details.sprite_width, animation_path_details.sprite_height, animation_path_details.frames)
+                **{
+                    direction: self.slice_animation_strip(
+                        sprites_path,
+                        0,
+                        animation_path_details.sprite_height * offset,
+                        animation_path_details.sprite_width,
+                        animation_path_details.sprite_height,
+                        animation_path_details.frames,
+                    )
+                    for direction, offset in directions.items()
+                }
             )
 
             self.registry[animation] = loaded_animation

@@ -107,6 +107,14 @@ class GameView(arcade.View):
         self.rocks = []
         self.direction = 'front'
 
+        # path to your Tiled map
+        map_name = 'C:\\Users\\dmitr\\PycharmProjects\\OrenPrototype\\app\\resources\\animations\\tiles\\Tiled_files\\Glades.tmx'
+
+        tile_scaling = 1.0
+        tile_map = arcade.load_tilemap(map_name, scaling=tile_scaling)
+
+        self.scene = arcade.Scene.from_tilemap(tile_map)
+
         # Create a list of solid-color sprites to represent each grid location
         for row in range(ROW_COUNT):
             self.grid_sprites.append([])
@@ -227,7 +235,6 @@ class GameView(arcade.View):
             if self.direction == 'right':
                 self.player.textures = self.animations.get(CommonAnimations.IDLE).right
 
-
         self.sprite_list.update()
 
 
@@ -235,17 +242,33 @@ class GameView(arcade.View):
         self.clear()
         self.grid_sprite_list.draw()
         self.sprite_list.draw()
+        self.scene.draw()
 
         start = self.get_tile_center_vector(self.player.coordinates)
         start += CustomVec2f(self.player.buffer.x * WIDTH, self.player.buffer.y * HEIGHT)
 
         normalized = self.player.normalized_velocity
         line = start + normalized.scale_to(WIDTH // 2)
+        line_long = start + normalized.scale_to(WIDTH * 6)
 
         arcade.draw_line(start.x, start.y, line.x, line.y, arcade.color.BLUE, 2)
-        self.draw_lines_angle(start, 45, arcade.color.GREEN, WIDTH * 3)
-        self.draw_lines_angle(start, 25, arcade.color.YELLOW, WIDTH * 4.5)
-        self.draw_lines_angle(start, 10, arcade.color.RED, WIDTH * 6)
+        arcade.draw_line(start.x, start.y, line_long.x, line_long.y, arcade.color.BLUE, 1)
+        end, end1 = self.draw_lines_angle(start, 45, arcade.color.GREEN, WIDTH * 3)
+        for coordinates in self.bresenham_line(self.get_tile_index_from_pixel(line_long), self.player.coordinates):
+            print(f"straight {coordinates}")
+        print()
+        for coordinates in self.bresenham_line(self.get_tile_index_from_pixel(end), self.player.coordinates):
+            print(f"45 {coordinates}")
+        print()
+
+        end, end1 = self.draw_lines_angle(start, 25, arcade.color.YELLOW, WIDTH * 4.5)
+        for coordinates in self.bresenham_line(self.get_tile_index_from_pixel(end), self.player.coordinates):
+            print(f"25 {coordinates}")
+        print()
+        end, end1 = self.draw_lines_angle(start, 10, arcade.color.RED, WIDTH * 6)
+        for coordinates in self.bresenham_line(self.get_tile_index_from_pixel(end), self.player.coordinates):
+            print(f"10 {coordinates}")
+        print()
 
         point = self.get_tile_center_vector(self.enemy.coordinates)
         if point_in_sector_dot(point, start, normalized, 20, WIDTH * 6)\
@@ -261,14 +284,36 @@ class GameView(arcade.View):
         direction_left = angle_to_vector(angle + base_angle)
         direction_right = angle_to_vector(base_angle - angle)
 
-        end = CustomVec2i(
-            int(start.x + direction_left.x * draw_length),
-            int(start.y + direction_left.y * draw_length))
+        end = CustomVec2f(
+            start.x + direction_left.x * draw_length,
+            start.y + direction_left.y * draw_length)
         arcade.draw_line(start.x, start.y, end.x, end.y, color)
-        end = CustomVec2i(
-            int(start.x + direction_right.x * draw_length),
-            int(start.y + direction_right.y * draw_length))
-        arcade.draw_line(start.x, start.y, end.x, end.y, color)
+        end1 = CustomVec2f(
+            start.x + direction_right.x * draw_length,
+            start.y + direction_right.y * draw_length)
+        arcade.draw_line(start.x, start.y, end1.x, end1.y, color)
+
+        return end, end1
+
+    def bresenham_line(self, end: CustomVec2f, start: CustomVec2f):
+        """Yield grid cells from (end.x, end.y) to (start.x, start.y) using Bresenham's algorithm."""
+        dx = abs(start.x - end.x)
+        dy = abs(start.y - end.y)
+        sx = 1 if end.x < start.x else -1
+        sy = 1 if end.y < start.y else -1
+        err = dx - dy
+
+        while True:
+            yield end.x, end.y
+            if end.x == start.x and end.y == start.y:
+                break
+            e2 = 2 * err
+            if e2 > -dy:
+                err -= dy
+                end.x += sx
+            if e2 < dx:
+                err += dx
+                end.y += sy
 
 
 def boilerplate():
