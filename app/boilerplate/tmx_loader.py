@@ -31,12 +31,23 @@ class TMXAnimationParser:
         self.tmx_path = Path(tmx_file_path)
         self.animations: Dict[int, List[Tuple[int, int]]] = {}  # tile_id -> [(frame_tileid, duration), ...]
         self.tilesets: Dict[str, Dict] = {}  # tileset_name -> tileset_info
+        self.map_layers: Dict[str, List[List[int]]] = {}  # layer_name -> 2D grid of tile IDs
+        self.map_width = 0
+        self.map_height = 0
+        self.tile_width = 0
+        self.tile_height = 0
         self._parse_tmx()
     
     def _parse_tmx(self):
         """Parse the TMX file to extract animation and tileset information"""
         tree = ET.parse(self.tmx_path)
         root = tree.getroot()
+        
+        # Get map dimensions
+        self.map_width = int(root.get('width'))
+        self.map_height = int(root.get('height'))
+        self.tile_width = int(root.get('tilewidth'))
+        self.tile_height = int(root.get('tileheight'))
         
         # Parse tilesets
         for tileset in root.findall('tileset'):
@@ -83,6 +94,27 @@ class TMXAnimationParser:
                     
                     self.animations[global_tile_id] = frames
                     print(f"Found animation for tile {global_tile_id}: {len(frames)} frames")
+        
+        # Parse layers to find where tiles are placed
+        for layer in root.findall('layer'):
+            layer_name = layer.get('name')
+            layer_width = int(layer.get('width'))
+            layer_height = int(layer.get('height'))
+            
+            # Get the data element and parse CSV
+            data_elem = layer.find('data')
+            if data_elem is not None and data_elem.get('encoding') == 'csv':
+                csv_data = data_elem.text.strip()
+                # Parse CSV into 2D grid
+                rows = []
+                for line in csv_data.split('\n'):
+                    if line.strip():
+                        row = [int(x.strip()) for x in line.split(',') if x.strip()]
+                        if row:  # Only add non-empty rows
+                            rows.append(row)
+                
+                self.map_layers[layer_name] = rows
+                print(f"Parsed layer '{layer_name}': {len(rows)} rows, {len(rows[0]) if rows else 0} columns")
     
     def get_animations(self) -> Dict[int, List[Tuple[int, int]]]:
         """Get all parsed animations"""
@@ -137,6 +169,20 @@ class TMXAnimationParser:
             print(f"  Loaded {tile_count} tiles from {tileset_name}")
         
         return textures
+    
+    def find_animated_tile_positions(self) -> List[Tuple[int, int, int]]:
+        """Find positions of animated tiles in the map layers.
+        Returns list of (tile_id, x, y) tuples for animated tiles."""
+        positions = []
+        
+        for layer_name, layer_data in self.map_layers.items():
+            for y, row in enumerate(layer_data):
+                for x, tile_id in enumerate(row):
+                    if tile_id in self.animations:
+                        positions.append((tile_id, x, y))
+                        print(f"Found animated tile {tile_id} at ({x}, {y}) in layer '{layer_name}'")
+        
+        return positions
     
     def create_animated_sprites(self, scaling: float = 1.0) -> Dict[int, AnimatedTile]:
         """Create AnimatedTile sprites for all animations"""
@@ -217,15 +263,31 @@ class MyGame(arcade.Window):
         # Create a Scene
         self.scene = arcade.Scene.from_tilemap(self.tile_map)
 
-        # Add animated sprites to a new layer
+        # Add animated sprites to a new layer at their proper positions
         if self.animated_sprites:
             self.scene.add_sprite_list("Animations")
-            for animated_sprite in self.animated_sprites.values():
-                # Position the animated sprite (for now, just place them at origin)
-                # Later we'd need to match them to actual map tile positions
-                animated_sprite.center_x = 100
-                animated_sprite.center_y = 100
-                self.scene["Animations"].append(animated_sprite)
+            
+            # Get positions of animated tiles in the map
+            animated_positions = self.animation_parser.find_animated_tile_positions()
+            
+            # Create positioned animated sprites
+            for tile_id, map_x, map_y in animated_positions:
+                if tile_id in self.animated_sprites:
+                    # Create a new instance of the animated sprite for this position
+                    animated_sprite = self.animated_sprites[tile_id]
+                    new_sprite = AnimatedTile(animated_sprite.textures, animated_sprite.frame_durations)
+                    if scaling != 1.0:
+                        new_sprite.scale = scaling
+                    
+                    # Position the sprite using map coordinates
+                    # Convert map coordinates to world coordinates
+                    world_x = (map_x * self.tile_map.tile_width * scaling) + (self.tile_map.tile_width * scaling / 2)
+                    world_y = ((self.animation_parser.map_height - 1 - map_y) * self.tile_map.tile_height * scaling) + (self.tile_map.tile_height * scaling / 2)
+                    
+                    new_sprite.center_x = world_x
+                    new_sprite.center_y = world_y
+                    self.scene["Animations"].append(new_sprite)
+                    print(f"Positioned animated tile {tile_id} at world coords ({world_x}, {world_y})")
 
         # Camera for scrolling/zoom
         self.camera = arcade.Camera2D()
@@ -236,9 +298,9 @@ class MyGame(arcade.Window):
         self.scene.draw()
 
     def on_update(self, delta_time: float):
-        # Update all animated sprites
-        if hasattr(self, 'animated_sprites'):
-            for animated_sprite in self.animated_sprites.values():
+        # Update all animated sprites in the scene
+        if "Animations" in self.scene:
+            for animated_sprite in self.scene["Animations"]:
                 animated_sprite.update_animation(delta_time)
 
 def tmx_loader():
