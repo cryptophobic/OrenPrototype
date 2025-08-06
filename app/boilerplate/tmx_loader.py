@@ -1,7 +1,7 @@
 import arcade
 from typing import Dict
 
-from app.engine.game_view.animated_tile import AnimatedTile
+from app.engine.game_view.animated_sprite import AnimatedSprite
 from app.engine.game_view.tmx_animation_parser import TMXAnimationParser
 
 SCREEN_WIDTH = 960
@@ -36,8 +36,6 @@ class MyGame(arcade.Window):
 
     def on_update(self, delta_time: float):
         self.scene.update(delta_time=delta_time)
-        # Update animated sprites using the helper function
-        # update_animated_sprites(self.scene, self.animated_layers, delta_time)
 
 def load_animated_tilemap(tmx_file_path: str, scaling: float = 1.0, layer_options: Dict = None):
     """
@@ -90,7 +88,7 @@ def load_animated_tilemap(tmx_file_path: str, scaling: float = 1.0, layer_option
                     if tile_id in animated_sprites:
                         # Create a new instance of the animated sprite
                         animated_sprite = animated_sprites[tile_id]
-                        new_sprite = AnimatedTile(animated_sprite.textures, animated_sprite.frame_durations)
+                        new_sprite = AnimatedSprite(animated_sprite.textures, animated_sprite.frame_durations)
                         if scaling != 1.0:
                             new_sprite.scale = scaling
                         
@@ -118,7 +116,7 @@ def _remove_static_tile_at_position(sprite_list: arcade.SpriteList, world_x: flo
     for sprite in sprite_list:
         if (abs(sprite.center_x - world_x) < tolerance and 
             abs(sprite.center_y - world_y) < tolerance and
-            not isinstance(sprite, AnimatedTile)):  # Don't remove animated tiles
+            not isinstance(sprite, AnimatedSprite)):  # Don't remove animated tiles
             to_remove.append(sprite)
     
     # Remove the found sprites

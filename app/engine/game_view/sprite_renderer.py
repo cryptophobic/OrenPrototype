@@ -1,13 +1,13 @@
 import arcade
-from typing import Dict, Set, Optional, List
+from typing import Dict, Set
 
 from app.behaviours.types import BufferedMoverState
 from app.collections.coordinate_holder_collection import CoordinateHolderCollection
-from app.config import Behaviours, CommonAnimations
+from app.config import Behaviours
 from app.core.event_bus.consumer import Consumer
 from app.core.event_bus.events import Events, AnimationUpdatePayload
 from app.core.vectors import CustomVec2f
-from app.engine.game_view.animated_sprite import Animated
+from app.engine.game_view.animated_sprite import AnimatedSprite
 from app.objects.coordinate_holder import CoordinateHolder
 from app.protocols.collections.actor_collection_protocol import ActorCollectionProtocol
 
@@ -54,7 +54,7 @@ class SpriteRenderer(Consumer):
             sprite = self.actor_sprite_map[coordinate_holder.name]
             
         self._position_sprite(sprite, coordinate_holder)
-        if isinstance(sprite, Animated) and coordinate_holder.name in self._animation_pending_sprites:
+        if isinstance(sprite, AnimatedSprite) and coordinate_holder.name in self._animation_pending_sprites:
             sprite.set_animation(coordinate_holder.shape.get_textures())
             self._animation_pending_sprites.remove(coordinate_holder.name)
 
@@ -66,7 +66,7 @@ class SpriteRenderer(Consumer):
             return arcade.Sprite(icon_path, scale=self.tile_size / 16)
         else:
             current_animation = coordinate_holder.shape.get_textures()
-            return Animated(current_animation)
+            return AnimatedSprite(current_animation)
     
     def _position_sprite(self, sprite: arcade.Sprite, coordinate_holder: CoordinateHolder):
         x, y = coordinate_holder.coordinates.x, coordinate_holder.coordinates.y

@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 
 import arcade
 
-from app.engine.game_view.animated_tile import AnimatedTile
+from app.engine.game_view.animated_sprite import AnimatedSprite
 
 
 class TMXAnimationParser:
@@ -242,7 +242,7 @@ class TMXAnimationParser:
 
         return positions_by_layer
 
-    def create_animated_sprites(self, scaling: float = 1.0) -> Dict[int, AnimatedTile]:
+    def create_animated_sprites(self, scaling: float = 1.0) -> Dict[int, AnimatedSprite]:
         """Create AnimatedTile sprites for all animations"""
         textures = self.load_tileset_textures()
         animated_sprites = {}
@@ -263,7 +263,7 @@ class TMXAnimationParser:
                     print(f"Warning: Frame texture {frame_tile_id} not found for animation {tile_id}")
 
             if frame_textures:
-                animated_sprite = AnimatedTile(frame_textures, frame_durations)
+                animated_sprite = AnimatedSprite(frame_textures, frame_durations)
                 # Apply scaling to the sprite
                 if scaling != 1.0:
                     animated_sprite.scale = scaling
