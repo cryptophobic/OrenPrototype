@@ -61,7 +61,7 @@ def load_animated_tilemap(tmx_file_path: str, scaling: float = 1.0, layer_option
     # Load the base tilemap
     tile_map = arcade.load_tilemap(tmx_file_path, scaling, layer_options or {})
     
-    # Create a scene from tilemap
+    # Create a scene from a tilemap
     scene = arcade.Scene.from_tilemap(tile_map)
     
     # Track layers that will contain animated sprites
