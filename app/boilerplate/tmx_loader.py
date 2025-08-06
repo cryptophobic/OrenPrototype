@@ -55,8 +55,9 @@ class TMXAnimationParser:
             
             # Check if this is an external tileset reference (TSX file)
             if tileset.get('source'):
-                print(f"Found external tileset reference: {tileset.get('source')} (firstgid: {firstgid})")
-                # For now, skip external tilesets - we'd need to parse the TSX file separately
+                tsx_source = tileset.get('source')
+                print(f"Found external tileset reference: {tsx_source} (firstgid: {firstgid})")
+                self._parse_external_tileset(tsx_source, firstgid)
                 continue
             
             # Handle inline tileset
@@ -116,6 +117,60 @@ class TMXAnimationParser:
                 self.map_layers[layer_name] = rows
                 print(f"Parsed layer '{layer_name}': {len(rows)} rows, {len(rows[0]) if rows else 0} columns")
     
+    def _parse_external_tileset(self, tsx_source: str, firstgid: int):
+        """Parse an external TSX tileset file"""
+        # Build path to TSX file (relative to TMX file)
+        tsx_path = self.tmx_path.parent / tsx_source
+        
+        if not tsx_path.exists():
+            print(f"Warning: External tileset not found: {tsx_path}")
+            return
+        
+        print(f"Parsing external tileset: {tsx_path}")
+        
+        # Parse the TSX file
+        tsx_tree = ET.parse(tsx_path)
+        tsx_root = tsx_tree.getroot()
+        
+        # Extract tileset info
+        tileset_info = {
+            'firstgid': firstgid,
+            'name': tsx_root.get('name'),
+            'tilewidth': int(tsx_root.get('tilewidth')),
+            'tileheight': int(tsx_root.get('tileheight')),
+            'tilecount': int(tsx_root.get('tilecount')),
+            'columns': int(tsx_root.get('columns'))
+        }
+        
+        # Get image source
+        image_elem = tsx_root.find('image')
+        if image_elem is not None:
+            # Image path in TSX is relative to TSX file location
+            tsx_image_source = image_elem.get('source')
+            # Build full path relative to TMX file (where TSX is located)
+            tileset_info['image_source'] = tsx_image_source
+            tileset_info['image_width'] = int(image_elem.get('width'))
+            tileset_info['image_height'] = int(image_elem.get('height'))
+        
+        self.tilesets[tileset_info['name']] = tileset_info
+        
+        # Parse animations within this external tileset
+        for tile in tsx_root.findall('tile'):
+            tile_id = int(tile.get('id'))
+            global_tile_id = tile_id + firstgid
+            
+            animation_elem = tile.find('animation')
+            if animation_elem is not None:
+                frames = []
+                for frame in animation_elem.findall('frame'):
+                    frame_tileid = int(frame.get('tileid'))
+                    duration = int(frame.get('duration'))
+                    global_frame_id = frame_tileid + firstgid
+                    frames.append((global_frame_id, duration))
+                
+                self.animations[global_tile_id] = frames
+                print(f"Found animation for tile {global_tile_id}: {len(frames)} frames")
+    
     def get_animations(self) -> Dict[int, List[Tuple[int, int]]]:
         """Get all parsed animations"""
         return self.animations
@@ -132,7 +187,9 @@ class TMXAnimationParser:
             if 'image_source' not in tileset_info:
                 continue
                 
-            # Build path to tileset image (relative to TMX file)
+            # Build path to tileset image
+            # For external tilesets, image is relative to the TSX file location
+            # For inline tilesets, image is relative to the TMX file location
             image_path = self.tmx_path.parent / tileset_info['image_source']
             
             if not image_path.exists():
