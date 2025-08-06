@@ -241,6 +241,24 @@ class TMXAnimationParser:
         
         return positions
     
+    def find_animated_tile_positions_by_layer(self) -> Dict[str, List[Tuple[int, int, int]]]:
+        """Find positions of animated tiles grouped by layer.
+        Returns dict of layer_name -> list of (tile_id, x, y) tuples."""
+        positions_by_layer = {}
+        
+        for layer_name, layer_data in self.map_layers.items():
+            layer_positions = []
+            for y, row in enumerate(layer_data):
+                for x, tile_id in enumerate(row):
+                    if tile_id in self.animations:
+                        layer_positions.append((tile_id, x, y))
+                        print(f"Found animated tile {tile_id} at ({x}, {y}) in layer '{layer_name}'")
+            
+            if layer_positions:
+                positions_by_layer[layer_name] = layer_positions
+        
+        return positions_by_layer
+    
     def create_animated_sprites(self, scaling: float = 1.0) -> Dict[int, AnimatedTile]:
         """Create AnimatedTile sprites for all animations"""
         textures = self.load_tileset_textures()
@@ -320,34 +338,59 @@ class MyGame(arcade.Window):
         # Create a Scene
         self.scene = arcade.Scene.from_tilemap(self.tile_map)
 
-        # Add animated sprites to a new layer at their proper positions
+        # Replace static tiles with animated sprites in their original layers
         if self.animated_sprites:
-            self.scene.add_sprite_list("Animations")
+            # Get positions of animated tiles grouped by layer
+            animated_positions_by_layer = self.animation_parser.find_animated_tile_positions_by_layer()
             
-            # Get positions of animated tiles in the map
-            animated_positions = self.animation_parser.find_animated_tile_positions()
-            
-            # Create positioned animated sprites
-            for tile_id, map_x, map_y in animated_positions:
-                if tile_id in self.animated_sprites:
-                    # Create a new instance of the animated sprite for this position
-                    animated_sprite = self.animated_sprites[tile_id]
-                    new_sprite = AnimatedTile(animated_sprite.textures, animated_sprite.frame_durations)
-                    if scaling != 1.0:
-                        new_sprite.scale = scaling
+            # Process each layer that contains animated tiles
+            for layer_name, positions in animated_positions_by_layer.items():
+                print(f"Processing {len(positions)} animated tiles in layer '{layer_name}'")
+                
+                # Get the corresponding sprite list from the scene
+                if layer_name in self.scene:
+                    layer_sprites = self.scene[layer_name]
                     
-                    # Position the sprite using map coordinates
-                    # Convert map coordinates to world coordinates
-                    world_x = (map_x * self.tile_map.tile_width * scaling) + (self.tile_map.tile_width * scaling / 2)
-                    world_y = ((self.animation_parser.map_height - 1 - map_y) * self.tile_map.tile_height * scaling) + (self.tile_map.tile_height * scaling / 2)
-                    
-                    new_sprite.center_x = world_x
-                    new_sprite.center_y = world_y
-                    self.scene["Animations"].append(new_sprite)
-                    print(f"Positioned animated tile {tile_id} at world coords ({world_x}, {world_y})")
+                    # Create positioned animated sprites for this layer
+                    for tile_id, map_x, map_y in positions:
+                        if tile_id in self.animated_sprites:
+                            # Create a new instance of the animated sprite
+                            animated_sprite = self.animated_sprites[tile_id]
+                            new_sprite = AnimatedTile(animated_sprite.textures, animated_sprite.frame_durations)
+                            if scaling != 1.0:
+                                new_sprite.scale = scaling
+                            
+                            # Position the sprite using map coordinates
+                            world_x = (map_x * self.tile_map.tile_width * scaling) + (self.tile_map.tile_width * scaling / 2)
+                            world_y = ((self.animation_parser.map_height - 1 - map_y) * self.tile_map.tile_height * scaling) + (self.tile_map.tile_height * scaling / 2)
+                            
+                            new_sprite.center_x = world_x
+                            new_sprite.center_y = world_y
+                            
+                            # Remove any existing static tile at this position
+                            self._remove_static_tile_at_position(layer_sprites, world_x, world_y, scaling)
+                            
+                            # Add the animated sprite to the layer
+                            layer_sprites.append(new_sprite)
+                            print(f"Replaced static tile with animated tile {tile_id} at ({map_x}, {map_y}) in layer '{layer_name}'")
 
         # Camera for scrolling/zoom
         self.camera = arcade.Camera2D()
+    
+    def _remove_static_tile_at_position(self, sprite_list: arcade.SpriteList, world_x: float, world_y: float, tolerance: float = 1.0):
+        """Remove any static tile sprite at the specified world coordinates"""
+        # Find sprites that are close to the target position
+        to_remove = []
+        for sprite in sprite_list:
+            if (abs(sprite.center_x - world_x) < tolerance and 
+                abs(sprite.center_y - world_y) < tolerance and
+                not isinstance(sprite, AnimatedTile)):  # Don't remove animated tiles
+                to_remove.append(sprite)
+        
+        # Remove the found sprites
+        for sprite in to_remove:
+            sprite.remove_from_sprite_lists()
+            print(f"Removed static tile at ({world_x:.1f}, {world_y:.1f})")
 
     def on_draw(self):
         self.clear()
@@ -355,10 +398,11 @@ class MyGame(arcade.Window):
         self.scene.draw()
 
     def on_update(self, delta_time: float):
-        # Update all animated sprites in the scene
-        if "Animations" in self.scene:
-            for animated_sprite in self.scene["Animations"]:
-                animated_sprite.update_animation(delta_time)
+        # Update all animated sprites across all layers
+        for sprite_list in self.scene._sprite_lists:
+            for sprite in sprite_list:
+                if isinstance(sprite, AnimatedTile):
+                    sprite.update_animation(delta_time)
 
 def tmx_loader():
     game = MyGame()
