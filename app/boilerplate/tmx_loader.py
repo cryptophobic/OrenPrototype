@@ -338,6 +338,9 @@ class MyGame(arcade.Window):
         # Create a Scene
         self.scene = arcade.Scene.from_tilemap(self.tile_map)
 
+        # Track layers that contain animated sprites for efficient updating
+        self.animated_layers = set()
+
         # Replace static tiles with animated sprites in their original layers
         if self.animated_sprites:
             # Get positions of animated tiles grouped by layer
@@ -346,6 +349,9 @@ class MyGame(arcade.Window):
             # Process each layer that contains animated tiles
             for layer_name, positions in animated_positions_by_layer.items():
                 print(f"Processing {len(positions)} animated tiles in layer '{layer_name}'")
+                
+                # Track this layer as containing animations
+                self.animated_layers.add(layer_name)
                 
                 # Get the corresponding sprite list from the scene
                 if layer_name in self.scene:
@@ -398,8 +404,9 @@ class MyGame(arcade.Window):
         self.scene.draw()
 
     def on_update(self, delta_time: float):
-        # Update all animated sprites across all layers
-        for sprite_list in self.scene._sprite_lists:
+        # Update all animated sprites in layers we know contain them
+        for layer_name in self.animated_layers:
+            sprite_list = self.scene[layer_name]
             for sprite in sprite_list:
                 if isinstance(sprite, AnimatedTile):
                     sprite.update_animation(delta_time)
