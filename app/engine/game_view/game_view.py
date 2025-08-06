@@ -8,6 +8,7 @@ from app.core.event_bus.bus import EventBus
 from app.engine.command_pipeline.pipeline import CommandPipeline
 from app.engine.game_view.camera import Camera
 from app.engine.game_view.sprite_renderer import SpriteRenderer
+from app.engine.game_view.tmx_animation_parser import load_animated_tilemap
 from app.engine.input_processor.Timer import Timer
 from app.engine.input_processor.inpuit_events_continuous import InputEventsContinuous
 from app.engine.message_broker.broker import MessageBroker
@@ -48,6 +49,9 @@ class GameView(arcade.View):
 
     def __init__(self, config):
         super().__init__()
+
+        map_name = 'c:/Users/dmitr/PycharmProjects/OrenPrototype/app/resources/animations/tiles/Tiled_files/Glades.tmx'
+        self.scene = load_animated_tilemap(map_name, 1.9)
 
         self.camera = Camera(initial_zoom=1.0)
 
@@ -106,7 +110,7 @@ class GameView(arcade.View):
         self.camera.use()
 
         self.grid_sprite_list.draw()
-
+        self.scene.draw()
         if not self.rendered or self.state_changed:
             self.state_changed = False
             self.rendered = True
@@ -152,6 +156,7 @@ class GameView(arcade.View):
 
         self.camera.update()
         self.sprite_renderer.update()
+        self.scene.update(delta_time=delta_time)
 
     def on_key_press(self, key: int, modifiers: int):
         if key == arcade.key.ESCAPE:

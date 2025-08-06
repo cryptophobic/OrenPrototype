@@ -43,7 +43,8 @@ class LevelFactory:
     def __init__(self):
         level = Level()
         level.grid_width = 61
-        level.grid_height = 51
+        # level.grid_height = 51
+        level.grid_height = 42
 
         level.grid = Grid(width=level.grid_width, height=level.grid_height)
 
@@ -90,7 +91,7 @@ class LevelFactory:
         enemy_shape.animations.set(animation_paths[NpcAnimations.ENEMY_RUN_ATTACK].animation, NpcAnimations.ENEMY_RUN_ATTACK)
         enemy_shape.animations.set(animation_paths[NpcAnimations.ENEMY_WALK_ATTACK].animation, NpcAnimations.ENEMY_WALK_ATTACK)
         enemy_stats = UnitStats(STR=5, DEX=1, CON=5, INT=2, WIS=2, CHA=1, HP=10, initiative=1)
-        enemy_unit = Unit(body=enemy_body, shape=enemy_shape, coordinates=CustomVec2i(59, 49), stats=enemy_stats, name="Enemy")
+        enemy_unit = Unit(body=enemy_body, shape=enemy_shape, coordinates=CustomVec2i(59, 23), stats=enemy_stats, name="Enemy")
         enemy_unit.add_behaviour(Behaviours.DISCRETE_MOVER)
         enemy_unit.add_behaviour(Behaviours.BUFFERED_MOVER)
         level.actors_collection.add(enemy_unit)
@@ -143,8 +144,8 @@ class LevelFactory:
         # Prison walls
         # for coordinates in [CustomVec2i(1, 0), CustomVec2i(1, 1), CustomVec2i(0, 1)]:
 
-        for prison in maze(level.grid_width, level.grid_height):
-           level.actors_collection.add(prison)
+        # for prison in maze(level.grid_width, level.grid_height):
+        #   level.actors_collection.add(prison)
 
         #for coordinates in [CustomVec2i(1, 1), CustomVec2i(0, 1)]:
         #   prison_body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))
