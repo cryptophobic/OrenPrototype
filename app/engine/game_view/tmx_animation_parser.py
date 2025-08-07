@@ -262,7 +262,7 @@ class TMXAnimationParser:
                     Debug.log(f"Warning: Frame texture {frame_tile_id} not found for animation {tile_id}", __file__)
 
             if frame_textures:
-                animated_sprite = AnimatedSprite(frame_textures, frame_durations)
+                animated_sprite = AnimatedSprite(frame_textures, 1.0, frame_durations)
                 # Apply scaling to the sprite
                 if scaling != 1.0:
                     animated_sprite.scale = scaling
@@ -344,7 +344,7 @@ def load_animated_tilemap(tmx_file_path: str, scaling: float = 1.0, layer_option
                     if tile_id in animated_sprites:
                         # Create a new instance of the animated sprite
                         animated_sprite = animated_sprites[tile_id]
-                        new_sprite = AnimatedSprite(animated_sprite.textures, animated_sprite.frame_durations)
+                        new_sprite = AnimatedSprite(animated_sprite.textures, 1.0, animated_sprite.frame_durations)
                         if scaling != 1.0:
                             new_sprite.scale = scaling
 

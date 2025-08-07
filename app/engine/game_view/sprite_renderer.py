@@ -66,7 +66,7 @@ class SpriteRenderer(Consumer):
             return arcade.Sprite(icon_path, scale=self.tile_size / 16)
         else:
             current_animation = coordinate_holder.shape.get_textures()
-            return AnimatedSprite(current_animation)
+            return AnimatedSprite(current_animation, 0.5)
     
     def _position_sprite(self, sprite: arcade.Sprite, coordinate_holder: CoordinateHolder):
         x, y = coordinate_holder.coordinates.x, coordinate_holder.coordinates.y

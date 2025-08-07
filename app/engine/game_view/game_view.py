@@ -30,7 +30,7 @@ class GameView(arcade.View):
         tile_height = (screen_height - (self.grid.height + 1) * self.margin) // self.grid.height
 
         self.tile_size = min(tile_width, tile_height)
-
+        self.tile_size = 16
         for row in range(self.grid.height):
             self.grid_sprites.append([])
             for column in range(self.grid.width):
@@ -50,8 +50,10 @@ class GameView(arcade.View):
     def __init__(self, config):
         super().__init__()
 
+        self.margin = 0
+
         map_name = 'c:/Users/dmitr/PycharmProjects/OrenPrototype/app/resources/animations/tiles/Tiled_files/Glades.tmx'
-        self.scene = load_animated_tilemap(map_name, 2)
+        self.scene = load_animated_tilemap(tmx_file_path=map_name, scaling=1)
 
         self.camera = Camera(initial_zoom=1.0)
 
@@ -93,7 +95,6 @@ class GameView(arcade.View):
 
         self.actor_collection: ActorCollectionProtocol = self.current_level.actors_collection
         self.background_color = arcade.color.GRAY_ASPARAGUS
-        self.margin = 1
 
         self.tile_size = 0
         self.grid_sprite_list = arcade.SpriteList()
@@ -111,12 +112,21 @@ class GameView(arcade.View):
 
         self.grid_sprite_list.draw()
         self.scene.draw()
+
+        for x in range(self.grid.width):
+            arcade.draw_line(16 * x, 0, 16 * x, 16 * 29, arcade.color.GRAY_ASPARAGUS, 0.5)
+
+        for y in range(self.grid.height):
+            arcade.draw_line(0, 16 * y, 16 * 43, 16 * y, arcade.color.GRAY_ASPARAGUS, 0.5)
+
+
         if not self.rendered or self.state_changed:
             self.state_changed = False
             self.rendered = True
             self.sprite_renderer.update_sprites(self.actor_collection)
 
         self.sprite_renderer.draw()
+        self.scene["objects1"].draw()
 
 
     def on_update(self, delta_time: float):
@@ -146,11 +156,11 @@ class GameView(arcade.View):
             velocity = state.intent_velocity
             zoom = self.camera.zoom
             if velocity.is_not_zero():
-                if zoom < 3.0:
+                if zoom < 4.0:
                     zoom += 0.01
                 self.camera.set_zoom(zoom)
             else:
-                if zoom > 2.0:
+                if zoom > 3.0:
                     zoom -= 0.1
                 self.camera.set_zoom(zoom)
 

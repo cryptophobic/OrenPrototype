@@ -3,8 +3,8 @@ import arcade
 DEFAULT_ANIMATION_RATE = 100
 
 class AnimatedSprite(arcade.Sprite):
-    def __init__(self, texture_list: list[arcade.Texture], frame_durations: list[float] = None):
-        super().__init__(texture_list[0])
+    def __init__(self, texture_list: list[arcade.Texture], scale=1.0, frame_durations: list[float] = None):
+        super().__init__(texture_list[0], scale)
         self.time_elapsed = 0
         self.textures = []
         self.frames = 0

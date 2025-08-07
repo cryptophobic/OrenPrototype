@@ -42,22 +42,22 @@ def maze(width, height):
 class LevelFactory:
     def __init__(self):
         level = Level()
-        level.grid_width = 61
+        level.grid_width = 43
         # level.grid_height = 51
-        level.grid_height = 42
+        level.grid_height = 29
 
         level.grid = Grid(width=level.grid_width, height=level.grid_height)
 
         # Cursor setup
-        cursor_body = Body(CollisionMatrix(response=CollisionResponse.OVERLAP))
-        cursor_shape = Shape(get_icon_path(Icons.CURSOR))
-        cursor_actor = CoordinateHolder(
-            body=cursor_body,
-            shape=cursor_shape,
-            coordinates=CustomVec2i(4, 8),
-            name="Cursor")
-        cursor_actor.add_behaviour(Behaviours.DISCRETE_MOVER)
-        level.actors_collection.add(cursor_actor)
+        # cursor_body = Body(CollisionMatrix(response=CollisionResponse.OVERLAP))
+        # cursor_shape = Shape(get_icon_path(Icons.CURSOR))
+        # cursor_actor = CoordinateHolder(
+        #     body=cursor_body,
+        #     shape=cursor_shape,
+        #     coordinates=CustomVec2i(4, 8),
+        #     name="Cursor")
+        # cursor_actor.add_behaviour(Behaviours.DISCRETE_MOVER)
+        # level.actors_collection.add(cursor_actor)
         # End of Cursor setup
 
         # Player setup
@@ -73,7 +73,7 @@ class LevelFactory:
         player_shape.animations.set(animation_paths[NpcAnimations.ARMED_WALK_ATTACK].animation, NpcAnimations.ARMED_WALK_ATTACK)
 
         player_stats = UnitStats(STR=5, DEX=1, CON=5, INT=2, WIS=2, CHA=1, HP=10, initiative=1)
-        unit: UnitProtocol = Unit(body=player_body, shape=player_shape, coordinates=CustomVec2i(31, 26), stats=player_stats, name="Adventurer")
+        unit: UnitProtocol = Unit(body=player_body, shape=player_shape, coordinates=CustomVec2i(31, 19), stats=player_stats, name="Adventurer")
         unit.add_behaviour(Behaviours.DISCRETE_MOVER)
         unit.add_behaviour(Behaviours.BUFFERED_MOVER)
         level.actors_collection.add(unit)
@@ -91,7 +91,7 @@ class LevelFactory:
         enemy_shape.animations.set(animation_paths[NpcAnimations.ENEMY_RUN_ATTACK].animation, NpcAnimations.ENEMY_RUN_ATTACK)
         enemy_shape.animations.set(animation_paths[NpcAnimations.ENEMY_WALK_ATTACK].animation, NpcAnimations.ENEMY_WALK_ATTACK)
         enemy_stats = UnitStats(STR=5, DEX=1, CON=5, INT=2, WIS=2, CHA=1, HP=10, initiative=1)
-        enemy_unit = Unit(body=enemy_body, shape=enemy_shape, coordinates=CustomVec2i(59, 23), stats=enemy_stats, name="Enemy")
+        enemy_unit = Unit(body=enemy_body, shape=enemy_shape, coordinates=CustomVec2i(20, 23), stats=enemy_stats, name="Enemy")
         enemy_unit.add_behaviour(Behaviours.DISCRETE_MOVER)
         enemy_unit.add_behaviour(Behaviours.BUFFERED_MOVER)
         level.actors_collection.add(enemy_unit)
