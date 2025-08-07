@@ -52,7 +52,7 @@ class GameView(arcade.View):
 
         self.margin = 0
 
-        map_name = 'c:/Users/dmitr/PycharmProjects/OrenPrototype/app/resources/animations/tiles/Tiled_files/Glades.tmx'
+        map_name = 'C:/Users/dmitr/PycharmProjects/OrenPrototype/app/resources/animations/tiles/Tiled_files/Glades.tmx'
         self.scene = load_animated_tilemap(tmx_file_path=map_name, scaling=1)
 
         self.camera = Camera(initial_zoom=1.0)
