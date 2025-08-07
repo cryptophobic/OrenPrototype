@@ -113,11 +113,11 @@ class GameView(arcade.View):
         self.grid_sprite_list.draw()
         self.scene.draw()
 
-        for x in range(self.grid.width):
-            arcade.draw_line(16 * x, 0, 16 * x, 16 * 29, arcade.color.GRAY_ASPARAGUS, 0.5)
+        # for x in range(self.grid.width):
+        #     arcade.draw_line(16 * x, 0, 16 * x, 16 * 29, arcade.color.GRAY_ASPARAGUS, 0.5)
 
-        for y in range(self.grid.height):
-            arcade.draw_line(0, 16 * y, 16 * 43, 16 * y, arcade.color.GRAY_ASPARAGUS, 0.5)
+        # for y in range(self.grid.height):
+        #     arcade.draw_line(0, 16 * y, 16 * 43, 16 * y, arcade.color.GRAY_ASPARAGUS, 0.5)
 
 
         if not self.rendered or self.state_changed:
@@ -127,6 +127,8 @@ class GameView(arcade.View):
 
         self.sprite_renderer.draw()
         self.scene["objects1"].draw()
+        self.scene["objects2"].draw()
+        self.scene["objects3"].draw()
 
 
     def on_update(self, delta_time: float):
