@@ -51,7 +51,7 @@ class GameView(arcade.View):
         super().__init__()
 
         map_name = 'c:/Users/dmitr/PycharmProjects/OrenPrototype/app/resources/animations/tiles/Tiled_files/Glades.tmx'
-        self.scene = load_animated_tilemap(map_name, 1.9)
+        self.scene = load_animated_tilemap(map_name, 2)
 
         self.camera = Camera(initial_zoom=1.0)
 
@@ -146,11 +146,11 @@ class GameView(arcade.View):
             velocity = state.intent_velocity
             zoom = self.camera.zoom
             if velocity.is_not_zero():
-                if zoom < 2.5:
+                if zoom < 3.0:
                     zoom += 0.01
                 self.camera.set_zoom(zoom)
             else:
-                if zoom > 1.0:
+                if zoom > 2.0:
                     zoom -= 0.1
                 self.camera.set_zoom(zoom)
 
