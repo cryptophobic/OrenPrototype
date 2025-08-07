@@ -31,7 +31,8 @@ class SpriteRenderer(Consumer):
         current_actor_ids = set()
         changes_made = False
         
-        for coordinate_holder in actor_collection.get_by_type(CoordinateHolder, CoordinateHolderCollection):
+        for coordinate_holder in actor_collection.get_by_type(CoordinateHolder, CoordinateHolderCollection)\
+                .filter(lambda a: a.shape is not None):
             current_actor_ids.add(coordinate_holder.id)
             changes_made |= self._update_actor_sprite(coordinate_holder)
             

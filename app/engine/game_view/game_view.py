@@ -5,6 +5,8 @@ from app.behaviours.types import BufferedMoverState
 from app.collections.puppeteer_collection import PuppeteerCollection
 from app.config import Behaviours
 from app.core.event_bus.bus import EventBus
+from app.core.physics.body import Body, CollisionMatrix, CollisionResponse
+from app.core.vectors import CustomVec2f, CustomVec2i
 from app.engine.command_pipeline.pipeline import CommandPipeline
 from app.engine.game_view.camera import Camera
 from app.engine.game_view.sprite_renderer import SpriteRenderer
@@ -15,6 +17,7 @@ from app.engine.message_broker.broker import MessageBroker
 from app.maps.level1 import LevelFactory
 from app.objects.orchestrator import Orchestrator
 from app.objects.puppeteer import Puppeteer
+from app.objects.static_object import StaticObject
 from app.protocols.collections.actor_collection_protocol import ActorCollectionProtocol
 from app.protocols.objects.orchestrator_protocol import OrchestratorProtocol
 from app.registry.behaviour_registry import get_behaviour_registry
@@ -40,8 +43,21 @@ class GameView(arcade.View):
                 self.grid_sprite_list.append(sprite)
                 self.grid_sprites[row].append(sprite)
 
-    def get_tile_center(self, index: int) -> int:
+    def get_tile_center(self, index: int | float) -> int:
         return self.margin + (self.tile_size + self.margin) * index + self.tile_size // 2
+
+    def get_tile_center_vector(self, index: CustomVec2f) -> CustomVec2f:
+        return CustomVec2f(
+            self.get_tile_center(index.x),
+            self.get_tile_center(index.y)
+        )
+
+    def get_tile_index_from_pixel(self, pixel: CustomVec2f) -> CustomVec2f:
+        return CustomVec2f(
+            (pixel.x - self.margin) // (self.tile_size + self.margin),
+            (pixel.y - self.margin) // (self.tile_size + self.margin),
+        )
+
 
     def register_actors(self):
         for puppeteer in self.orchestrator.actors_collection.get_by_type(Puppeteer, PuppeteerCollection):
@@ -64,6 +80,26 @@ class GameView(arcade.View):
 
         self.level_factory = LevelFactory()
         self.current_level = self.level_factory.levels["level1"]
+
+        # TODO: I bet you see it
+        self.tile_size = 16
+        for layer_name in ["objects1", "objects2", "objects3"]:
+            for it in self.scene[layer_name]:
+                place = self.get_tile_index_from_pixel(CustomVec2f(it.center_x, it.center_y))
+                coordinates = CustomVec2i(int(place.x), int(place.y))
+                prison_body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))
+                prison_shape = None # No need to draw, it is drawn by scene
+                prison = StaticObject(
+                    body=prison_body,
+                    shape=prison_shape,
+                    coordinates=coordinates,
+                    height=100,
+                    weight=100,
+                )
+                self.current_level.actors_collection.add(prison)
+                self.current_level.grid.place(prison, prison.coordinates)
+
+
         self.grid = self.current_level.grid
 
         self.input_events_continuous = InputEventsContinuous()

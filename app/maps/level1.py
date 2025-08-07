@@ -91,7 +91,7 @@ class LevelFactory:
         enemy_shape.animations.set(animation_paths[NpcAnimations.ENEMY_RUN_ATTACK].animation, NpcAnimations.ENEMY_RUN_ATTACK)
         enemy_shape.animations.set(animation_paths[NpcAnimations.ENEMY_WALK_ATTACK].animation, NpcAnimations.ENEMY_WALK_ATTACK)
         enemy_stats = UnitStats(STR=5, DEX=1, CON=5, INT=2, WIS=2, CHA=1, HP=10, initiative=1)
-        enemy_unit = Unit(body=enemy_body, shape=enemy_shape, coordinates=CustomVec2i(21, 18), stats=enemy_stats, name="Enemy")
+        enemy_unit = Unit(body=enemy_body, shape=enemy_shape, coordinates=CustomVec2i(23, 18), stats=enemy_stats, name="Enemy")
         enemy_unit.add_behaviour(Behaviours.DISCRETE_MOVER)
         enemy_unit.add_behaviour(Behaviours.BUFFERED_MOVER)
         level.actors_collection.add(enemy_unit)

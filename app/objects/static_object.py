@@ -8,7 +8,7 @@ from app.protocols.objects.static_object_protocol import StaticObjectProtocol
 class StaticObject(CoordinateHolder, StaticObjectProtocol):
     def __init__(self,
                  body: Body,
-                 shape: Shape,
+                 shape: Shape | None,
                  coordinates: CustomVec2i,
                  height: int = 0,
                  weight: int = 0,
