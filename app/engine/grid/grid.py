@@ -25,6 +25,10 @@ class Grid(GridProtocol):
         cell = self.get_cell(from_place)
         return cell.remove(coordinate_holder) if cell else False
 
+    def is_may_be_occupied(self, coordinate_holder: CoordinateHolderProtocol, to_place: CustomVec2i) -> PlaceToPositionResult:
+        cell = self.get_cell(to_place)
+        return cell.is_able_to_occupy(coordinate_holder, to_place)
+
     def move(self, coordinate_holder: CoordinateHolderProtocol, to_place: CustomVec2i) -> PlaceToPositionResult:
         from_place = coordinate_holder.coordinates
         result = self.place(coordinate_holder, to_place)

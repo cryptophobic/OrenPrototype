@@ -1,7 +1,7 @@
 from app.behaviours.types import BufferedMoverState
 from app.config import CommonAnimations
 from app.core.geometry.types import Directions
-from app.core.vectors import CustomVec2i, CustomVec2
+from app.core.vectors import CustomVec2i, CustomVec2, CustomVec2f
 from app.engine.message_broker.types import Message, MessageBody, MessageTypes, PushedByPayload, Payload
 from app.protocols.engine.grid.grid_protocol import GridProtocol
 from app.protocols.engine.message_broker.broker_protocol import MessageBrokerProtocol
@@ -43,10 +43,7 @@ class MovementUtils:
 
         return state, direction
 
-    def try_move(self, coordinate_holder: CoordinateHolderProtocol, direction: CustomVec2i, force: int) -> bool:
-
-        result = self._grid.move(coordinate_holder, coordinate_holder.coordinates + direction)
-
+    def inform_about_occupation(self, coordinate_holder, result, direction, force):
         for actor in result.blocked:
             message = Message(
                 sender=coordinate_holder.name,
@@ -69,6 +66,27 @@ class MovementUtils:
                 )
             )
             self._messenger.send_message(message=message, responder=actor)
+
+    def pretend_to_move(self, coordinate_holder: CoordinateHolderProtocol, intent_velocity: CustomVec2f, clear_velocity: CustomVec2i, force: int) -> bool:
+
+        def sign(value):
+            return (value > 0) - (value < 0)
+
+        direction = CustomVec2i(
+            0 if clear_velocity.x == 1 else sign(intent_velocity.x),
+            0 if clear_velocity.y == 1 else sign(intent_velocity.y),
+        )
+
+        if direction.is_not_zero():
+            to_place = coordinate_holder.coordinates + direction
+            result =  self._grid.is_may_be_occupied(coordinate_holder, to_place)
+            self.inform_about_occupation(coordinate_holder, result, direction, force)
+
+        return True
+
+    def try_move(self, coordinate_holder: CoordinateHolderProtocol, direction: CustomVec2i, force: int) -> bool:
+        result = self._grid.move(coordinate_holder, coordinate_holder.coordinates + direction)
+        self.inform_about_occupation(coordinate_holder, result, direction, force)
 
         return result.placed
 
