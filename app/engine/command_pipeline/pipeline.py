@@ -99,6 +99,7 @@ class CommandPipeline:
             actor = action.actor
             state_changed = self.__flush_pending_actor(actor, state_changed, depth)
             resolved = action.resolve()
+
             state_changed = resolved or state_changed
             if not resolved:
                 queue.append_left_first(action) if actor.pending_actions else queue.append_last(action)

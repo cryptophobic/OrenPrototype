@@ -71,7 +71,7 @@ class GameView(arcade.View):
         map_name = 'C:/Users/dmitr/PycharmProjects/OrenPrototype/app/resources/animations/tiles/Tiled_files/Glades.tmx'
         self.scene = load_animated_tilemap(tmx_file_path=map_name, scaling=1)
 
-        self.camera = Camera(initial_zoom=2.0)
+        self.camera = Camera(initial_zoom=4.0)
 
         self.config = config
         self.rendered = False
@@ -83,12 +83,12 @@ class GameView(arcade.View):
 
         # TODO: I bet you see it
         self.tile_size = 16
-        for layer_name in ["objects1", "objects2", "objects3"]:
+        for layer_name in ["objects2"]:
             for it in self.scene[layer_name]:
                 place = self.get_tile_index_from_pixel(CustomVec2f(it.center_x, it.center_y))
                 coordinates = CustomVec2i(int(place.x), int(place.y))
                 prison_body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))
-                prison_shape = None # No need to draw, it is drawn by scene
+                prison_shape = None # No need to draw, it is drawn by a scene
                 prison = StaticObject(
                     body=prison_body,
                     shape=prison_shape,
@@ -149,11 +149,11 @@ class GameView(arcade.View):
         self.grid_sprite_list.draw()
         self.scene.draw()
 
-        # for x in range(self.grid.width):
-        #     arcade.draw_line(16 * x, 0, 16 * x, 16 * 29, arcade.color.GRAY_ASPARAGUS, 0.5)
+        for x in range(self.grid.width):
+            arcade.draw_line(16 * x, 0, 16 * x, 16 * 29, arcade.color.GRAY_ASPARAGUS, 0.5)
 
-        # for y in range(self.grid.height):
-        #     arcade.draw_line(0, 16 * y, 16 * 43, 16 * y, arcade.color.GRAY_ASPARAGUS, 0.5)
+        for y in range(self.grid.height):
+            arcade.draw_line(0, 16 * y, 16 * 43, 16 * y, arcade.color.GRAY_ASPARAGUS, 0.5)
 
 
         if not self.rendered or self.state_changed:
@@ -194,11 +194,11 @@ class GameView(arcade.View):
             velocity = state.intent_velocity
             zoom = self.camera.zoom
             if velocity.is_not_zero():
-                if zoom < 4.0:
+                if zoom < 5.5:
                     zoom += 0.01
                 self.camera.set_zoom(zoom)
             else:
-                if zoom > 3.0:
+                if zoom > 4.5:
                     zoom -= 0.1
                 self.camera.set_zoom(zoom)
 
