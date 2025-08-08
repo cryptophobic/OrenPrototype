@@ -9,7 +9,7 @@ from app.core.vectors import CustomVec2i
 from app.engine.grid.grid import Grid
 from app.engine.message_broker.types import Controls, KeyBinding, MessageBody, MessageTypes, IntentionToPlacePayload, \
     StopPayload, MovePayload
-from app.maps.level import Level
+from app.maps.level import Level, map_dir
 from app.objects.coordinate_holder import CoordinateHolder
 from app.objects.puppeteer import Puppeteer
 from app.objects.static_object import StaticObject
@@ -42,9 +42,11 @@ def maze(width, height):
 class LevelFactory:
     def __init__(self):
         level = Level()
-        level.grid_width = 43
+        level.grid_width = 50
         # level.grid_height = 51
-        level.grid_height = 29
+        level.grid_height = 38
+
+        level.current_map = map_dir / "test_level" / "test.tmx"
 
         level.grid = Grid(width=level.grid_width, height=level.grid_height)
 

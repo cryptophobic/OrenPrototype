@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import Enum, auto
 
 FPS = 60
-SCREEN_SIZE = (1440, 1440)
+SCREEN_SIZE = (1440, 1000)
 
 # Grid colors
 GRID_COLOR = (200, 200, 200)

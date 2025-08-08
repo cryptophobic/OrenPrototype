@@ -1,9 +1,12 @@
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from app.collections.actor_collection import ActorCollection
 from app.collections.coordinate_holder_collection import CoordinateHolderCollection
 from app.collections.static_object_collection import StaticObjectCollection
 from app.protocols.engine.grid.grid_protocol import GridProtocol
+
+map_dir = current_path = Path(__file__).parent / "tiles"
 
 
 @dataclass
@@ -14,3 +17,4 @@ class Level:
     grid: GridProtocol = None
     grid_width: int = 0
     grid_height: int = 0
+    current_map: str = None

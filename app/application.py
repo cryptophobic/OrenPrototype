@@ -10,8 +10,9 @@ class Application:
         self.debug = debug
 
     def run(self):
-        window = arcade.Window(self.config.SCREEN_SIZE[0], self.config.SCREEN_SIZE[1], "OrenPrototype - Arcade Version")
-
+        window = arcade.Window(self.config.SCREEN_SIZE[0], self.config.SCREEN_SIZE[1], "OrenPrototype - Arcade Version", fullscreen=True)
+        # window = arcade.Window()
+        # window.set_fullscreen(not window.fullscreen)
         game = GameView(self.config)
         window.show_view(game)
         arcade.run()

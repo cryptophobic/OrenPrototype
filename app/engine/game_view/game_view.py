@@ -68,9 +68,6 @@ class GameView(arcade.View):
 
         self.margin = 0
 
-        map_name = 'C:/Users/dmitr/PycharmProjects/OrenPrototype/app/resources/animations/tiles/Tiled_files/Glades.tmx'
-        self.scene = load_animated_tilemap(tmx_file_path=map_name, scaling=1)
-
         self.camera = Camera(initial_zoom=4.0)
 
         self.config = config
@@ -81,9 +78,12 @@ class GameView(arcade.View):
         self.level_factory = LevelFactory()
         self.current_level = self.level_factory.levels["level1"]
 
+        map_name = self.current_level.current_map
+        self.scene = load_animated_tilemap(tmx_file_path=map_name, scaling=1)
+
         # TODO: I bet you see it
         self.tile_size = 16
-        for layer_name in ["objects2"]:
+        for layer_name in ["Walls"]:
             for it in self.scene[layer_name]:
                 place = self.get_tile_index_from_pixel(CustomVec2f(it.center_x, it.center_y))
                 coordinates = CustomVec2i(int(place.x), int(place.y))
@@ -150,11 +150,10 @@ class GameView(arcade.View):
         self.scene.draw()
 
         for x in range(self.grid.width):
-            arcade.draw_line(16 * x, 0, 16 * x, 16 * 29, arcade.color.GRAY_ASPARAGUS, 0.5)
+            arcade.draw_line(16 * x, 0, 16 * x, 16 * self.grid.height, arcade.color.GRAY_ASPARAGUS, 0.5)
 
         for y in range(self.grid.height):
-            arcade.draw_line(0, 16 * y, 16 * 43, 16 * y, arcade.color.GRAY_ASPARAGUS, 0.5)
-
+            arcade.draw_line(0, 16 * y, 16 * self.grid.width, 16 * y, arcade.color.GRAY_ASPARAGUS, 0.5)
 
         if not self.rendered or self.state_changed:
             self.state_changed = False
@@ -162,9 +161,9 @@ class GameView(arcade.View):
             self.sprite_renderer.update_sprites(self.actor_collection)
 
         self.sprite_renderer.draw()
-        self.scene["objects1"].draw()
-        self.scene["objects2"].draw()
-        self.scene["objects3"].draw()
+        self.scene["Traps"].draw()
+        # self.scene["objects2"].draw()
+        # self.scene["objects3"].draw()
 
 
     def on_update(self, delta_time: float):
@@ -204,7 +203,7 @@ class GameView(arcade.View):
 
         self.camera.update()
         self.sprite_renderer.update()
-        self.scene.update(delta_time=delta_time)
+        # self.scene.update(delta_time=delta_time)
 
     def on_key_press(self, key: int, modifiers: int):
         if key == arcade.key.ESCAPE:
