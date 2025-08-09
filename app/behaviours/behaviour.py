@@ -60,7 +60,6 @@ class Behaviour:
         if expected_payload_type and not isinstance(message_body.payload, expected_payload_type):
             raise TypeError(f"Expected {expected_payload_type.__name__}, got {type(message_body.payload).__name__}")
 
-        # TODO: Debug why method_names are incorrect
         for receiver_type, method_name in handlers_ref.items():
             if isinstance(receiver, receiver_type):
                 return deque([

@@ -24,7 +24,6 @@ class ActorAction:
         if not behaviour:
             return False
         method: Callable[[ActorProtocol, Payload], bool] = getattr(behaviour, self.behaviour_action.method_name, None)
-        # TODO: Debug why method_names are incorrect
         if not callable(method):
             return False
 
