@@ -19,6 +19,9 @@ MessageTypeHandlersDict = dict[type, str]
 MessageHandlersDict = dict[MessageTypes, tuple[MessageTypeHandlersDict, ...]]
 BehaviourStates = dict[Behaviours, BehaviourState]
 
+ReceiverMap = dict[type, str] # {ReceiverType: "method_name"}
+HandlersMap = dict[MessageTypes, list[ReceiverMap]]
+
 
 @dataclass
 class BufferedMoverState(BehaviourState):

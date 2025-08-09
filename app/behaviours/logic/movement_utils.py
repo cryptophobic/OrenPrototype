@@ -99,7 +99,6 @@ class MovementUtils:
 
         return result.placed
 
-    # TODO: remove the playground
     @staticmethod
     def get_animation_and_textures(velocity: CustomVec2, unit: UnitProtocol) -> tuple[CommonAnimations, Directions]:
 

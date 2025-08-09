@@ -1,24 +1,18 @@
-from app.behaviours.behaviour import register_message_handler, Behaviour
+from app.behaviours.behaviour import Behaviour, handles
 from app.config import Behaviours
 from app.engine.message_broker.types import MessageTypes, IntentionToPlacePayload
-from app.objects.coordinate_holder import CoordinateHolder
+from app.protocols.objects.coordinate_holder_protocol import CoordinateHolderProtocol
 
-
-@register_message_handler(
-    MessageTypes.INTENTION_TO_PLACE,
-    {
-        CoordinateHolder: "INTENTION_TO_PLACE",
-    }
-)
 
 class Cursor(Behaviour):
     name = Behaviours.CURSOR
-    supported_receivers = (CoordinateHolder,)
+    supported_receivers = (CoordinateHolderProtocol,)
 
     '''
     Handlers to execute by command pipeline
     '''
     @classmethod
-    def intention_to_place(cls, coordinate_holder: CoordinateHolder, payload: IntentionToPlacePayload) -> bool:
+    @handles(MessageTypes.INTENTION_TO_PLACE, for_=(CoordinateHolderProtocol,))
+    def intention_to_place(cls, coordinate_holder: CoordinateHolderProtocol, payload: IntentionToPlacePayload) -> bool:
         return cls.get_movement_utils().try_place(coordinate_holder, payload.to_place)
 

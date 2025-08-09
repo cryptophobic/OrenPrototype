@@ -1,14 +1,7 @@
-from app.behaviours.behaviour import register_message_handler, Behaviour
+from app.behaviours.behaviour import Behaviour, handles
 from app.config import Behaviours
 from app.engine.message_broker.types import MessageTypes, Message, InputPayload
 from app.protocols.objects.puppeteer_protocol import PuppeteerProtocol
-
-@register_message_handler(
-    MessageTypes.INPUT,
-    {
-        PuppeteerProtocol: "on_input",
-    }
-)
 
 class Possessor(Behaviour):
     name = Behaviours.POSSESSOR
@@ -35,5 +28,6 @@ class Possessor(Behaviour):
         return True
 
     @classmethod
+    @handles(MessageTypes.INPUT, for_=(PuppeteerProtocol,))
     def on_input(cls, puppeteer: PuppeteerProtocol, payload: InputPayload) -> bool:
         return cls._on_input_process(puppeteer, payload)

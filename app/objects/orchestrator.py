@@ -75,6 +75,7 @@ class Orchestrator(Actor, Consumer, OrchestratorProtocol):
             )
 
             self.messenger.send_message(message, self._cursor)
+            self._cursor_position = None
 
     def _process_animation(self):
         animated = self.actors_collection.get_behave_as_this(Behaviours.ANIMATED)

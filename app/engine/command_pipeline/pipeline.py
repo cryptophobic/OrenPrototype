@@ -26,9 +26,7 @@ class ActorAction:
         method: Callable[[ActorProtocol, Payload], bool] = getattr(behaviour, self.behaviour_action.method_name, None)
         # TODO: Debug why method_names are incorrect
         if not callable(method):
-            # print(self.behaviour_action.method_name, behaviour.name)
             return False
-        print(self.behaviour_action.method_name, behaviour.name)
 
         self.resolved = method(self.actor, self.behaviour_action.payload)
         return self.resolved

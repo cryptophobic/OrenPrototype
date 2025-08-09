@@ -1,42 +1,20 @@
-from app.behaviours.behaviour import register_message_handler, Behaviour
+from app.behaviours.behaviour import Behaviour, handles
 from app.behaviours.types import BufferedMoverState
 from app.config import Behaviours
 from app.core.event_bus.events import Events, AnimationUpdatePayload
 from app.engine.message_broker.types import MessageTypes, AnimatePayload, StopPayload, MovePayload
-from app.objects.coordinate_holder import CoordinateHolder
 from app.protocols.objects.coordinate_holder_protocol import CoordinateHolderProtocol
 from app.protocols.objects.unit_protocol import UnitProtocol
 
-
-@register_message_handler(
-    MessageTypes.BUFFERED_MOVE,
-    {
-        CoordinateHolder: "on_buffered_move",
-    }
-)
-
-@register_message_handler(
-    MessageTypes.INTENTION_TO_MOVE,
-    {
-        CoordinateHolder: "intention_to_move",
-    }
-)
-
-@register_message_handler(
-    MessageTypes.INTENTION_TO_STOP,
-    {
-        CoordinateHolder: "intention_to_stop",
-    }
-)
-
 class BufferedMover(Behaviour):
     name = Behaviours.BUFFERED_MOVER
-    supported_receivers = (CoordinateHolder,)
+    supported_receivers = (CoordinateHolderProtocol,)
 
     '''
     Handlers to execute by command pipeline
     '''
     @classmethod
+    @handles(MessageTypes.BUFFERED_MOVE, for_=(CoordinateHolderProtocol,))
     def on_buffered_move(cls, coordinate_holder: CoordinateHolderProtocol, payload: AnimatePayload) -> bool:
         movement_utils = cls.get_movement_utils()
         state = coordinate_holder.behaviour_state.get(cls.name)
@@ -67,6 +45,7 @@ class BufferedMover(Behaviour):
         return movement_utils.try_move(coordinate_holder, moving_direction, force) if moving_direction.is_not_zero() else True
 
     @classmethod
+    @handles(MessageTypes.INTENTION_TO_MOVE, for_=(CoordinateHolderProtocol,))
     def intention_to_move(cls, coordinate_holder: CoordinateHolderProtocol, payload: MovePayload) -> bool:
         state = coordinate_holder.behaviour_state.get(cls.name)
 
@@ -90,6 +69,7 @@ class BufferedMover(Behaviour):
         return True
 
     @classmethod
+    @handles(MessageTypes.INTENTION_TO_STOP, for_=(CoordinateHolderProtocol,))
     def intention_to_stop(cls, coordinate_holder: CoordinateHolderProtocol, payload: StopPayload) -> bool:
         state = coordinate_holder.behaviour_state.get(cls.name)
 
