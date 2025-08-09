@@ -24,6 +24,7 @@ class BufferedMover(Behaviour):
             state = BufferedMoverState()
 
         state, moving_direction = movement_utils.calculate_buffered_move(coordinate_holder, state, payload.delta_time)
+
         if moving_direction.is_not_zero():
             state.intent_velocity_normalised = state.intent_velocity.normalized()
             if isinstance(coordinate_holder, UnitProtocol):
@@ -40,8 +41,8 @@ class BufferedMover(Behaviour):
                 event_bus = cls.get_event_bus()
                 event_bus.publish(Events.AnimationUpdate, AnimationUpdatePayload(coordinate_holder.name))
 
-
         coordinate_holder.behaviour_state[cls.name] = state
+
         return movement_utils.try_move(coordinate_holder, moving_direction, force) if moving_direction.is_not_zero() else True
 
     @classmethod

@@ -43,6 +43,17 @@ class CustomVec2(Generic[T]):
 
         return (self.x, self.y)[item]
 
+    def __setitem__(self, item: int, value: T) -> T:
+        if item > 1:
+            raise IndexError("Out of range of 2 dimensional vector")
+
+        if item == 0:
+            self.x = value
+            return
+
+        if item == 1:
+            self.y = value
+
     def __add__(self, other):
         return type(self)(self.x + other[CustomVec2.X], self.y + other[CustomVec2.Y])
 
@@ -80,6 +91,9 @@ class CustomVec2i(CustomVec2[int]):
         self.x = int(x)
         self.y = int(y)
 
+    def to_int(self) -> 'CustomVec2i':
+        return self
+
     def to_float(self) -> 'CustomVec2f':
         return CustomVec2f(float(self.x), float(self.y))
 
@@ -99,6 +113,9 @@ class CustomVec2f(CustomVec2[float]):
     def __init__(self, x: float, y: float):
         self.x = float(x)
         self.y = float(y)
+
+    def to_int(self) -> CustomVec2i:
+        return CustomVec2i(int(self.x), int(self.y))
 
     def dot(self, other: Self) -> float:
         return self.x * other.x + self.y * other.y

@@ -16,35 +16,36 @@ class MovementUtils:
         self._grid = grid
         self._messenger = messenger
 
-    @staticmethod
     def calculate_buffered_move(
+            self,
             coordinate_holder: CoordinateHolderProtocol,
             state: BufferedMoverState,
             delta_time: float,
     ) -> tuple[BufferedMoverState, CustomVec2i]:
-        state.moving_buffer += (coordinate_holder.velocity + state.intent_velocity_normalised) * delta_time
+        moving_buffer = state.moving_buffer.copy()
+        moving_buffer += (coordinate_holder.velocity + state.intent_velocity_normalised) * delta_time
         direction = CustomVec2i.zero()
 
-        if abs(state.moving_buffer.x) >= 1.0:
-            step = int(state.moving_buffer.x)
-            direction.x += step
-            state.moving_buffer.x -= step
-            if state.clear_velocity.x:
-                state.moving_buffer.x = 0.0
-                state.intent_velocity.x = 0
+        for n in [CustomVec2f.X, CustomVec2f.Y]:
+            direct = CustomVec2f.zero()
+            direct[n] = moving_buffer[n]
+            if not self.pretend_to_move(coordinate_holder, direct, state.clear_velocity, 1):
+                moving_buffer[n] = 0.0
 
-        if abs(state.moving_buffer.y) >= 1.0:
-            step = int(state.moving_buffer.y)
-            direction.y += step
-            state.moving_buffer.y -= step
-            if state.clear_velocity.y:
-                state.moving_buffer.y = 0.0
-                state.intent_velocity.y = 0
+            elif abs(moving_buffer[n]) >= 1.0:
+                step = int(moving_buffer[n])
+                direction[n] += step
+                moving_buffer[n] -= step
+                if state.clear_velocity[n]:
+                    moving_buffer[n] = 0.0
+                    state.intent_velocity[n] = 0
+                    state.intent_velocity_normalised[n] = 0
+
+        state.moving_buffer = moving_buffer
 
         return state, direction
 
     def inform_about_occupation(self, coordinate_holder, result, direction=None, force=1):
-
         if direction is not None:
             for actor in result.blocked:
                 message = Message(
@@ -81,8 +82,9 @@ class MovementUtils:
 
         if direction.is_not_zero():
             to_place = coordinate_holder.coordinates + direction
-            result =  self._grid.is_may_be_occupied(coordinate_holder, to_place)
+            result = self._grid.is_may_be_occupied(coordinate_holder, to_place)
             self.inform_about_occupation(coordinate_holder, result, direction, force)
+            return result.placed
 
         return True
 
