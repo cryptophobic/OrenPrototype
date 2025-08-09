@@ -1,7 +1,11 @@
+from dataclasses import replace
+from typing import Optional
+
 from app.behaviours.behaviour import Behaviour, register_message_handler
 from app.behaviours.types import BufferedMoverState
 from app.config import Behaviours
 from app.core.event_bus.events import Events, AnimationUpdatePayload
+from app.core.vectors import CustomVec2f, CustomVec2i
 from app.engine.message_broker.types import MessageTypes, AnimatePayload, StopPayload, MovePayload, PushedByPayload
 from app.protocols.objects.coordinate_holder_protocol import CoordinateHolderProtocol
 from app.protocols.objects.unit_protocol import UnitProtocol
@@ -9,6 +13,21 @@ from app.protocols.objects.unit_protocol import UnitProtocol
 class BufferedMover(Behaviour):
     name = Behaviours.BUFFERED_MOVER
     supported_receivers = (CoordinateHolderProtocol,)
+
+    @classmethod
+    def _update_buffered_mover_state(cls,
+                                     state: BufferedMoverState,
+                                     moving_buffer: Optional[CustomVec2f] = None,
+                                     intent_velocity: Optional[CustomVec2f] = None,
+                                     intent_velocity_normalised: Optional[CustomVec2f] = None,
+                                     clear_velocity: Optional[CustomVec2i] = None
+                                     ) -> Optional[BufferedMoverState]:
+        return BufferedMoverState(
+                            moving_buffer=moving_buffer if moving_buffer else state.moving_buffer,
+                            intent_velocity=intent_velocity if intent_velocity else state.intent_velocity,
+                            intent_velocity_normalised=intent_velocity_normalised if intent_velocity_normalised else state.intent_velocity_normalised,
+                            clear_velocity=clear_velocity if clear_velocity else state.clear_velocity
+                            )
 
     '''
     Handlers to execute by command pipeline
@@ -73,7 +92,6 @@ class BufferedMover(Behaviour):
         coordinate_holder.behaviour_state[cls.name] = state
 
         return True
-
 
     @classmethod
     @register_message_handler (MessageTypes.INTENTION_TO_MOVE, for_=(CoordinateHolderProtocol,))

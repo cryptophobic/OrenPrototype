@@ -11,7 +11,7 @@ class BehaviourAction:
     method_name: str
     payload: Payload
 
-@dataclass
+@dataclass(frozen=False)
 class BehaviourState:
     pass
 
@@ -22,8 +22,7 @@ BehaviourStates = dict[Behaviours, BehaviourState]
 ReceiverMap = dict[type, str] # {ReceiverType: "method_name"}
 HandlersMap = dict[MessageTypes, list[ReceiverMap]]
 
-
-@dataclass
+@dataclass(frozen=False)
 class BufferedMoverState(BehaviourState):
     moving_buffer: CustomVec2f = field(default_factory=lambda: CustomVec2f(0, 0))
     intent_velocity: CustomVec2f = field(default_factory=lambda: CustomVec2i(0, 0))
