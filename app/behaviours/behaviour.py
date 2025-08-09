@@ -11,19 +11,19 @@ from app.engine.message_broker.types import MessageTypes, MessageBody, MessagePa
 from app.config import Behaviours
 
 
-def handles(message: MessageTypes, for_: Iterable[type] | type):
+def register_message_handler (message: MessageTypes, for_: Iterable[type] | type):
     """Mark a method as a handler for one message; works inside the class."""
     if isinstance(for_, type):
         receiver_types: tuple[type, ...] = (for_,)
     else:
         receiver_types = tuple(for_)
 
-    def deco(func):
-        specs = getattr(func, "_handler_specs", [])
+    def decorator(method):
+        specs = getattr(method, "_handler_specs", [])
         specs.append((message, receiver_types))
-        setattr(func, "_handler_specs", specs)
-        return func
-    return deco
+        setattr(method, "_handler_specs", specs)
+        return method
+    return decorator
 
 # Base Behaviour class
 class Behaviour:
@@ -36,7 +36,7 @@ class Behaviour:
         super().__init_subclass__(**kwargs)
         cls.message_handlers = {}
 
-        # scan class dict for methods tagged by @handles
+        # scan class dict for methods tagged by @register_message_handler
         for attr_name, member in cls.__dict__.items():
             func = getattr(member, "__func__", member)  # in case it's a @classmethod
             specs = getattr(func, "_handler_specs", None)
