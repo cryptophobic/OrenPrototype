@@ -12,7 +12,7 @@ class DiscreteMover(Behaviour):
     Handlers to execute by command pipeline
     '''
     @classmethod
-    @register_message_handler (MessageTypes.PUSHED_BY, for_=(CoordinateHolderProtocol,))
+    # @register_message_handler (MessageTypes.PUSHED_BY, for_=(CoordinateHolderProtocol,))
     def pushed_by(cls, coordinate_holder: CoordinateHolderProtocol, payload: PushedByPayload) -> bool:
         print(f"pushed by coordinate holder: {coordinate_holder.name}")
         if payload.force > 0:

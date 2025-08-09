@@ -2,7 +2,7 @@ from app.behaviours.behaviour import Behaviour, register_message_handler
 from app.behaviours.types import BufferedMoverState
 from app.config import Behaviours
 from app.core.event_bus.events import Events, AnimationUpdatePayload
-from app.engine.message_broker.types import MessageTypes, AnimatePayload, StopPayload, MovePayload
+from app.engine.message_broker.types import MessageTypes, AnimatePayload, StopPayload, MovePayload, PushedByPayload
 from app.protocols.objects.coordinate_holder_protocol import CoordinateHolderProtocol
 from app.protocols.objects.unit_protocol import UnitProtocol
 
@@ -43,6 +43,31 @@ class BufferedMover(Behaviour):
 
         coordinate_holder.behaviour_state[cls.name] = state
         return movement_utils.try_move(coordinate_holder, moving_direction, force) if moving_direction.is_not_zero() else True
+
+    @classmethod
+    @register_message_handler (MessageTypes.PUSHED_BY, for_=(CoordinateHolderProtocol,))
+    def pushed_by(cls, coordinate_holder: CoordinateHolderProtocol, payload: PushedByPayload) -> bool:
+        state = coordinate_holder.behaviour_state.get(cls.name)
+
+        if not isinstance(state, BufferedMoverState):
+            state = BufferedMoverState()
+
+        if payload.direction.x != 0:
+            state.intent_velocity.x = payload.direction.x
+            state.clear_velocity.x = 1
+
+        if payload.direction.y != 0:
+            state.intent_velocity.y = payload.direction.y
+            state.clear_velocity.y = 1
+
+        state.intent_velocity_normalised = state.intent_velocity.normalized()
+        if isinstance(coordinate_holder, UnitProtocol):
+            state.intent_velocity_normalised *= coordinate_holder.stats.speed
+
+        coordinate_holder.behaviour_state[cls.name] = state
+
+        return True
+
 
     @classmethod
     @register_message_handler (MessageTypes.INTENTION_TO_MOVE, for_=(CoordinateHolderProtocol,))
