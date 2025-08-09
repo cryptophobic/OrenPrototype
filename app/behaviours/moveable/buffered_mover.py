@@ -16,6 +16,7 @@ class BufferedMover(Behaviour):
     @classmethod
     @register_message_handler (MessageTypes.BUFFERED_MOVE, for_=(CoordinateHolderProtocol,))
     def on_buffered_move(cls, coordinate_holder: CoordinateHolderProtocol, payload: AnimatePayload) -> bool:
+        # HERE THE PLACE
         movement_utils = cls.get_movement_utils()
         state = coordinate_holder.behaviour_state.get(cls.name)
         force = 1 if not isinstance(coordinate_holder, UnitProtocol) else coordinate_holder.stats.STR
@@ -48,6 +49,10 @@ class BufferedMover(Behaviour):
     @classmethod
     @register_message_handler (MessageTypes.PUSHED_BY, for_=(CoordinateHolderProtocol,))
     def pushed_by(cls, coordinate_holder: CoordinateHolderProtocol, payload: PushedByPayload) -> bool:
+        # HERE THE PLACE
+        if payload.coordinates + payload.direction != coordinate_holder.coordinates:
+            return True
+
         state = coordinate_holder.behaviour_state.get(cls.name)
 
         if not isinstance(state, BufferedMoverState):
@@ -73,6 +78,7 @@ class BufferedMover(Behaviour):
     @classmethod
     @register_message_handler (MessageTypes.INTENTION_TO_MOVE, for_=(CoordinateHolderProtocol,))
     def intention_to_move(cls, coordinate_holder: CoordinateHolderProtocol, payload: MovePayload) -> bool:
+        # HERE THE PLACE
         state = coordinate_holder.behaviour_state.get(cls.name)
 
         if not isinstance(state, BufferedMoverState):
@@ -102,8 +108,8 @@ class BufferedMover(Behaviour):
         if not isinstance(state, BufferedMoverState):
             state = BufferedMoverState()
 
-        state.clear_velocity.x |= payload.direction.x
-        state.clear_velocity.y |= payload.direction.y
+        state.clear_velocity.x |= abs(payload.direction.x)
+        state.clear_velocity.y |= abs(payload.direction.y)
 
         coordinate_holder.behaviour_state[cls.name] = state
 

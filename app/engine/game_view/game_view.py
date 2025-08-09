@@ -179,8 +179,6 @@ class GameView(arcade.View):
             self.orchestrator.process_tick(delta_time)
             self.orchestrator.process_continuous_input(input_events)
 
-            acts = self.orchestrator.actors_collection.get_pending_actors()
-
             self.state_changed = self.command_pipeline.process(
                 self.orchestrator.actors_collection.get_pending_actors()
             )

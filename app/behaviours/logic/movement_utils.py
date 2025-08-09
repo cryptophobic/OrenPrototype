@@ -26,11 +26,15 @@ class MovementUtils:
         moving_buffer += (coordinate_holder.velocity + state.intent_velocity_normalised) * delta_time
         direction = CustomVec2i.zero()
 
+        # is_diagonal = state.intent_velocity.x != 0 and state.intent_velocity.y != 0
+
         for n in [CustomVec2f.X, CustomVec2f.Y]:
             direct = CustomVec2f.zero()
             direct[n] = moving_buffer[n]
             if not self.pretend_to_move(coordinate_holder, direct, state.clear_velocity, 1):
                 moving_buffer[n] = 0.0
+                state.intent_velocity[n] = 0 if state.clear_velocity[n] else state.intent_velocity[n]
+                state.intent_velocity_normalised[n] = 0 if state.clear_velocity[n] else state.intent_velocity_normalised[n]
 
             elif abs(moving_buffer[n]) >= 1.0:
                 step = int(moving_buffer[n])
@@ -54,6 +58,7 @@ class MovementUtils:
                         message_type=MessageTypes.PUSHED_BY,
                         payload=PushedByPayload(
                             direction=direction,
+                            coordinates=coordinate_holder.coordinates.copy(),
                             force=force,
                         )
                     )
@@ -75,10 +80,7 @@ class MovementUtils:
         def sign(value):
             return (value > 0) - (value < 0)
 
-        direction = CustomVec2i(
-            0 if clear_velocity.x == 1 else sign(intent_velocity.x),
-            0 if clear_velocity.y == 1 else sign(intent_velocity.y),
-        )
+        direction = CustomVec2i(sign(intent_velocity.x), sign(intent_velocity.y))
 
         if direction.is_not_zero():
             to_place = coordinate_holder.coordinates + direction

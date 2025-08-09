@@ -27,6 +27,7 @@ class Payload:
 @dataclass
 class PushedByPayload(Payload):
     force: int
+    coordinates: CustomVec2i
     direction: CustomVec2i
 
 @dataclass
