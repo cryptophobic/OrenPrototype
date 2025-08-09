@@ -3,10 +3,23 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "test.tmx",
     "expandedProjectPaths": [
+        "."
     ],
     "fileStates": {
+        "assets.tsx": {
+            "scaleInDock": 1.5,
+            "scaleInEditor": 1
+        },
+        "test.tmx": {
+            "scale": 1.5,
+            "selectedLayer": 4,
+            "viewCenter": {
+                "x": 382.3333333333333,
+                "y": 353
+            }
+        }
     },
     "last.imagePath": "C:/Users/dmitr/PycharmProjects/OrenPrototype/app/maps/tiles/test_level",
     "map.height": 38,
@@ -15,9 +28,13 @@
     "map.tileWidth": 16,
     "map.width": 50,
     "openFiles": [
+        "test.tmx",
+        "assets.tsx"
     ],
     "project": "dunge.tiled-project",
     "recentFiles": [
+        "assets.tsx",
+        "test.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

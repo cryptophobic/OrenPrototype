@@ -1,6 +1,6 @@
 from app.behaviours.behaviour import register_message_handler, Behaviour
 from app.config import Behaviours
-from app.engine.message_broker.types import MessageTypes, PushedByPayload, IntentionToPlacePayload
+from app.engine.message_broker.types import MessageTypes, PushedByPayload, IntentionToPlacePayload, MovePayload
 from app.protocols.objects.coordinate_holder_protocol import CoordinateHolderProtocol
 from app.protocols.objects.unit_protocol import UnitProtocol
 
@@ -14,10 +14,9 @@ from app.protocols.objects.unit_protocol import UnitProtocol
 )
 
 @register_message_handler(
-    MessageTypes.INTENTION_TO_PLACE,
+    MessageTypes.INTENTION_TO_MOVE_DISCRETE,
     {
-        UnitProtocol: "intention_to_place_as_unit",
-        CoordinateHolderProtocol: "intention_to_place_as_coordinate_holder",
+        CoordinateHolderProtocol: "intention_to_move_discrete",
     }
 )
 
@@ -40,9 +39,6 @@ class DiscreteMover(Behaviour):
             return True
 
     @classmethod
-    def intention_to_place_as_unit(cls, unit: UnitProtocol, payload: IntentionToPlacePayload) -> bool:
-        return cls.get_movement_utils().try_move(unit, payload.direction, unit.stats.STR)
+    def intention_to_move_discrete(cls, coordinate_holder: CoordinateHolderProtocol, payload: MovePayload) -> bool:
+        return cls.get_movement_utils().try_move(coordinate_holder, payload.direction, 0)
 
-    @classmethod
-    def intention_to_place_as_coordinate_holder(cls, coordinate_holder: CoordinateHolderProtocol, payload: PushedByPayload) -> bool:
-        return cls.get_movement_utils().try_move(coordinate_holder, payload.direction, 1)

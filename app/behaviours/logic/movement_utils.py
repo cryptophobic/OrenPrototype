@@ -43,19 +43,21 @@ class MovementUtils:
 
         return state, direction
 
-    def inform_about_occupation(self, coordinate_holder, result, direction, force):
-        for actor in result.blocked:
-            message = Message(
-                sender=coordinate_holder.name,
-                body=MessageBody(
-                    message_type=MessageTypes.PUSHED_BY,
-                    payload=PushedByPayload(
-                        direction=direction,
-                        force=force,
+    def inform_about_occupation(self, coordinate_holder, result, direction=None, force=1):
+
+        if direction is not None:
+            for actor in result.blocked:
+                message = Message(
+                    sender=coordinate_holder.name,
+                    body=MessageBody(
+                        message_type=MessageTypes.PUSHED_BY,
+                        payload=PushedByPayload(
+                            direction=direction,
+                            force=force,
+                        )
                     )
                 )
-            )
-            self._messenger.send_message(message, actor)
+                self._messenger.send_message(message, actor)
 
         for actor in result.overlapped:
             message = Message(
@@ -83,6 +85,13 @@ class MovementUtils:
             self.inform_about_occupation(coordinate_holder, result, direction, force)
 
         return True
+
+    def try_place(self, coordinate_holder: CoordinateHolderProtocol, to_place: CustomVec2i) -> bool:
+        result = self._grid.place(coordinate_holder, to_place)
+        self.inform_about_occupation(coordinate_holder, result)
+
+        return result.placed
+
 
     def try_move(self, coordinate_holder: CoordinateHolderProtocol, direction: CustomVec2i, force: int) -> bool:
         result = self._grid.move(coordinate_holder, coordinate_holder.coordinates + direction)

@@ -5,6 +5,7 @@ from app.behaviours.types import BufferedMoverState
 from app.collections.puppeteer_collection import PuppeteerCollection
 from app.config import Behaviours
 from app.core.event_bus.bus import EventBus
+from app.core.event_bus.events import Events, MousePositionUpdatePayload
 from app.core.physics.body import Body, CollisionMatrix, CollisionResponse
 from app.core.vectors import CustomVec2f, CustomVec2i
 from app.engine.command_pipeline.pipeline import CommandPipeline
@@ -26,7 +27,6 @@ from app.registry.behaviour_registry import get_behaviour_registry
 class GameView(arcade.View):
 
     def __calculate_settings(self):
-
         screen_width, screen_height = self.config.SCREEN_SIZE
 
         tile_width = (screen_width - (self.grid.width + 1) * self.margin) // self.grid.width
@@ -52,12 +52,11 @@ class GameView(arcade.View):
             self.get_tile_center(index.y)
         )
 
-    def get_tile_index_from_pixel(self, pixel: CustomVec2f) -> CustomVec2f:
-        return CustomVec2f(
+    def get_tile_index_from_pixel(self, pixel: CustomVec2f) -> CustomVec2i:
+        return CustomVec2i(
             (pixel.x - self.margin) // (self.tile_size + self.margin),
             (pixel.y - self.margin) // (self.tile_size + self.margin),
         )
-
 
     def register_actors(self):
         for puppeteer in self.orchestrator.actors_collection.get_by_type(Puppeteer, PuppeteerCollection):
@@ -99,7 +98,6 @@ class GameView(arcade.View):
                 self.current_level.actors_collection.add(prison)
                 self.current_level.grid.place(prison, prison.coordinates)
 
-
         self.grid = self.current_level.grid
 
         self.input_events_continuous = InputEventsContinuous()
@@ -110,6 +108,7 @@ class GameView(arcade.View):
             self.current_level.actors_collection,
             self.message_broker,
             "Orchestrator")
+        self.orchestrator.register_event_bus(self.event_bus)
 
         self.command_pipeline = CommandPipeline()
         self.command_pipeline.actor_collection = self.orchestrator.actors_collection
@@ -180,6 +179,8 @@ class GameView(arcade.View):
             self.orchestrator.process_tick(delta_time)
             self.orchestrator.process_continuous_input(input_events)
 
+            acts = self.orchestrator.actors_collection.get_pending_actors()
+
             self.state_changed = self.command_pipeline.process(
                 self.orchestrator.actors_collection.get_pending_actors()
             )
@@ -221,3 +222,22 @@ class GameView(arcade.View):
     def on_key_release(self, key: int, modifiers: int):
         current_timestamp = self.ticker.current_timestamp()
         self.input_events_continuous.register_key_pressed(key, False, current_timestamp)
+
+    def screen_to_world(self, sx: float, sy: float) -> tuple[float, float]:
+        # make sure self.camera.use() ran this frame
+        z = getattr(self.camera, "zoom", 1.0) or 1.0
+        cx, cy = getattr(self.camera, "position", (0.0, 0.0))
+        ww, wh = self.window.get_size()  # current window size (pixels)
+
+        wx = (sx - ww * 0.5) / z + cx
+        wy = (sy - wh * 0.5) / z + cy
+        return wx, wy
+
+    def on_mouse_motion(self, x, y, dx, dy):
+        wx, wy = self.screen_to_world(x, y)
+        res = self.get_tile_index_from_pixel(CustomVec2f(wx, wy))
+        self.event_bus.publish(Events.MousePositionUpdate, MousePositionUpdatePayload(
+            window_position=CustomVec2i(x, y),
+            world_position=CustomVec2i(wx, wy),
+            cell_position=res,
+        ))

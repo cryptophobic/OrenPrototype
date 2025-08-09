@@ -1,0 +1,9 @@
+from typing import Protocol, Callable, Any, runtime_checkable
+from app.core.event_bus.bus import EventBus
+from app.core.event_bus.events import Events
+
+@runtime_checkable
+class ConsumerProtocol(Protocol):
+    def register_event_bus(self, event_bus: EventBus) -> None: ...
+    def register_handler(self, event_type: Events, handler: Callable[[Any], None]) -> None: ...
+    def unregister_handler(self, event_type: Events, handler: Callable[[Any], None]) -> None: ...

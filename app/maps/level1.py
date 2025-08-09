@@ -51,15 +51,15 @@ class LevelFactory:
         level.grid = Grid(width=level.grid_width, height=level.grid_height)
 
         # Cursor setup
-        # cursor_body = Body(CollisionMatrix(response=CollisionResponse.OVERLAP))
-        # cursor_shape = Shape(get_icon_path(Icons.CURSOR))
-        # cursor_actor = CoordinateHolder(
-        #     body=cursor_body,
-        #     shape=cursor_shape,
-        #     coordinates=CustomVec2i(4, 8),
-        #     name="Cursor")
-        # cursor_actor.add_behaviour(Behaviours.DISCRETE_MOVER)
-        # level.actors_collection.add(cursor_actor)
+        cursor_body = Body(CollisionMatrix(response=CollisionResponse.OVERLAP))
+        cursor_shape = Shape(get_icon_path(Icons.CURSOR))
+        cursor_actor = CoordinateHolder(
+            body=cursor_body,
+            shape=cursor_shape,
+            coordinates=CustomVec2i(4, 8),
+            name="Cursor")
+        cursor_actor.add_behaviour(Behaviours.CURSOR)
+        level.actors_collection.add(cursor_actor)
         # End of Cursor setup
 
         # Player setup
@@ -102,19 +102,19 @@ class LevelFactory:
         # Puppeteer setup
         controls = Controls()
         controls[arcade.key.UP] = KeyBinding(
-            key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_PLACE, payload=IntentionToPlacePayload(CustomVec2i.up())),
+            key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE_DISCRETE, payload=MovePayload(CustomVec2i.up())),
             repeat_delta=150
         )
         controls[arcade.key.DOWN] = KeyBinding(
-            key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_PLACE, payload=IntentionToPlacePayload(CustomVec2i.down())),
+            key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE_DISCRETE, payload=MovePayload(CustomVec2i.down())),
             repeat_delta=150
         )
         controls[arcade.key.LEFT] = KeyBinding(
-            key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_PLACE, payload=IntentionToPlacePayload(CustomVec2i.left())),
+            key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE_DISCRETE, payload=MovePayload(CustomVec2i.left())),
             repeat_delta=150
         )
         controls[arcade.key.RIGHT] = KeyBinding(
-            key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_PLACE, payload=IntentionToPlacePayload(CustomVec2i.right())),
+            key_down=MessageBody(message_type=MessageTypes.INTENTION_TO_MOVE_DISCRETE, payload=MovePayload(CustomVec2i.right())),
             repeat_delta=150
         )
 

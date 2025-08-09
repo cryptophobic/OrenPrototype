@@ -12,6 +12,7 @@ class MessageTypes(Enum):
     INPUT = "input"
     INTENTION_TO_PLACE = "intention_to_place"
     INTENTION_TO_MOVE = "intention_to_move"
+    INTENTION_TO_MOVE_DISCRETE = "intention_to_move_discrete"
     INTENTION_TO_STOP = "intention_to_stop"
     KEY_DOWN = "key_down"
     KEY_UP = "key_up"
@@ -30,7 +31,7 @@ class PushedByPayload(Payload):
 
 @dataclass
 class IntentionToPlacePayload(Payload):
-    direction: CustomVec2i
+    to_place: CustomVec2i
 
 @dataclass
 class SetProperties(Payload):
@@ -88,6 +89,7 @@ MessagePayloadMap: dict[MessageTypes, type[Payload]] = {
     MessageTypes.INPUT: InputPayload,
     MessageTypes.INTENTION_TO_PLACE: IntentionToPlacePayload,
     MessageTypes.INTENTION_TO_MOVE: MovePayload,
+    MessageTypes.INTENTION_TO_MOVE_DISCRETE: MovePayload,
     MessageTypes.INTENTION_TO_STOP: StopPayload,
     MessageTypes.OVERLAPPED_BY: Payload,
     MessageTypes.PUSHED_BY: PushedByPayload,

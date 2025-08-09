@@ -1,14 +1,15 @@
 from typing import runtime_checkable, Protocol
 
-from app.core.types import KeyPressEventLogRecords, ContinuousKeyPressEventLogRecords
+from app.core.types import ContinuousKeyPressEventLogRecords
 from app.protocols.collections.actor_collection_protocol import ActorCollectionProtocol
 from app.protocols.collections.puppeteer_collection_protocol import PuppeteerCollectionProtocol
+from app.protocols.core.consumer_protocol import ConsumerProtocol
 from app.protocols.objects.actor_protocol import ActorProtocol
 from app.protocols.objects.puppeteer_protocol import PuppeteerProtocol
 from app.protocols.engine.message_broker.broker_protocol import MessageBrokerProtocol
 
 @runtime_checkable
-class OrchestratorProtocol(ActorProtocol, Protocol):
+class OrchestratorProtocol(ActorProtocol, ConsumerProtocol, Protocol):
     delta_time: float
     actors_collection: ActorCollectionProtocol
     moveable_actors: ActorCollectionProtocol
