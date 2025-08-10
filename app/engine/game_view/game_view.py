@@ -11,11 +11,12 @@ from app.core.vectors import CustomVec2f, CustomVec2i
 from app.engine.command_pipeline.pipeline import CommandPipeline
 from app.engine.game_view.camera import Camera
 from app.engine.game_view.sprite_renderer import SpriteRenderer
-from app.engine.game_view.tmx_animation_parser import load_animated_tilemap
+from app.engine.game_view.tmx_animation_parser import load_animated_tilemap_from_parser
 from app.engine.input_processor.Timer import Timer
 from app.engine.input_processor.inpuit_events_continuous import InputEventsContinuous
 from app.engine.message_broker.broker import MessageBroker
-from app.maps.level1 import LevelFactory
+from app.maps.level import LevelLoader
+from app.maps.level1 import LevelFactory, Level1Builder
 from app.objects.orchestrator import Orchestrator
 from app.objects.puppeteer import Puppeteer
 from app.objects.static_object import StaticObject
@@ -67,16 +68,12 @@ class GameView(arcade.View):
 
         self.interval = 1000 / self.config.FPS
 
-        self.level_factory = LevelFactory()
-        self.current_level = self.level_factory.levels["level1"]
+        loader = LevelLoader()
+        loader.register_level("level1", Level1Builder)
+        self.current_level = loader.load_level("level1")  # Shows friendly loading messages
 
-        map_name = self.current_level.current_map
-        self.scene = load_animated_tilemap(tmx_file_path=map_name, scaling=1)
-
-        for layer_name in ["Walls"]:
-            for it in self.scene[layer_name]:
-                place = self.get_tile_index_from_pixel(CustomVec2f(it.center_x, it.center_y))
-                self.level_factory.add_wall(place)
+        # Use the TMX parser from the level (already created during level building)
+        self.scene = load_animated_tilemap_from_parser(self.current_level.tmx_parser, scaling=1)
 
         self.grid = self.current_level.grid
 

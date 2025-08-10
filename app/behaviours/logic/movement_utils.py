@@ -7,7 +7,6 @@ from app.protocols.engine.grid.grid_protocol import GridProtocol
 from app.protocols.engine.message_broker.broker_protocol import MessageBrokerProtocol
 from app.protocols.objects.coordinate_holder_protocol import CoordinateHolderProtocol
 from app.protocols.objects.unit_protocol import UnitProtocol
-from app.registry.animation_registry import LoadedAnimation
 
 
 class MovementUtils:
@@ -26,6 +25,8 @@ class MovementUtils:
         moving_buffer += (coordinate_holder.velocity + state.intent_velocity_normalised) * delta_time
         direction = CustomVec2i.zero()
 
+        # TODO: catch velocity (1,1) so we can try to limit one of the directions or both
+        #
         # is_diagonal = state.intent_velocity.x != 0 and state.intent_velocity.y != 0
 
         for n in [CustomVec2f.X, CustomVec2f.Y]:
