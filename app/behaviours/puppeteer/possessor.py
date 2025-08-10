@@ -8,7 +8,8 @@ class Possessor(Behaviour):
     supported_receivers = (PuppeteerProtocol,)
 
     @classmethod
-    def _on_input_process(cls, puppeteer: PuppeteerProtocol, payload: InputPayload) -> bool:
+    @register_message_handler (MessageTypes.INPUT, for_=(PuppeteerProtocol,))
+    def on_input(cls, puppeteer: PuppeteerProtocol, payload: InputPayload) -> bool:
         if puppeteer.name != payload.actor_name:
             print(f"puppeteer name is not recognised: {payload.actor_name} vs {puppeteer.name}")
             return False
@@ -24,10 +25,4 @@ class Possessor(Behaviour):
             forward = Message(sender=puppeteer.name, body=message)
             messenger = cls.get_messenger()
             messenger.send_message(forward, puppeteer.puppet)
-
         return True
-
-    @classmethod
-    @register_message_handler (MessageTypes.INPUT, for_=(PuppeteerProtocol,))
-    def on_input(cls, puppeteer: PuppeteerProtocol, payload: InputPayload) -> bool:
-        return cls._on_input_process(puppeteer, payload)

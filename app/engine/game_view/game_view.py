@@ -27,24 +27,17 @@ from app.registry.behaviour_registry import get_behaviour_registry
 class GameView(arcade.View):
 
     def __calculate_settings(self):
-        screen_width, screen_height = self.config.SCREEN_SIZE
-
-        tile_width = (screen_width - (self.grid.width + 1) * self.margin) // self.grid.width
-        tile_height = (screen_height - (self.grid.height + 1) * self.margin) // self.grid.height
-
-        self.tile_size = min(tile_width, tile_height)
-        self.tile_size = 16
         for row in range(self.grid.height):
             self.grid_sprites.append([])
             for column in range(self.grid.width):
-                sprite = arcade.SpriteSolidColor(self.tile_size, self.tile_size, color=Color(0x1E, 0x51, 0x28, 255))
+                sprite = arcade.SpriteSolidColor(self.config.TILE_SIZE, self.config.TILE_SIZE, color=Color(0x1E, 0x51, 0x28, 255))
                 sprite.center_x = self.get_tile_center(column)
                 sprite.center_y = self.get_tile_center(row)
                 self.grid_sprite_list.append(sprite)
                 self.grid_sprites[row].append(sprite)
 
     def get_tile_center(self, index: int | float) -> int:
-        return self.margin + (self.tile_size + self.margin) * index + self.tile_size // 2
+        return self.margin + (self.config.TILE_SIZE + self.margin) * index + self.config.TILE_SIZE // 2
 
     def get_tile_center_vector(self, index: CustomVec2f) -> CustomVec2f:
         return CustomVec2f(
@@ -54,8 +47,8 @@ class GameView(arcade.View):
 
     def get_tile_index_from_pixel(self, pixel: CustomVec2f) -> CustomVec2i:
         return CustomVec2i(
-            (pixel.x - self.margin) // (self.tile_size + self.margin),
-            (pixel.y - self.margin) // (self.tile_size + self.margin),
+            (pixel.x - self.margin) // (self.config.TILE_SIZE + self.margin),
+            (pixel.y - self.margin) // (self.config.TILE_SIZE + self.margin),
         )
 
     def register_actors(self):
@@ -80,23 +73,10 @@ class GameView(arcade.View):
         map_name = self.current_level.current_map
         self.scene = load_animated_tilemap(tmx_file_path=map_name, scaling=1)
 
-        # TODO: I bet you see it
-        self.tile_size = 16
         for layer_name in ["Walls"]:
             for it in self.scene[layer_name]:
                 place = self.get_tile_index_from_pixel(CustomVec2f(it.center_x, it.center_y))
-                coordinates = CustomVec2i(int(place.x), int(place.y))
-                prison_body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))
-                prison_shape = None # No need to draw, it is drawn by a scene
-                prison = StaticObject(
-                    body=prison_body,
-                    shape=prison_shape,
-                    coordinates=coordinates,
-                    height=100,
-                    weight=100,
-                )
-                self.current_level.actors_collection.add(prison)
-                self.current_level.grid.place(prison, prison.coordinates)
+                self.level_factory.add_wall(place)
 
         self.grid = self.current_level.grid
 
@@ -131,12 +111,11 @@ class GameView(arcade.View):
         self.actor_collection: ActorCollectionProtocol = self.current_level.actors_collection
         self.background_color = arcade.color.GRAY_ASPARAGUS
 
-        self.tile_size = 0
         self.grid_sprite_list = arcade.SpriteList()
         self.grid_sprites = []
         
         self.__calculate_settings()
-        self.sprite_renderer = SpriteRenderer(self.tile_size, self.get_tile_center)
+        self.sprite_renderer = SpriteRenderer(self.config.TILE_SIZE, self.get_tile_center)
         self.sprite_renderer.register_event_bus(self.event_bus)
 
 
