@@ -1,7 +1,7 @@
 from app.behaviours.types import BufferedMoverState
 from app.config import CommonAnimations
 from app.core.geometry.types import Directions
-from app.core.vectors import CustomVec2i, CustomVec2, CustomVec2f
+from app.core.vectors import CustomVec2i, CustomVec2f
 from app.engine.message_broker.types import Message, MessageBody, MessageTypes, PushedByPayload, Payload
 from app.protocols.engine.grid.grid_protocol import GridProtocol
 from app.protocols.engine.message_broker.broker_protocol import MessageBrokerProtocol
@@ -105,7 +105,7 @@ class MovementUtils:
         return result.placed
 
     @staticmethod
-    def get_animation_and_textures(velocity: CustomVec2, unit: UnitProtocol) -> tuple[CommonAnimations, Directions]:
+    def get_animation_and_textures(velocity: CustomVec2f, unit: UnitProtocol) -> tuple[CommonAnimations, Directions]:
 
         if velocity.y < 0:
             animation = CommonAnimations.RUN

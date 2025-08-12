@@ -1,9 +1,8 @@
-from app.core.vectors_v2 import CustomVec2
+from app.core.vectors import CustomVec2f, CustomVec2i
 
 
 def test():
-    a = CustomVec2[int](1, 2)
+    a = CustomVec2f(1.0, 0.0)
+    b = CustomVec2i(3, 4)
 
-    b = CustomVec2[float](3, 4) + a
-
-    print(a, b)
+    print(a.normalized())
