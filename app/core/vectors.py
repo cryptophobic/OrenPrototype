@@ -14,6 +14,10 @@ class VecBase(Generic[T]):
     x: T
     y: T
 
+    @staticmethod
+    def _cast(v):  # overridden in subclasses
+        return v
+
     # All these methods use cls(...) so the returned object matches the subclass.
     @classmethod
     def up(cls, m: T = 1) -> Self:
@@ -35,29 +39,40 @@ class VecBase(Generic[T]):
     def zero(cls) -> Self:
         return cls(cls._cast(0), cls._cast(0))
 
-    @staticmethod
-    def _cast(value) -> T:
-        # Override in subclasses if you want strict type conversion
-        return value
-
-
 @dataclass(frozen=True, slots=True)
 class Vec2Ops(VecBase, Generic[T]):
 
-    def __getitem__(self, item: int) -> T:
-        if item > 1:
-            raise IndexError("Out of range of 2 dimensional vector")
+    def with_x(self, x: T) -> Self:
+        return type(self)(self._cast(x), self.y)
 
-        return (self.x, self.y)[item]
+    def with_y(self, y: T) -> Self:
+        return type(self)(self.x, self._cast(y))
+
+    def with_index(self, i: int, value: T) -> Self:
+        if i == 0: return type(self)(self._cast(value), self.y)
+        if i == 1: return type(self)(self.x, self._cast(value))
+        raise IndexError("Vec2 index must be 0 or 1")
+
+    def update(self, *, x: T | None = None, y: T | None = None) -> Self:
+        # kwargs-only to prevent accidental positional misuse
+        return type(self)(
+            self._cast(self.x if x is None else x),
+            self._cast(self.y if y is None else y),
+        )
+
+    def __getitem__(self, i: int) -> T:
+        if i == 0: return self.x
+        if i == 1: return self.y
+        raise IndexError("Vec2 index must be 0 or 1")
 
     def __add__(self, other: Self) -> Self:
-        return type(self)(self.x + other.x, self.y + other.y)
+        return type(self)(self._cast(self.x + other.x), self._cast(self.y + other.y))
 
     def __sub__(self, other: Self) -> Self:
-        return type(self)(self.x - other.x, self.y - other.y)
+        return type(self)(self._cast(self.x - other.x), self._cast(self.y - other.y))
 
     def __mul__(self, n: T) -> Self:
-        return type(self)(self.x * n, self.y * n)
+        return type(self)(self._cast(self.x * n), self._cast(self.y * n))
 
     def __neg__(self) -> Self:
         return type(self)(-self.x, -self.y)
@@ -69,20 +84,24 @@ class Vec2Ops(VecBase, Generic[T]):
         return self.x != other.x or self.y != other.y
 
     def add(self, other: Self) -> Self:
-        return type(self)(self.x + other.x, self.y + other.y)
-
+        return type(self)(self._cast(self.x + other.x), self._cast(self.y + other.y))
     def sub(self, other: Self) -> Self:
-        return type(self)(self.x - other.x, self.y - other.y)
-    def neg(self) -> Self:
-        return type(self)(-self.x, -self.y)
+        return type(self)(self._cast(self.x - other.x), self._cast(self.y - other.y))
     def dot(self, other: Self) -> float:
         return self.x * other.x + self.y * other.y
     def mag(self) -> float:
         return math.hypot(self.x, self.y)
 
+    def is_zero(self) -> bool:
+        return self.x == 0 and self.y == 0
+    def is_not_zero(self) -> bool:
+        return not self.is_zero()
+
 
 @dataclass(frozen=True, slots=True)
 class CustomVec2f(Vec2Ops[float]):
+    @staticmethod
+    def _cast(v) -> float: return float(v)
 
     def normalized(self) -> Self:
         m = self.mag()
@@ -90,4 +109,5 @@ class CustomVec2f(Vec2Ops[float]):
 
 @dataclass(frozen=True, slots=True)
 class CustomVec2i(Vec2Ops[int]):
-    pass
+    @staticmethod
+    def _cast(v) -> int: return int(v)

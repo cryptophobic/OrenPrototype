@@ -102,13 +102,19 @@ class BufferedMover(Behaviour):
         if not isinstance(state, BufferedMoverState):
             state = BufferedMoverState()
 
+        intent_velocity: list[float] = [state.intent_velocity.x, state.intent_velocity.y]
+        clear_velocity: list[int] = [state.clear_velocity.x, state.clear_velocity.y]
+
         if payload.direction.x != 0:
-            state.intent_velocity.x = payload.direction.x
-            state.clear_velocity.x = 0
+            intent_velocity[0] = payload.direction.x
+            clear_velocity[0] = 0
 
         if payload.direction.y != 0:
-            state.intent_velocity.y = payload.direction.y
-            state.clear_velocity.y = 0
+            intent_velocity[1] = payload.direction.y
+            clear_velocity[1] = 0
+
+        state.intent_velocity = CustomVec2f(*intent_velocity)
+        state.clear_velocity = CustomVec2i(*clear_velocity)
 
         state.intent_velocity_normalised = state.intent_velocity.normalized()
         if isinstance(coordinate_holder, UnitProtocol):
@@ -125,6 +131,8 @@ class BufferedMover(Behaviour):
 
         if not isinstance(state, BufferedMoverState):
             state = BufferedMoverState()
+
+        state.clear_velocity = CustomVec2i()
 
         state.clear_velocity.x |= abs(payload.direction.x)
         state.clear_velocity.y |= abs(payload.direction.y)

@@ -21,7 +21,7 @@ class MovementUtils:
             state: BufferedMoverState,
             delta_time: float,
     ) -> tuple[BufferedMoverState, CustomVec2i]:
-        moving_buffer = state.moving_buffer.copy()
+        moving_buffer = state.moving_buffer
         moving_buffer += (coordinate_holder.velocity + state.intent_velocity_normalised) * delta_time
         direction = CustomVec2i.zero()
 
@@ -29,22 +29,24 @@ class MovementUtils:
         #
         # is_diagonal = state.intent_velocity.x != 0 and state.intent_velocity.y != 0
 
-        for n in [CustomVec2f.X, CustomVec2f.Y]:
-            direct = CustomVec2f.zero()
-            direct[n] = moving_buffer[n]
+        for n in [0, 1]:
+            direct = CustomVec2f.zero().with_index(n, moving_buffer[n])
             if not self.pretend_to_move(coordinate_holder, direct, state.clear_velocity, 1):
-                moving_buffer[n] = 0.0
-                state.intent_velocity[n] = 0 if state.clear_velocity[n] else state.intent_velocity[n]
-                state.intent_velocity_normalised[n] = 0 if state.clear_velocity[n] else state.intent_velocity_normalised[n]
+                moving_buffer = moving_buffer.with_index(n, 0.0)
+                if state.clear_velocity[n]:
+                    state.intent_velocity = state.intent_velocity.with_index(n, 0.0)
+                    # TODO: recalculate
+                    state.intent_velocity_normalised = state.intent_velocity_normalised.with_index(n, 0.0)
 
             elif abs(moving_buffer[n]) >= 1.0:
                 step = int(moving_buffer[n])
-                direction[n] += step
-                moving_buffer[n] -= step
+                direction = direction.with_index(n, direction[n] + step)
+                moving_buffer = moving_buffer.with_index(n, moving_buffer[n] - step)
                 if state.clear_velocity[n]:
                     moving_buffer[n] = 0.0
-                    state.intent_velocity[n] = 0
-                    state.intent_velocity_normalised[n] = 0
+                    state.intent_velocity = state.intent_velocity.with_index(n, 0.0)
+                    # TODO: recalculate
+                    state.intent_velocity_normalised = state.intent_velocity_normalised.with_index(n, 0.0)
 
         state.moving_buffer = moving_buffer
 
