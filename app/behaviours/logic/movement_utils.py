@@ -1,13 +1,12 @@
 from app.behaviours.types import BufferedMoverState
 from app.config import CommonAnimations
 from app.core.geometry.types import Directions
-from app.core.vectors import CustomVec2i, CustomVec2, CustomVec2f
+from app.core.vectors import CustomVec2i, CustomVec2f
 from app.engine.message_broker.types import Message, MessageBody, MessageTypes, PushedByPayload, Payload
 from app.protocols.engine.grid.grid_protocol import GridProtocol
 from app.protocols.engine.message_broker.broker_protocol import MessageBrokerProtocol
 from app.protocols.objects.coordinate_holder_protocol import CoordinateHolderProtocol
 from app.protocols.objects.unit_protocol import UnitProtocol
-from app.registry.animation_registry import LoadedAnimation
 
 
 class MovementUtils:
@@ -22,28 +21,32 @@ class MovementUtils:
             state: BufferedMoverState,
             delta_time: float,
     ) -> tuple[BufferedMoverState, CustomVec2i]:
-        moving_buffer = state.moving_buffer.copy()
+        moving_buffer = state.moving_buffer
         moving_buffer += (coordinate_holder.velocity + state.intent_velocity_normalised) * delta_time
         direction = CustomVec2i.zero()
 
+        # TODO: catch velocity (1,1) so we can try to limit one of the directions or both
+        #
         # is_diagonal = state.intent_velocity.x != 0 and state.intent_velocity.y != 0
 
-        for n in [CustomVec2f.X, CustomVec2f.Y]:
-            direct = CustomVec2f.zero()
-            direct[n] = moving_buffer[n]
-            if not self.pretend_to_move(coordinate_holder, direct, state.clear_velocity, 1):
-                moving_buffer[n] = 0.0
-                state.intent_velocity[n] = 0 if state.clear_velocity[n] else state.intent_velocity[n]
-                state.intent_velocity_normalised[n] = 0 if state.clear_velocity[n] else state.intent_velocity_normalised[n]
+        for n in [0, 1]:
+            direct = CustomVec2f.zero().with_index(n, moving_buffer[n])
+            if not self.pretend_to_move(coordinate_holder, direct, 1):
+                moving_buffer = moving_buffer.with_index(n, 0.0)
+                if state.clear_velocity[n]:
+                    state.intent_velocity = state.intent_velocity.with_index(n, 0.0)
+                    # TODO: recalculate
+                    state.intent_velocity_normalised = state.intent_velocity_normalised.with_index(n, 0.0)
 
             elif abs(moving_buffer[n]) >= 1.0:
                 step = int(moving_buffer[n])
-                direction[n] += step
-                moving_buffer[n] -= step
+                direction = direction.with_index(n, direction[n] + step)
+                moving_buffer = moving_buffer.with_index(n, moving_buffer[n] - step)
                 if state.clear_velocity[n]:
-                    moving_buffer[n] = 0.0
-                    state.intent_velocity[n] = 0
-                    state.intent_velocity_normalised[n] = 0
+                    moving_buffer = moving_buffer.with_index(n, 0.0)
+                    state.intent_velocity = state.intent_velocity.with_index(n, 0.0)
+                    # TODO: recalculate
+                    state.intent_velocity_normalised = state.intent_velocity_normalised.with_index(n, 0.0)
 
         state.moving_buffer = moving_buffer
 
@@ -58,7 +61,7 @@ class MovementUtils:
                         message_type=MessageTypes.PUSHED_BY,
                         payload=PushedByPayload(
                             direction=direction,
-                            coordinates=coordinate_holder.coordinates.copy(),
+                            coordinates=coordinate_holder.coordinates,
                             force=force,
                         )
                     )
@@ -75,7 +78,7 @@ class MovementUtils:
             )
             self._messenger.send_message(message=message, responder=actor)
 
-    def pretend_to_move(self, coordinate_holder: CoordinateHolderProtocol, intent_velocity: CustomVec2f, clear_velocity: CustomVec2i, force: int) -> bool:
+    def pretend_to_move(self, coordinate_holder: CoordinateHolderProtocol, intent_velocity: CustomVec2f, force: int) -> bool:
 
         def sign(value):
             return (value > 0) - (value < 0)
@@ -104,7 +107,7 @@ class MovementUtils:
         return result.placed
 
     @staticmethod
-    def get_animation_and_textures(velocity: CustomVec2, unit: UnitProtocol) -> tuple[CommonAnimations, Directions]:
+    def get_animation_and_textures(velocity: CustomVec2f, unit: UnitProtocol) -> tuple[CommonAnimations, Directions]:
 
         if velocity.y < 0:
             animation = CommonAnimations.RUN

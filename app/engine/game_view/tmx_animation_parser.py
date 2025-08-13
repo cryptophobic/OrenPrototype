@@ -293,29 +293,28 @@ class TMXAnimationParser:
                 Debug.log(f"    Frame {i}: tile {frame_id}, duration {duration}ms", __file__)
 
 
-def load_animated_tilemap(tmx_file_path: str, scaling: float = 1.0, layer_options: Dict = None):
+def load_animated_tilemap_from_parser(animation_parser: TMXAnimationParser, scaling: float = 1.0, layer_options: Dict = None):
     """
-    Factory function to load a TMX tilemap with animated tiles.
+    Factory function to load a TMX tilemap with animated tiles from an existing parser.
 
     Args:
-        tmx_file_path: Path to the TMX file
+        animation_parser: Pre-existing TMXAnimationParser instance
         scaling: Scale factor for sprites
         layer_options: Optional layer configuration for arcade.load_tilemap
 
     Returns:
         arcade.Scene
     """
-    Debug.log(f"Loading animated tilemap: {tmx_file_path}", __file__)
+    Debug.log(f"Loading animated tilemap from parser: {animation_parser.tmx_path}", __file__)
 
-    # Parse TMX animations
-    animation_parser = TMXAnimationParser(tmx_file_path)
+    # Print animation info
     animation_parser.print_animation_info()
 
     # Create animated sprites
     animated_sprites = animation_parser.create_animated_sprites(scaling)
 
-    # Load the base tilemap
-    tile_map = arcade.load_tilemap(tmx_file_path, scaling, layer_options or {})
+    # Load the base tilemap using the path from the parser
+    tile_map = arcade.load_tilemap(str(animation_parser.tmx_path), scaling, layer_options or {})
 
     # Create a scene from a tilemap
     scene = arcade.Scene.from_tilemap(tile_map)
@@ -365,6 +364,23 @@ def load_animated_tilemap(tmx_file_path: str, scaling: float = 1.0, layer_option
                             f"Replaced static tile with animated tile {tile_id} at ({map_x}, {map_y}) in layer '{layer_name}'", __file__)
 
     return scene
+
+
+def load_animated_tilemap(tmx_file_path: str, scaling: float = 1.0, layer_options: Dict = None):
+    """
+    Factory function to load a TMX tilemap with animated tiles (compatibility wrapper).
+
+    Args:
+        tmx_file_path: Path to the TMX file
+        scaling: Scale factor for sprites
+        layer_options: Optional layer configuration for arcade.load_tilemap
+
+    Returns:
+        arcade.Scene
+    """
+    # Create parser and delegate to the new function
+    animation_parser = TMXAnimationParser(tmx_file_path)
+    return load_animated_tilemap_from_parser(animation_parser, scaling, layer_options)
 
 
 def _remove_static_tile_at_position(sprite_list: arcade.SpriteList, world_x: float, world_y: float,

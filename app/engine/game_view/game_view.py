@@ -11,11 +11,12 @@ from app.core.vectors import CustomVec2f, CustomVec2i
 from app.engine.command_pipeline.pipeline import CommandPipeline
 from app.engine.game_view.camera import Camera
 from app.engine.game_view.sprite_renderer import SpriteRenderer
-from app.engine.game_view.tmx_animation_parser import load_animated_tilemap
+from app.engine.game_view.tmx_animation_parser import load_animated_tilemap_from_parser
 from app.engine.input_processor.Timer import Timer
 from app.engine.input_processor.inpuit_events_continuous import InputEventsContinuous
 from app.engine.message_broker.broker import MessageBroker
-from app.maps.level1 import LevelFactory
+from app.maps.level import LevelLoader
+from app.maps.level1 import LevelFactory, Level1Builder
 from app.objects.orchestrator import Orchestrator
 from app.objects.puppeteer import Puppeteer
 from app.objects.static_object import StaticObject
@@ -45,7 +46,7 @@ class GameView(arcade.View):
             self.get_tile_center(index.y)
         )
 
-    def get_tile_index_from_pixel(self, pixel: CustomVec2f) -> CustomVec2i:
+    def get_tile_index_from_pixel(self, pixel: CustomVec2i) -> CustomVec2i:
         return CustomVec2i(
             (pixel.x - self.margin) // (self.config.TILE_SIZE + self.margin),
             (pixel.y - self.margin) // (self.config.TILE_SIZE + self.margin),
@@ -67,16 +68,12 @@ class GameView(arcade.View):
 
         self.interval = 1000 / self.config.FPS
 
-        self.level_factory = LevelFactory()
-        self.current_level = self.level_factory.levels["level1"]
+        loader = LevelLoader()
+        loader.register_level("level1", Level1Builder)
+        self.current_level = loader.load_level("level1")  # Shows friendly loading messages
 
-        map_name = self.current_level.current_map
-        self.scene = load_animated_tilemap(tmx_file_path=map_name, scaling=1)
-
-        for layer_name in ["Walls"]:
-            for it in self.scene[layer_name]:
-                place = self.get_tile_index_from_pixel(CustomVec2f(it.center_x, it.center_y))
-                self.level_factory.add_wall(place)
+        # Use the TMX parser from the level (already created during level building)
+        self.scene = load_animated_tilemap_from_parser(self.current_level.tmx_parser, scaling=1)
 
         self.grid = self.current_level.grid
 
@@ -200,7 +197,7 @@ class GameView(arcade.View):
         current_timestamp = self.ticker.current_timestamp()
         self.input_events_continuous.register_key_pressed(key, False, current_timestamp)
 
-    def screen_to_world(self, sx: float, sy: float) -> tuple[float, float]:
+    def screen_to_world(self, sx: float, sy: float) -> tuple[int, int]:
         # make sure self.camera.use() ran this frame
         z = getattr(self.camera, "zoom", 1.0) or 1.0
         cx, cy = getattr(self.camera, "position", (0.0, 0.0))
@@ -208,11 +205,11 @@ class GameView(arcade.View):
 
         wx = (sx - ww * 0.5) / z + cx
         wy = (sy - wh * 0.5) / z + cy
-        return wx, wy
+        return int(wx), int(wy)
 
     def on_mouse_motion(self, x, y, dx, dy):
         wx, wy = self.screen_to_world(x, y)
-        res = self.get_tile_index_from_pixel(CustomVec2f(wx, wy))
+        res = self.get_tile_index_from_pixel(CustomVec2i(wx, wy))
         self.event_bus.publish(Events.MousePositionUpdate, MousePositionUpdatePayload(
             window_position=CustomVec2i(x, y),
             world_position=CustomVec2i(wx, wy),
