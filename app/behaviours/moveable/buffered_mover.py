@@ -2,7 +2,7 @@ from dataclasses import replace
 from typing import Optional
 
 from app.behaviours.behaviour import Behaviour, register_message_handler
-from app.behaviours.types import BufferedMoverState
+from app.behaviours.types import BufferedMoverState, SimpleVec2Bool
 from app.config import Behaviours
 from app.core.event_bus.events import Events, AnimationUpdatePayload
 from app.core.vectors import CustomVec2f, CustomVec2i
@@ -77,13 +77,13 @@ class BufferedMover(Behaviour):
         if not isinstance(state, BufferedMoverState):
             state = BufferedMoverState()
 
-        if payload.direction.x != 0:
-            state.intent_velocity.x = payload.direction.x
-            state.clear_velocity.x = 1
+        state.intent_velocity = CustomVec2f(
+            payload.direction.x if payload.direction.x != 0 else state.intent_velocity.x,
+            payload.direction.y if payload.direction.y != 0 else state.intent_velocity.y)
 
-        if payload.direction.y != 0:
-            state.intent_velocity.y = payload.direction.y
-            state.clear_velocity.y = 1
+        state.clear_velocity = SimpleVec2Bool(
+            True if payload.direction.x != 0 else state.clear_velocity.x,
+            True if payload.direction.y != 0 else state.clear_velocity.y)
 
         state.intent_velocity_normalised = state.intent_velocity.normalized()
         if isinstance(coordinate_holder, UnitProtocol):
@@ -114,7 +114,7 @@ class BufferedMover(Behaviour):
             clear_velocity[1] = 0
 
         state.intent_velocity = CustomVec2f(*intent_velocity)
-        state.clear_velocity = CustomVec2i(*clear_velocity)
+        state.clear_velocity = SimpleVec2Bool(*clear_velocity)
 
         state.intent_velocity_normalised = state.intent_velocity.normalized()
         if isinstance(coordinate_holder, UnitProtocol):
@@ -132,10 +132,10 @@ class BufferedMover(Behaviour):
         if not isinstance(state, BufferedMoverState):
             state = BufferedMoverState()
 
-        state.clear_velocity = CustomVec2i()
-
-        state.clear_velocity.x |= abs(payload.direction.x)
-        state.clear_velocity.y |= abs(payload.direction.y)
+        state.clear_velocity = SimpleVec2Bool(
+            bool(state.clear_velocity.x or payload.direction.x),
+            bool(state.clear_velocity.y or payload.direction.y),
+        )
 
         coordinate_holder.behaviour_state[cls.name] = state
 

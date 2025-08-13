@@ -100,6 +100,10 @@ class Vec2Ops(VecBase, Generic[T]):
 
 @dataclass(frozen=True, slots=True)
 class CustomVec2f(Vec2Ops[float]):
+
+    x: float
+    y: float
+
     @staticmethod
     def _cast(v) -> float: return float(v)
 
@@ -109,5 +113,8 @@ class CustomVec2f(Vec2Ops[float]):
 
 @dataclass(frozen=True, slots=True)
 class CustomVec2i(Vec2Ops[int]):
+    x: int
+    y: int
+
     @staticmethod
     def _cast(v) -> int: return int(v)

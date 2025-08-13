@@ -31,7 +31,7 @@ class MovementUtils:
 
         for n in [0, 1]:
             direct = CustomVec2f.zero().with_index(n, moving_buffer[n])
-            if not self.pretend_to_move(coordinate_holder, direct, state.clear_velocity, 1):
+            if not self.pretend_to_move(coordinate_holder, direct, 1):
                 moving_buffer = moving_buffer.with_index(n, 0.0)
                 if state.clear_velocity[n]:
                     state.intent_velocity = state.intent_velocity.with_index(n, 0.0)
@@ -43,7 +43,7 @@ class MovementUtils:
                 direction = direction.with_index(n, direction[n] + step)
                 moving_buffer = moving_buffer.with_index(n, moving_buffer[n] - step)
                 if state.clear_velocity[n]:
-                    moving_buffer[n] = 0.0
+                    moving_buffer = moving_buffer.with_index(n, 0.0)
                     state.intent_velocity = state.intent_velocity.with_index(n, 0.0)
                     # TODO: recalculate
                     state.intent_velocity_normalised = state.intent_velocity_normalised.with_index(n, 0.0)
@@ -61,7 +61,7 @@ class MovementUtils:
                         message_type=MessageTypes.PUSHED_BY,
                         payload=PushedByPayload(
                             direction=direction,
-                            coordinates=coordinate_holder.coordinates.copy(),
+                            coordinates=coordinate_holder.coordinates,
                             force=force,
                         )
                     )
@@ -78,7 +78,7 @@ class MovementUtils:
             )
             self._messenger.send_message(message=message, responder=actor)
 
-    def pretend_to_move(self, coordinate_holder: CoordinateHolderProtocol, intent_velocity: CustomVec2f, clear_velocity: CustomVec2i, force: int) -> bool:
+    def pretend_to_move(self, coordinate_holder: CoordinateHolderProtocol, intent_velocity: CustomVec2f, force: int) -> bool:
 
         def sign(value):
             return (value > 0) - (value < 0)

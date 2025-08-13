@@ -46,7 +46,7 @@ class GameView(arcade.View):
             self.get_tile_center(index.y)
         )
 
-    def get_tile_index_from_pixel(self, pixel: CustomVec2f) -> CustomVec2i:
+    def get_tile_index_from_pixel(self, pixel: CustomVec2i) -> CustomVec2i:
         return CustomVec2i(
             (pixel.x - self.margin) // (self.config.TILE_SIZE + self.margin),
             (pixel.y - self.margin) // (self.config.TILE_SIZE + self.margin),
@@ -197,7 +197,7 @@ class GameView(arcade.View):
         current_timestamp = self.ticker.current_timestamp()
         self.input_events_continuous.register_key_pressed(key, False, current_timestamp)
 
-    def screen_to_world(self, sx: float, sy: float) -> tuple[float, float]:
+    def screen_to_world(self, sx: float, sy: float) -> tuple[int, int]:
         # make sure self.camera.use() ran this frame
         z = getattr(self.camera, "zoom", 1.0) or 1.0
         cx, cy = getattr(self.camera, "position", (0.0, 0.0))
@@ -205,11 +205,11 @@ class GameView(arcade.View):
 
         wx = (sx - ww * 0.5) / z + cx
         wy = (sy - wh * 0.5) / z + cy
-        return wx, wy
+        return int(wx), int(wy)
 
     def on_mouse_motion(self, x, y, dx, dy):
         wx, wy = self.screen_to_world(x, y)
-        res = self.get_tile_index_from_pixel(CustomVec2f(wx, wy))
+        res = self.get_tile_index_from_pixel(CustomVec2i(wx, wy))
         self.event_bus.publish(Events.MousePositionUpdate, MousePositionUpdatePayload(
             window_position=CustomVec2i(x, y),
             world_position=CustomVec2i(wx, wy),
