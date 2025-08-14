@@ -25,10 +25,10 @@ HandlersMap = dict[MessageTypes, list[ReceiverMap]]
 
 SimpleVec2Bool = NamedTuple("SimpleVec2", x=bool, y=bool)
 
-@dataclass(frozen=False)
+@dataclass
 class BufferedMoverState(BehaviourState):
-    moving_buffer: CustomVec2f = field(default_factory=lambda: CustomVec2f(0, 0))
-    intent_velocity: CustomVec2f = field(default_factory=lambda: CustomVec2i(0, 0))
-    intent_velocity_normalised: CustomVec2f = field(default_factory=lambda: CustomVec2f(0, 0))
-    clear_velocity: SimpleVec2Bool = field(default_factory=lambda: SimpleVec2Bool(False, False))
+    moving_buffer: CustomVec2f = CustomVec2f(0, 0)
+    intent_velocity: CustomVec2f = CustomVec2i(0, 0)
+    intent_velocity_normalised: CustomVec2f = CustomVec2f(0, 0)
+    clear_velocity: SimpleVec2Bool = SimpleVec2Bool(False, False)
 
