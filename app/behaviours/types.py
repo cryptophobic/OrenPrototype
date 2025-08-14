@@ -12,7 +12,7 @@ class BehaviourAction:
     method_name: str
     payload: Payload
 
-@dataclass(frozen=False)
+@dataclass(frozen=True, slots=True)
 class BehaviourState:
     pass
 
@@ -25,7 +25,7 @@ HandlersMap = dict[MessageTypes, list[ReceiverMap]]
 
 SimpleVec2Bool = NamedTuple("SimpleVec2", x=bool, y=bool)
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class BufferedMoverState(BehaviourState):
     moving_buffer: CustomVec2f = CustomVec2f(0, 0)
     intent_velocity: CustomVec2f = CustomVec2i(0, 0)

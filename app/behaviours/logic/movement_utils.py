@@ -99,7 +99,6 @@ class MovementUtils:
 
         return result.placed
 
-
     def try_move(self, coordinate_holder: CoordinateHolderProtocol, direction: CustomVec2i, force: int) -> bool:
         result = self._grid.move(coordinate_holder, coordinate_holder.coordinates + direction)
         self.inform_about_occupation(coordinate_holder, result, direction, force)
