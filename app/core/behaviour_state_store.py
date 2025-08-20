@@ -2,7 +2,6 @@ from dataclasses import asdict, is_dataclass
 from contextlib import contextmanager
 from typing import Any, Dict, Iterator
 
-from app.config import Behaviours
 
 
 # --- Draft proxy ---
