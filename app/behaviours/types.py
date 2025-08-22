@@ -32,3 +32,5 @@ class BufferedMoverState(BehaviourState):
     intent_velocity_normalised: CustomVec2f = CustomVec2f(0, 0)
     clear_velocity: SimpleVec2Bool = SimpleVec2Bool(False, False)
 
+    
+
