@@ -12,8 +12,8 @@ class BehaviourStateStore:
     def get(self, key: Behaviours):
         return self._map.get(key)
 
-    def get_copy(self, key: Behaviours):
-        state = self._map[key]
+    def get_copy(self, key: Behaviours, default: type):
+        state = self._map.get(key, default())
         assert is_dataclass(state), "State must be a dataclass"
         return replace(state)
 
