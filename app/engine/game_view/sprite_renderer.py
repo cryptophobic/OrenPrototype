@@ -27,6 +27,9 @@ class SpriteRenderer(Consumer):
     def _on_animation_changed(self, payload: AnimationUpdatePayload):
         self._animation_pending_sprites.add(payload.actor_name)
 
+    def update_pending_sprites(self):
+        pass
+
     def update_sprites(self, actor_collection: ActorCollectionProtocol) -> bool:
         current_actor_ids = set()
         changes_made = False

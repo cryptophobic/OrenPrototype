@@ -12,6 +12,7 @@ class Events(Enum):
 class AnimationUpdatePayload:
     actor_name: str
 
+
 @dataclass
 class MousePositionUpdatePayload:
     window_position: CustomVec2i

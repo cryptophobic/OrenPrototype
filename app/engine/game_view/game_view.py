@@ -130,6 +130,8 @@ class GameView(arcade.View):
         for y in range(self.grid.height):
             arcade.draw_line(0, 16 * y, 16 * self.grid.width, 16 * y, arcade.color.GRAY_ASPARAGUS, 0.5)
 
+        self.sprite_renderer.update_pending_sprites()
+
         if not self.rendered or self.state_changed:
             self.state_changed = False
             self.rendered = True
