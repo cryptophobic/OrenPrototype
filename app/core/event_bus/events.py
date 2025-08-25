@@ -14,7 +14,8 @@ class Events(Enum):
     UnregisterObject = auto()
 
 @dataclass
-class RegisterObjectPayload
+class RegisterObjectPayload:
+    pass
 
 @dataclass
 class AnimationUpdatePayload:
