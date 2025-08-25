@@ -1,15 +1,28 @@
+from collections import defaultdict
+from dataclasses import dataclass, field
+
 import arcade
 from typing import Dict, Set
+
+from arcade import SpriteList
+from pyglet.model.codecs.gltf import Texture
 
 from app.behaviours.types import BufferedMoverState
 from app.collections.coordinate_holder_collection import CoordinateHolderCollection
 from app.config import Behaviours
 from app.core.event_bus.consumer import Consumer
-from app.core.event_bus.events import Events, AnimationUpdatePayload
-from app.core.vectors import CustomVec2f
+from app.core.event_bus.events import Events, AnimationUpdatePayload, MotionUpdatePayload
+from app.core.types import NUM_LAYERS
+from app.core.vectors import CustomVec2f, CustomVec2i
 from app.engine.game_view.animated_sprite import AnimatedSprite
 from app.objects.coordinate_holder import CoordinateHolder
 from app.protocols.collections.actor_collection_protocol import ActorCollectionProtocol
+
+@dataclass
+class SpriteGameData:
+    animation: list[Texture] = field(default_factory=list)
+    coordinates: CustomVec2i = field(default_factory=CustomVec2i)
+    moving_buffer: CustomVec2f = field(default_factory=CustomVec2f)
 
 
 class SpriteRenderer(Consumer):
@@ -18,14 +31,22 @@ class SpriteRenderer(Consumer):
         self.tile_size = tile_size
         self.get_tile_center = get_tile_center_func
 
+        self._sprite_list: list[SpriteList] = [SpriteList(use_spatial_hash=True) for _ in range(NUM_LAYERS)]
+
         self.actor_sprite_list = arcade.SpriteList()
         self.cursor_sprite_list = arcade.SpriteList()
         self.actor_sprite_map: Dict[str, arcade.Sprite] = {}
-        self._animation_pending_sprites: set[str] = set()
+        self._animation_game_data: dict[str, SpriteGameData] = defaultdict(SpriteGameData)
         self.register_handler(Events.AnimationUpdate, self._on_animation_changed)
+        self.register_handler(Events.MotionUpdate, self._on_move)
 
     def _on_animation_changed(self, payload: AnimationUpdatePayload):
-        self._animation_pending_sprites.add(payload.actor_name)
+        self._animation_game_data[payload.actor_name].animation = payload.animation
+
+    def _on_move(self, payload: MotionUpdatePayload):
+        data = self._animation_game_data[payload.actor_name]
+        data.coordinates = payload.coordinates
+        data.moving_buffer = payload.moving_buffer
 
     def update_pending_sprites(self):
         pass

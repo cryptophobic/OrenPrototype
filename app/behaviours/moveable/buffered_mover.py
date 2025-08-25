@@ -37,7 +37,13 @@ class BufferedMover(Behaviour):
                 coordinate_holder.shape.direction = direction
 
                 event_bus = cls.get_event_bus()
-                event_bus.publish(Events.AnimationUpdate, AnimationUpdatePayload(coordinate_holder.name))
+                event_bus.publish(
+                    Events.AnimationUpdate,
+                    AnimationUpdatePayload(
+                        coordinate_holder.name,
+                        coordinate_holder.shape.get_textures()
+                    )
+                )
 
         coordinate_holder.behaviour_state.set(cls.name, state)
 
