@@ -11,7 +11,7 @@ from app.behaviours.types import BufferedMoverState
 from app.collections.coordinate_holder_collection import CoordinateHolderCollection
 from app.config import Behaviours
 from app.core.event_bus.consumer import Consumer
-from app.core.event_bus.events import Events, AnimationUpdatePayload, MotionUpdatePayload
+import app.core.event_bus.events as events
 from app.core.types import NUM_LAYERS
 from app.core.vectors import CustomVec2f, CustomVec2i
 from app.engine.game_view.animated_sprite import AnimatedSprite
@@ -32,18 +32,29 @@ class SpriteRenderer(Consumer):
         self.get_tile_center = get_tile_center_func
 
         self._sprite_list: list[SpriteList] = [SpriteList(use_spatial_hash=True) for _ in range(NUM_LAYERS)]
+        self._actor_name_sprite_map: Dict[str, arcade.Sprite] = {}
 
         self.actor_sprite_list = arcade.SpriteList()
         self.cursor_sprite_list = arcade.SpriteList()
         self.actor_sprite_map: Dict[str, arcade.Sprite] = {}
         self._animation_game_data: dict[str, SpriteGameData] = defaultdict(SpriteGameData)
-        self.register_handler(Events.AnimationUpdate, self._on_animation_changed)
-        self.register_handler(Events.MotionUpdate, self._on_move)
+        self.register_handler(events.Events.AnimationUpdate, self._on_animation_changed)
+        self.register_handler(events.Events.MotionUpdate, self._on_move)
+        self.register_handler(events.Events.RegisterObject, self._on_object_registered)
+        self.register_handler(events.Events.UnregisterObject, self._on_object_unregistered)
 
-    def _on_animation_changed(self, payload: AnimationUpdatePayload):
+    def _on_object_unregistered(self, payload: events.UnregisterObjectPayload):
+        pass
+
+    def _on_object_registered(self, payload: events.RegisterObjectPayload):
+        sprite = AnimatedSprite(payload.animations, 0.5) if payload.object_type == events.ObjectTypes.ANIMATED else arcade.Sprite(payload.icon_path, scale=self.tile_size / 16)
+        self._sprite_list[payload.z_index].append(sprite)
+        self._actor_name_sprite_map[payload.object_name] = sprite
+
+    def _on_animation_changed(self, payload: events.AnimationUpdatePayload):
         self._animation_game_data[payload.actor_name].animation = payload.animation
 
-    def _on_move(self, payload: MotionUpdatePayload):
+    def _on_move(self, payload: events.MotionUpdatePayload):
         data = self._animation_game_data[payload.actor_name]
         data.coordinates = payload.coordinates
         data.moving_buffer = payload.moving_buffer

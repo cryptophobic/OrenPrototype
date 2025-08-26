@@ -13,7 +13,7 @@ ContinuousKeyPressEventLogRecord = namedtuple(
 )
 ContinuousKeyPressEventLogRecords = list[ContinuousKeyPressEventLogRecord]
 
-class Layer(IntEnum):
+class MapLayer(IntEnum):
     GROUND          = 0
     MATERIAL        = 1
     OBJECTS         = 2
@@ -23,4 +23,4 @@ class Layer(IntEnum):
     FOG_OF_WAR      = 6
     UI_OVERLAY      = 7
 
-NUM_LAYERS = max(Layer) + 1
+NUM_LAYERS = max(MapLayer) + 1
