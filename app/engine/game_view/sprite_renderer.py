@@ -44,10 +44,20 @@ class SpriteRenderer(Consumer):
         self.register_handler(events.Events.UnregisterObject, self._on_object_unregistered)
 
     def _on_object_unregistered(self, payload: events.UnregisterObjectPayload):
-        pass
+        name = payload.object_name
+        sprite = self._actor_name_sprite_map.pop(name, None)
+        if not sprite:
+            return
+
+        sprite.remove_from_sprite_lists()
+        self._animation_game_data.pop(name, None)
 
     def _on_object_registered(self, payload: events.RegisterObjectPayload):
-        sprite = AnimatedSprite(payload.animations, 0.5) if payload.object_type == events.ObjectTypes.ANIMATED else arcade.Sprite(payload.icon_path, scale=self.tile_size / 16)
+        sprite = (
+            AnimatedSprite(payload.animations, 0.5)
+            if payload.object_type == events.ObjectTypes.ANIMATED
+            else arcade.Sprite(payload.icon_path, scale=self.tile_size / 16)
+        )
         self._sprite_list[payload.z_index].append(sprite)
         self._actor_name_sprite_map[payload.object_name] = sprite
 
