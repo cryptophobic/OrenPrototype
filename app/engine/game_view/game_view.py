@@ -6,7 +6,6 @@ from app.collections.puppeteer_collection import PuppeteerCollection
 from app.config import Behaviours
 from app.core.event_bus.bus import EventBus
 from app.core.event_bus.events import Events, MousePositionUpdatePayload
-from app.core.physics.body import Body, CollisionMatrix, CollisionResponse
 from app.core.vectors import CustomVec2f, CustomVec2i
 from app.engine.command_pipeline.pipeline import CommandPipeline
 from app.engine.game_view.camera import Camera
@@ -16,10 +15,9 @@ from app.engine.input_processor.Timer import Timer
 from app.engine.input_processor.inpuit_events_continuous import InputEventsContinuous
 from app.engine.message_broker.broker import MessageBroker
 from app.maps.level import LevelLoader
-from app.maps.level1 import LevelFactory, Level1Builder
+from app.maps.level1 import Level1Builder
 from app.objects.orchestrator import Orchestrator
 from app.objects.puppeteer import Puppeteer
-from app.objects.static_object import StaticObject
 from app.protocols.collections.actor_collection_protocol import ActorCollectionProtocol
 from app.protocols.objects.orchestrator_protocol import OrchestratorProtocol
 from app.registry.behaviour_registry import get_behaviour_registry
@@ -130,12 +128,12 @@ class GameView(arcade.View):
         for y in range(self.grid.height):
             arcade.draw_line(0, 16 * y, 16 * self.grid.width, 16 * y, arcade.color.GRAY_ASPARAGUS, 0.5)
 
-        self.sprite_renderer.update_pending_sprites()
+        # self.sprite_renderer.update_pending_sprites()
 
         if not self.rendered or self.state_changed:
             self.state_changed = False
             self.rendered = True
-            self.sprite_renderer.update_sprites(self.actor_collection)
+            self.sprite_renderer.update_sprites()
 
         self.sprite_renderer.draw()
         self.scene["Traps"].draw()

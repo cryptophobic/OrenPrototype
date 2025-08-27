@@ -211,7 +211,7 @@ class TMXAnimationParser:
 
     def find_animated_tile_positions(self) -> List[Tuple[int, int, int]]:
         """Find positions of animated tiles in the map layers.
-        Returns list of (tile_id, x, y) tuples for animated tiles."""
+        Returns a list of (tile_id, x, y) tuples for animated tiles."""
         positions = []
 
         for layer_name, layer_data in self.map_layers.items():
@@ -225,7 +225,7 @@ class TMXAnimationParser:
 
     def find_animated_tile_positions_by_layer(self) -> Dict[str, List[Tuple[int, int, int]]]:
         """Find positions of animated tiles grouped by layer.
-        Returns dict of layer_name -> list of (tile_id, x, y) tuples."""
+        Returns dict of a layer_name -> list of (tile_id, x, y) tuples."""
         positions_by_layer = {}
 
         for layer_name, layer_data in self.map_layers.items():
@@ -378,7 +378,7 @@ def load_animated_tilemap(tmx_file_path: str, scaling: float = 1.0, layer_option
     Returns:
         arcade.Scene
     """
-    # Create parser and delegate to the new function
+    # Create a parser and delegate to the new function
     animation_parser = TMXAnimationParser(tmx_file_path)
     return load_animated_tilemap_from_parser(animation_parser, scaling, layer_options)
 

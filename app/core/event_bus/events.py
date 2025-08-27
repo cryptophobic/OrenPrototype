@@ -26,18 +26,19 @@ class UnregisterObjectPayload:
 class RegisterObjectPayload:
     object_name: str
     object_type: ObjectTypes
+    coordinates: CustomVec2i
     z_index: MapLayer = MapLayer.OBJECTS
     icon_path: Path = field(default_factory=Path)
     animations: list[Texture] = field(default_factory=list)
 
 @dataclass(frozen=True)
 class AnimationUpdatePayload:
-    actor_name: str
+    object_name: str
     animation: list[Texture]
 
 @dataclass(frozen=True)
 class MotionUpdatePayload:
-    actor_name: str
+    object_name: str
     coordinates: CustomVec2i
     moving_buffer: CustomVec2f
 
