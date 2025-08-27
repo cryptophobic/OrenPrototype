@@ -1,13 +1,13 @@
 from typing import Optional, Dict, Callable, Any
 
-from app.core.event_bus.bus import EventBus
+from app.core.event_bus.bus import bus, EventBus
 from app.core.event_bus.events import Events
 
 
 class Consumer:
 
     def __init__(self):
-        self._event_bus: Optional[EventBus] = None
+        self._event_bus: EventBus = bus
         self._handlers: Dict[Events, Callable[[Any], None]] = {}
 
     def register_event_bus(self, event_bus: EventBus):

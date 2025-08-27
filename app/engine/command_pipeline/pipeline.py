@@ -93,6 +93,10 @@ class CommandPipeline:
                 continue
 
             actor = action.actor
+
+            if not actor.is_active:
+                continue
+
             state_changed = self.__flush_pending_actor(actor, state_changed, depth)
             resolved = action.resolve()
 

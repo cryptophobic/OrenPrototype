@@ -31,14 +31,16 @@ map_dir = current_path = Path(__file__).parent / "tiles"
 @dataclass
 class Level:
     name: str = ""
-    coordinate_holders: CoordinateHolderCollection = field(default_factory=CoordinateHolderCollection)
-    static_objects: StaticObjectCollection = field(default_factory=StaticObjectCollection)
     actors_collection: ActorCollection = field(default_factory=ActorCollection)
     grid: GridProtocol = None
     grid_width: int = 0
     grid_height: int = 0
     current_map: Optional[Path] = None
     tmx_parser: Optional[TMXAnimationParser] = None  # TMXAnimationParser instance
+
+    def activate(self):
+        for actor in self.actors_collection:
+            actor.activate()
 
     def place_all_coordinate_holders(self):
         """Place all coordinate holders on the grid"""

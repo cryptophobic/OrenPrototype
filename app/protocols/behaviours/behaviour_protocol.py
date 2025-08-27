@@ -24,9 +24,6 @@ class BehaviourProtocol(Protocol):
     def can_handle(cls, receiver: ActorProtocol, message_type: MessageTypes) -> bool: ...
 
     @classmethod
-    def register_event_bus(cls, event_bus: EventBus): ...
-
-    @classmethod
     def get_event_bus(cls) -> EventBus: ...
 
     @classmethod

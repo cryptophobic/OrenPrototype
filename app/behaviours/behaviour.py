@@ -3,7 +3,7 @@ from typing import ClassVar, Iterable
 
 from app.behaviours.logic.movement_utils import MovementUtils
 from app.behaviours.types import MessageTypeHandlersDict, BehaviourAction, HandlersMap
-from app.core.event_bus.bus import EventBus
+from app.core.event_bus.bus import EventBus, bus
 from app.protocols.engine.grid.grid_protocol import GridProtocol
 from app.protocols.engine.message_broker.broker_protocol import MessageBrokerProtocol
 from app.protocols.objects.actor_protocol import ActorProtocol
@@ -31,6 +31,7 @@ class Behaviour:
     name: ClassVar[Behaviours] = Behaviours.BEHAVIOUR
     message_handlers: ClassVar[HandlersMap] = {}
     supported_receivers = (ActorProtocol,)
+    _event_bus = bus
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -87,10 +88,6 @@ class Behaviour:
     def can_respond_to(cls, message_type: MessageTypes) -> bool:
         return message_type in cls.message_handlers
 
-
-    @classmethod
-    def register_event_bus(cls, event_bus: EventBus):
-        cls._event_bus = event_bus
 
     @classmethod
     def get_event_bus(cls) -> EventBus:

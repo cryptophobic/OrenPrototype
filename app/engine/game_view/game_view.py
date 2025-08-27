@@ -4,8 +4,9 @@ from arcade.types import Color
 from app.behaviours.types import BufferedMoverState
 from app.collections.puppeteer_collection import PuppeteerCollection
 from app.config import Behaviours
-from app.core.event_bus.bus import EventBus
-from app.core.event_bus.events import Events, MousePositionUpdatePayload
+from app.core.event_bus.bus import bus
+from app.core.event_bus.events import Events
+from app.core.event_bus.types import MousePositionUpdatePayload
 from app.core.vectors import CustomVec2f, CustomVec2i
 from app.engine.command_pipeline.pipeline import CommandPipeline
 from app.engine.game_view.camera import Camera
@@ -65,10 +66,13 @@ class GameView(arcade.View):
         self.rendered = False
 
         self.interval = 1000 / self.config.FPS
+        self.sprite_renderer = SpriteRenderer(self.config.TILE_SIZE, self.get_tile_center)
+
 
         loader = LevelLoader()
         loader.register_level("level1", Level1Builder)
         self.current_level = loader.load_level("level1")  # Shows friendly loading messages
+        self.current_level.actors_collection
 
         # Use the TMX parser from the level (already created during level building)
         self.scene = load_animated_tilemap_from_parser(self.current_level.tmx_parser, scaling=1)
@@ -77,13 +81,12 @@ class GameView(arcade.View):
 
         self.input_events_continuous = InputEventsContinuous()
         self.message_broker = MessageBroker()
-        self.event_bus = EventBus()
+        self.event_bus = bus
 
         self.orchestrator: OrchestratorProtocol = Orchestrator(
             self.current_level.actors_collection,
             self.message_broker,
             "Orchestrator")
-        self.orchestrator.register_event_bus(self.event_bus)
 
         self.command_pipeline = CommandPipeline()
         self.command_pipeline.actor_collection = self.orchestrator.actors_collection
@@ -91,7 +94,6 @@ class GameView(arcade.View):
         self.register_actors()
 
         base_behaviour = get_behaviour_registry().get(Behaviours.BEHAVIOUR)
-        base_behaviour.register_event_bus(self.event_bus)
         base_behaviour.register_grid(self.current_level.grid)
         base_behaviour.register_messenger(self.message_broker)
 
@@ -110,9 +112,6 @@ class GameView(arcade.View):
         self.grid_sprites = []
         
         self.__calculate_settings()
-        self.sprite_renderer = SpriteRenderer(self.config.TILE_SIZE, self.get_tile_center)
-        self.sprite_renderer.register_event_bus(self.event_bus)
-
 
     def on_draw(self):
         """Render the screen."""

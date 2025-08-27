@@ -46,7 +46,7 @@ class Orchestrator(Actor, Consumer, OrchestratorProtocol):
 
     def get_puppeteers(self) -> PuppeteerCollectionProtocol:
         # TODO: replace with protocols later
-        return self.actors_collection.get_by_type(Puppeteer, PuppeteerCollection)
+        return self.actors_collection.get_active_actors().get_by_type(Puppeteer, PuppeteerCollection)
 
     def set_puppet(self, name: str) -> None:
         puppet = self.moveable_actors.get(name)
@@ -90,7 +90,7 @@ class Orchestrator(Actor, Consumer, OrchestratorProtocol):
             self.messenger.send_message(message, actor)
 
     def _process_buffered_mover(self):
-        buffered = self.actors_collection.get_behave_as_this(Behaviours.BUFFERED_MOVER)
+        buffered = self.actors_collection.get_active_actors().get_behave_as_this(Behaviours.BUFFERED_MOVER)
         for actor in buffered:
             state = actor.extract_behaviour_data(Behaviours.BUFFERED_MOVER)
             if state is None or (state.intent_velocity.is_zero() and state.moving_buffer.is_zero()):

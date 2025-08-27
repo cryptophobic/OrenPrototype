@@ -79,17 +79,3 @@ class Level1Builder(LevelBuilder):
         wall = self.create_wall(position)
         self.level.actors_collection.add(wall)
         self.level.grid.place(wall, wall.coordinates)
-
-
-# Legacy compatibility - keep the old interface working
-class LevelFactory:
-    def __init__(self):
-        builder = Level1Builder()
-        level = builder.build()
-        self.level_name = "level1" 
-        self.levels = {self.level_name: level}
-        self._builder = builder
-
-    def add_wall(self, place: CustomVec2i):
-        self._builder.add_wall(place)
-
