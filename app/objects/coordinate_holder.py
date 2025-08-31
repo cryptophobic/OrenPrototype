@@ -11,12 +11,12 @@ from app.protocols.objects.coordinate_holder_protocol import CoordinateHolderPro
 
 class CoordinateHolder(Actor, CoordinateHolderProtocol):
     def __init__(self, body: Body, shape: Shape, coordinates: CustomVec2i, name: str = None):
-        super().__init__(name=name)
         self.body: Body = body
         self.shape: Shape = shape
         self.velocity: CustomVec2f = CustomVec2f.zero()
         self.intent_velocity: CustomVec2f = CustomVec2f.zero()
         self.coordinates: CustomVec2i = coordinates
+        super().__init__(name=name)
 
     def activate(self) -> None:
         self.event_bus.emit(

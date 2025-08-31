@@ -14,7 +14,7 @@ from app.protocols.objects.actor_protocol import ActorProtocol
 
 
 class Actor(ActorProtocol):
-    def __init__(self, name: str = None):
+    def __init__(self, name: str = None, is_active = True):
         self.event_bus = bus
         self.name: str = name
         self.behaviour_state: BehaviourStateStore = BehaviourStateStore()
@@ -22,6 +22,8 @@ class Actor(ActorProtocol):
         self.is_deleted: bool = False
         self.pending_actions: deque[BehaviourAction] = deque()
         self.behaviours: BehaviourCollectionProtocol = BehaviourCollection()
+        if is_active:
+            self.activate()
 
     @property
     def id(self) -> str:
