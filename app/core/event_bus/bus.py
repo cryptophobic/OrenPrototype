@@ -9,7 +9,7 @@ from app.core.event_bus.events import Events
 class Strategy(Enum):
     AtMostOnce = 1
     AtLeastOnce = 2
-    ExactlyOnce = 3
+    FirstWin = 3
 
 @dataclass(frozen=True, slots=True)
 class Envelope:
@@ -51,14 +51,14 @@ class EventBus:
     def _deliver_to_all(self, subs: list[Callable], env: Envelope):
         for cb in list(subs):
             self._deliver_env(cb, env)
-            if env.strategy is Strategy.ExactlyOnce:
+            if env.strategy is Strategy.FirstWin:
                 return
 
     def _deliver_env(self, cb: Callable, env: Envelope):
         try:
             cb(env.payload)
         except Exception:
-            if env.strategy is Strategy.AtLeastOnce or env.strategy is Strategy.ExactlyOnce:
+            if env.strategy is Strategy.AtLeastOnce or env.strategy is Strategy.FirstWin:
                 # requeue if TTL not exceeded
                 if time.time() - env.ts < (env.ttl_s or 5.0):
                     self._backlog[env.event].append(env)
