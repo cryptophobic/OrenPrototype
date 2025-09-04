@@ -16,7 +16,7 @@ class Envelope:
     event: Events
     payload: Any
     strategy: Strategy
-    ttl_s: float | None = 5.0
+    ttl_s: float | None = 6.0
     ts: float = field(default_factory=time.time)
 
 
