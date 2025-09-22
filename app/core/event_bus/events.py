@@ -6,5 +6,5 @@ class Events(Enum):
     MousePositionUpdate = auto()
     RegisterCoordinateHolder = auto()
     UnregisterCoordinateHolder = auto()
-    RegisterActor = auto()
-    UnregisterActor = auto()
+    RegisterObject = auto()
+    UnregisterObject = auto()
