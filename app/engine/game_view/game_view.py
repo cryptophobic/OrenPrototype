@@ -68,11 +68,9 @@ class GameView(arcade.View):
         self.interval = 1000 / self.config.FPS
         self.sprite_renderer = SpriteRenderer(self.config.TILE_SIZE, self.get_tile_center)
 
-
         loader = LevelLoader()
         loader.register_level("level1", Level1Builder)
         self.current_level = loader.load_level("level1")  # Shows friendly loading messages
-        self.current_level.actors_collection
 
         # Use the TMX parser from the level (already created during level building)
         self.scene = load_animated_tilemap_from_parser(self.current_level.tmx_parser, scaling=1)
@@ -127,12 +125,7 @@ class GameView(arcade.View):
         for y in range(self.grid.height):
             arcade.draw_line(0, 16 * y, 16 * self.grid.width, 16 * y, arcade.color.GRAY_ASPARAGUS, 0.5)
 
-        # self.sprite_renderer.update_pending_sprites()
-
-        if not self.rendered or self.state_changed:
-            self.state_changed = False
-            self.rendered = True
-            self.sprite_renderer.update_sprites()
+        self.sprite_renderer.update_sprites()
 
         self.sprite_renderer.draw()
         self.scene["Traps"].draw()

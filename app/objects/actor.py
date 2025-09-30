@@ -14,7 +14,7 @@ from app.protocols.objects.actor_protocol import ActorProtocol
 
 
 class Actor(ActorProtocol):
-    def __init__(self, name: str = None, is_active = True):
+    def __init__(self, name: str = None, is_active = False):
         self.event_bus = bus
         self.name: str = name
         self.behaviour_state: BehaviourStateStore = BehaviourStateStore()

@@ -38,10 +38,6 @@ class Level:
     current_map: Optional[Path] = None
     tmx_parser: Optional[TMXAnimationParser] = None  # TMXAnimationParser instance
 
-    def activate(self):
-        for actor in self.actors_collection:
-            actor.activate()
-
     def place_all_coordinate_holders(self):
         """Place all coordinate holders on the grid"""
         for coordinate_holder in self.actors_collection.get_by_type(CoordinateHolder, CoordinateHolderCollection):

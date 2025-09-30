@@ -4,11 +4,12 @@ from enum import IntFlag, auto
 
 import arcade
 
-from arcade import SpriteList
 from pyglet.model.codecs.gltf import Texture
 
 from app.core.event_bus.consumer import Consumer
 import app.core.event_bus.events as events
+import app.core.event_bus.types as event_types
+
 from app.core.types import NUM_LAYERS
 from app.core.vectors import CustomVec2f, CustomVec2i
 from app.engine.game_view.animated_sprite import AnimatedSprite
@@ -30,12 +31,11 @@ class SpriteRenderer(Consumer):
         self.tile_size = tile_size
         self.get_tile_center = get_tile_center_func
 
-        self._sprite_list: list[SpriteList] = [SpriteList(use_spatial_hash=True) for _ in range(NUM_LAYERS)]
+        self._sprite_list: list[arcade.SpriteList] = [arcade.SpriteList(use_spatial_hash=True) for _ in range(NUM_LAYERS)]
         self._object_name_sprite_map: dict[str, arcade.Sprite] = {}
 
         self._animation_game_data: dict[str, SpriteGameData] = defaultdict(SpriteGameData)
         self._dirty: dict[str, Dirty] = {}
-
 
         self.register_handler(events.Events.AnimationUpdate, self._on_animation_changed)
         self.register_handler(events.Events.MotionUpdate, self._on_move)
@@ -45,7 +45,7 @@ class SpriteRenderer(Consumer):
     def _mark(self, name: str, bits: Dirty):
         self._dirty[name] = self._dirty.get(name, Dirty.NONE) | bits
 
-    def _on_object_unregistered(self, payload: events.UnregisterObjectPayload):
+    def _on_object_unregistered(self, payload: event_types.UnregisterObjectPayload):
         name = payload.object_name
         sprite = self._object_name_sprite_map.pop(name, None)
         if not sprite:
@@ -55,10 +55,10 @@ class SpriteRenderer(Consumer):
         self._animation_game_data.pop(name, None)
         self._dirty.pop(name, None)
 
-    def _on_object_registered(self, payload: events.RegisterObjectPayload):
+    def _on_object_registered(self, payload: event_types.RegisterObjectPayload):
         sprite = (
             AnimatedSprite(payload.animations, 0.5)
-            if payload.object_type == events.ObjectTypes.ANIMATED
+            if payload.object_type == event_types.ObjectTypes.ANIMATED
             else arcade.Sprite(payload.icon_path, scale=self.tile_size / 16)
         )
         self._sprite_list[payload.z_index].append(sprite)
@@ -66,11 +66,11 @@ class SpriteRenderer(Consumer):
         self._animation_game_data[payload.object_name].coordinates = payload.coordinates
         self._mark(payload.object_name, Dirty.POS)
 
-    def _on_animation_changed(self, payload: events.AnimationUpdatePayload):
+    def _on_animation_changed(self, payload: event_types.AnimationUpdatePayload):
         self._animation_game_data[payload.object_name].animation = payload.animation
         self._mark(payload.object_name, Dirty.ANIM)
 
-    def _on_move(self, payload: events.MotionUpdatePayload):
+    def _on_move(self, payload: event_types.MotionUpdatePayload):
         data = self._animation_game_data[payload.object_name]
         data.coordinates = payload.coordinates
         data.moving_buffer = payload.moving_buffer

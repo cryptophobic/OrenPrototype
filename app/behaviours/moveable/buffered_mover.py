@@ -1,7 +1,10 @@
 from app.behaviours.behaviour import Behaviour, register_message_handler
 from app.behaviours.types import BufferedMoverState, SimpleVec2Bool
 from app.config import Behaviours
-from app.core.event_bus.events import Events, AnimationUpdatePayload
+from app.core.event_bus.bus import Strategy
+from app.core.event_bus.events import Events
+import app.core.event_bus.types as event_types
+
 from app.core.vectors import CustomVec2f
 from app.engine.message_broker.types import MessageTypes, AnimatePayload, StopPayload, MovePayload, PushedByPayload
 from app.protocols.objects.coordinate_holder_protocol import CoordinateHolderProtocol
@@ -37,12 +40,13 @@ class BufferedMover(Behaviour):
                 coordinate_holder.shape.direction = direction
 
                 event_bus = cls.get_event_bus()
-                event_bus.publish(
+                event_bus.emit(
                     Events.AnimationUpdate,
-                    AnimationUpdatePayload(
+                    event_types.AnimationUpdatePayload(
                         coordinate_holder.name,
                         coordinate_holder.shape.get_textures()
-                    )
+                    ),
+                    Strategy.FirstWin,
                 )
 
         coordinate_holder.behaviour_state.set(cls.name, state)

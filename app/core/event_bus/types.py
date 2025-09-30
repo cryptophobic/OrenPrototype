@@ -13,11 +13,7 @@ class ObjectTypes(Enum):
     STATIC = auto()
 
 @dataclass(frozen=True)
-class UnregisterObjectPayload:
-    object_name: str
-
-@dataclass(frozen=True)
-class RegisterCoordinateHolderPayload:
+class RegisterObjectPayload:
     object_name: str
     object_type: ObjectTypes
     coordinates: CustomVec2i
@@ -26,8 +22,13 @@ class RegisterCoordinateHolderPayload:
     animations: list[Texture] = field(default_factory=list)
 
 @dataclass(frozen=True)
-class RegisterActorPayload:
+class ObjectPayload:
     object_name: str
+
+@dataclass(frozen=True)
+class ObjectPositionPayload:
+    object_name: str
+    coordinates: CustomVec2i
 
 @dataclass(frozen=True)
 class AnimationUpdatePayload:
