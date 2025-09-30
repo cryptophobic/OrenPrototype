@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Callable, Any
+from typing import Dict, Callable, Any
 
 from app.core.event_bus.bus import bus, EventBus
 from app.core.event_bus.events import Events
