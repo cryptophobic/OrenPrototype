@@ -2,15 +2,15 @@ from typing import Optional
 
 from arcade import Texture
 
-from app.config import NpcAnimations, CommonAnimations
+from app.config import NpcAnimations, UnitStates
 from app.core.collection_base import CollectionBase
 from app.core.geometry.types import Directions
 from app.protocols.collections.animation_collection_protocol import AnimationCollectionProtocol
 from app.registry.animation_registry import LoadedAnimation, get_animation_registry
 
 
-class AnimationCollection(CollectionBase[CommonAnimations, NpcAnimations | LoadedAnimation], AnimationCollectionProtocol):
-    def get(self, key: CommonAnimations) -> Optional[LoadedAnimation]:
+class AnimationCollection(CollectionBase[UnitStates, NpcAnimations | LoadedAnimation], AnimationCollectionProtocol):
+    def get(self, key: UnitStates) -> Optional[LoadedAnimation]:
         value = super().get(key)
 
         if isinstance(value, NpcAnimations):
@@ -20,7 +20,7 @@ class AnimationCollection(CollectionBase[CommonAnimations, NpcAnimations | Loade
 
         return value
 
-    def get_direction(self, key: CommonAnimations, direction: Directions) -> Optional[list[Texture]]:
+    def get_direction(self, key: UnitStates, direction: Directions) -> Optional[list[Texture]]:
         loaded_animation = self._ensure_loaded(key)
 
         if direction == Directions.FRONT:
@@ -35,10 +35,10 @@ class AnimationCollection(CollectionBase[CommonAnimations, NpcAnimations | Loade
         return loaded_animation.front
 
 
-    def set(self, key: CommonAnimations, item: NpcAnimations) -> None:
+    def set(self, key: UnitStates, item: NpcAnimations) -> None:
         self.items[key] = item
 
-    def _ensure_loaded(self, item: CommonAnimations) -> LoadedAnimation:
+    def _ensure_loaded(self, item: UnitStates) -> LoadedAnimation:
         loaded = self.get(item)
         if loaded is None:
             raise ValueError(f"Animation {item} not found in registry")

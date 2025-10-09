@@ -3,7 +3,7 @@ from PIL import Image
 from arcade import Texture
 
 from app.collections.animation_collection import AnimationCollection
-from app.config import NpcAnimations, CommonAnimations
+from app.config import NpcAnimations, UnitStates
 from app.core.vectors import CustomVec2i, CustomVec2f, angle_to_vector, vector_to_angle, point_in_sector_dot
 from app.protocols.collections.animation_collection_protocol import AnimationCollectionProtocol
 
@@ -130,18 +130,18 @@ class GameView(arcade.View):
         self.background_color = arcade.color.BLACK
 
         self.animations: AnimationCollectionProtocol = AnimationCollection()
-        self.animations.set(CommonAnimations.RUN, NpcAnimations.ARMED_RUN)
-        self.animations.set(CommonAnimations.IDLE, NpcAnimations.ARMED_IDLE)
-        self.animations.set(CommonAnimations.RUN_ATTACK, NpcAnimations.ENEMY_RUN_ATTACK)
-        self.animations.set(CommonAnimations.HURT, NpcAnimations.ENEMY_HURT)
+        self.animations.set(UnitStates.RUN, NpcAnimations.ARMED_RUN)
+        self.animations.set(UnitStates.IDLE, NpcAnimations.ARMED_IDLE)
+        self.animations.set(UnitStates.RUN_ATTACK, NpcAnimations.ENEMY_RUN_ATTACK)
+        self.animations.set(UnitStates.HURT, NpcAnimations.ENEMY_HURT)
 
         self.keys_held = set()
 
-        self.player = Player(self.animations.get(CommonAnimations.RUN).front, CustomVec2f(12, 14))
+        self.player = Player(self.animations.get(UnitStates.RUN).front, CustomVec2f(12, 14))
         self.player.scale = 2.0
         self.player.position = self.get_tile_center(self.player.coordinates.x), self.get_tile_center(self.player.coordinates.y)
 
-        self.enemy = Player(self.animations.get(CommonAnimations.RUN_ATTACK).front, CustomVec2f(15, 10))
+        self.enemy = Player(self.animations.get(UnitStates.RUN_ATTACK).front, CustomVec2f(15, 10))
         self.enemy.scale = 2.0
         self.enemy.position = self.get_tile_center(self.enemy.coordinates.x), self.get_tile_center(self.enemy.coordinates.y)
 
@@ -214,26 +214,26 @@ class GameView(arcade.View):
                 self.player.velocity.y = 0.0
 
         if self.player.velocity.y < 0:
-            self.player.textures = self.animations.get(CommonAnimations.RUN).front
+            self.player.textures = self.animations.get(UnitStates.RUN).front
             self.direction = 'front'
         elif self.player.velocity.y > 0:
-            self.player.textures = self.animations.get(CommonAnimations.RUN).back
+            self.player.textures = self.animations.get(UnitStates.RUN).back
             self.direction = 'back'
         elif self.player.velocity.x < 0:
-            self.player.textures = self.animations.get(CommonAnimations.RUN).left
+            self.player.textures = self.animations.get(UnitStates.RUN).left
             self.direction = 'left'
         elif self.player.velocity.x > 0:
-            self.player.textures = self.animations.get(CommonAnimations.RUN).right
+            self.player.textures = self.animations.get(UnitStates.RUN).right
             self.direction = 'right'
         elif len(self.keys_held) == 0:
             if self.direction == 'front':
-                self.player.textures = self.animations.get(CommonAnimations.IDLE).front
+                self.player.textures = self.animations.get(UnitStates.IDLE).front
             if self.direction == 'back':
-                self.player.textures = self.animations.get(CommonAnimations.IDLE).back
+                self.player.textures = self.animations.get(UnitStates.IDLE).back
             if self.direction == 'left':
-                self.player.textures = self.animations.get(CommonAnimations.IDLE).left
+                self.player.textures = self.animations.get(UnitStates.IDLE).left
             if self.direction == 'right':
-                self.player.textures = self.animations.get(CommonAnimations.IDLE).right
+                self.player.textures = self.animations.get(UnitStates.IDLE).right
 
         self.sprite_list.update()
 
@@ -274,9 +274,9 @@ class GameView(arcade.View):
         if point_in_sector_dot(point, start, normalized, 20, WIDTH * 6)\
                 or point_in_sector_dot(point, start, normalized, 50, WIDTH * 4.5)\
                 or point_in_sector_dot(point, start, normalized, 100, WIDTH * 3):
-            self.enemy.textures = self.animations.get(CommonAnimations.HURT).front
+            self.enemy.textures = self.animations.get(UnitStates.HURT).front
         else:
-            self.enemy.textures = self.animations.get(CommonAnimations.RUN_ATTACK).front
+            self.enemy.textures = self.animations.get(UnitStates.RUN_ATTACK).front
 
 
     def draw_lines_angle(self, start, angle, color, draw_length):

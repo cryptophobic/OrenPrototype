@@ -1,5 +1,5 @@
 from app.behaviours.types import BufferedMoverState
-from app.config import CommonAnimations
+from app.config import UnitStates
 from app.core.geometry.types import Directions
 from app.core.vectors import CustomVec2i, CustomVec2f
 from app.engine.message_broker.types import Message, MessageBody, MessageTypes, PushedByPayload, Payload
@@ -106,22 +106,22 @@ class MovementUtils:
         return result.placed
 
     @staticmethod
-    def get_animation_and_textures(velocity: CustomVec2f, unit: UnitProtocol) -> tuple[CommonAnimations, Directions]:
+    def get_animation_and_textures(velocity: CustomVec2f, unit: UnitProtocol) -> tuple[UnitStates, Directions]:
 
         if velocity.y < 0:
-            animation = CommonAnimations.RUN
+            animation = UnitStates.RUN
             direction = Directions.FRONT
         elif velocity.y > 0:
-            animation = CommonAnimations.RUN
+            animation = UnitStates.RUN
             direction = Directions.BACK
         elif velocity.x < 0:
-            animation = CommonAnimations.RUN
+            animation = UnitStates.RUN
             direction = Directions.LEFT
         elif velocity.x > 0:
-            animation = CommonAnimations.RUN
+            animation = UnitStates.RUN
             direction = Directions.RIGHT
         else:
             direction = unit.shape.direction
-            animation = CommonAnimations.IDLE
+            animation = UnitStates.IDLE
 
         return animation, direction
