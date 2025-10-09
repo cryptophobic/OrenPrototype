@@ -24,7 +24,6 @@ class UnitStates(Enum):
     WALK = auto()
     WALK_ATTACK = auto()
 
-
 class NpcAnimations(Enum):
     ENEMY_ATTACK = auto()
     ENEMY_DEATH = auto()
