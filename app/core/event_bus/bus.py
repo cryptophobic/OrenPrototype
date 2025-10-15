@@ -16,6 +16,7 @@ class Envelope:
     event: Events
     payload: Any
     strategy: Strategy
+    emitter_id: str
     ttl_s: float | None = 6.0
     ts: float = field(default_factory=time.time)
 
@@ -28,7 +29,7 @@ class EventBus:
         self._backlog: dict[Events, deque[Envelope]] = defaultdict(lambda: deque(maxlen=MAX_BACKLOG))
         self._retained: dict[tuple[Events, str | None], Envelope] = {}
 
-    def subscribe(self, ev: Events, cb: Callable[[Any], None]):
+    def subscribe(self, ev: Events, cb: Callable[[Any], None], emitter_id: str | None = None):
         self._subs[ev].append(cb)
         self._drain_backlog(ev)
 
@@ -61,8 +62,8 @@ class EventBus:
             self._subs.pop(ev, None)
         return removed
 
-    def emit(self, ev: Events, payload: Any, strategy: Strategy = Strategy.AtMostOnce):
-        env = Envelope(ev, payload, strategy)
+    def emit(self, ev: Events, payload: Any, emitter_id: str, strategy: Strategy = Strategy.AtMostOnce):
+        env = Envelope(ev, payload, strategy, emitter_id)
 
         subs = self._subs.get(ev, [])
         if not subs:
