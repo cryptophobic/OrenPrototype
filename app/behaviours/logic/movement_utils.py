@@ -1,6 +1,6 @@
 from app.behaviours.types import BufferedMoverState
 from app.config import UnitStates
-from app.core.geometry.types import Directions
+from app.core.geometry.types import Orientations
 from app.core.vectors import CustomVec2i, CustomVec2f
 from app.engine.message_broker.types import Message, MessageBody, MessageTypes, PushedByPayload, Payload
 from app.protocols.engine.grid.grid_protocol import GridProtocol
@@ -106,22 +106,22 @@ class MovementUtils:
         return result.placed
 
     @staticmethod
-    def get_animation_and_textures(velocity: CustomVec2f, unit: UnitProtocol) -> tuple[UnitStates, Directions]:
+    def get_animation_and_textures(velocity: CustomVec2f, unit: UnitProtocol) -> tuple[UnitStates, Orientations]:
 
         if velocity.y < 0:
             animation = UnitStates.RUN
-            direction = Directions.FRONT
+            direction = Orientations.FRONT
         elif velocity.y > 0:
             animation = UnitStates.RUN
-            direction = Directions.BACK
+            direction = Orientations.BACK
         elif velocity.x < 0:
             animation = UnitStates.RUN
-            direction = Directions.LEFT
+            direction = Orientations.LEFT
         elif velocity.x > 0:
             animation = UnitStates.RUN
-            direction = Directions.RIGHT
+            direction = Orientations.RIGHT
         else:
-            direction = unit.shape.direction
+            direction = unit.shape.orientation
             animation = UnitStates.IDLE
 
         return animation, direction

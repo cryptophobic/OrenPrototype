@@ -34,10 +34,10 @@ class BufferedMover(Behaviour):
         if isinstance(coordinate_holder, UnitProtocol):
             animation, direction = movement_utils.get_animation_and_textures(state.intent_velocity_normalised, coordinate_holder)
             need_to_update = (coordinate_holder.shape.current_animation != animation
-                or coordinate_holder.shape.direction != direction)
+                              or coordinate_holder.shape.orientation != direction)
             if need_to_update:
                 coordinate_holder.shape.current_animation = animation
-                coordinate_holder.shape.direction = direction
+                coordinate_holder.shape.orientation = direction
 
                 event_bus = cls.get_event_bus()
                 event_bus.emit(

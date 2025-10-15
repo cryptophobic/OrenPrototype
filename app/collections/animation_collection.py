@@ -4,7 +4,7 @@ from arcade import Texture
 
 from app.config import NpcAnimations, UnitStates
 from app.core.collection_base import CollectionBase
-from app.core.geometry.types import Directions
+from app.core.geometry.types import Orientations
 from app.protocols.collections.animation_collection_protocol import AnimationCollectionProtocol
 from app.registry.animation_registry import LoadedAnimation, get_animation_registry
 
@@ -20,16 +20,16 @@ class AnimationCollection(CollectionBase[UnitStates, NpcAnimations | LoadedAnima
 
         return value
 
-    def get_direction(self, key: UnitStates, direction: Directions) -> Optional[list[Texture]]:
+    def get_direction(self, key: UnitStates, direction: Orientations) -> Optional[list[Texture]]:
         loaded_animation = self._ensure_loaded(key)
 
-        if direction == Directions.FRONT:
+        if direction == Orientations.FRONT:
             return loaded_animation.front
-        elif direction == Directions.BACK:
+        elif direction == Orientations.BACK:
             return loaded_animation.back
-        elif direction == Directions.LEFT:
+        elif direction == Orientations.LEFT:
             return loaded_animation.left
-        elif direction == Directions.RIGHT:
+        elif direction == Orientations.RIGHT:
             return loaded_animation.right
 
         return loaded_animation.front

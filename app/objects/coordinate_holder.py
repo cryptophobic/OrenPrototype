@@ -14,6 +14,7 @@ class CoordinateHolder(Actor, CoordinateHolderProtocol):
         self.velocity: CustomVec2f = CustomVec2f.zero()
         self.intent_velocity: CustomVec2f = CustomVec2f.zero()
         self.coordinates: CustomVec2i = coordinates
+        self.facing_direction: CustomVec2i = CustomVec2i.down()
         super().__init__(name=name)
 
     def blocks(self, other: Self) -> bool:

@@ -65,6 +65,10 @@ class Shape:
 
 **Decision**: We don't need a separate direction in movement logic since velocity provides complete information. Orientation is purely visual and derived from velocity.
 
+**Concerns**:
+I have a concern about the "velocity is the source of truth" approach. Someone could move backward. So velocity is in the opposite direction. And this affects sightseeing.
+So, I'm thinking about orientation for shape and "direction if sightseeing" for CoordinateHolder. This idea to discuss and develop 
+
 ### 4. Animation Update Flow
 
 #### Option A: Event-driven from Shape (Preferred by User)
@@ -82,13 +86,17 @@ Event payload contains: {coordinate_holder.name, textures}
     ↓
 SpriteRenderer receives event and updates sprite
 ```
-
 **Implementation approach**:
 - Shape uses property setters to detect state/orientation changes
 - When changed, Shape emits event automatically via event bus
 - CoordinateHolder doesn't need to know about rendering
 
 **User's comment**: "My previous crazy idea was in catching all the updates in Shape and emit event for CoordinateHolder and coordinateholder emits an event with name and animation data. It would be an overhead if we used kafka or something like this but within 1 process it could work."
+
+**Concerns**:
+Shape doesn't know about CoordinateHolder's name, so it can't emit an event with a name. But we need it. 
+For that reason I was thinking about emitting events from Shape to CoordinateHolder, and then from CoordinateHolder to SpriteRenderer.
+But this would be an overhead and not scalable. Under scalable I mean that currently with 1 process emitting events is cheap.
 
 #### Option B: Centralized AnimationController
 
