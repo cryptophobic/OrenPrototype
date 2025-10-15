@@ -1,5 +1,5 @@
 from app.engine.message_broker.types import Controls
-from app.objects.actor import Actor
+from app.components.objects.actor import Actor
 from app.protocols.objects.puppeteer_protocol import PuppeteerProtocol
 
 

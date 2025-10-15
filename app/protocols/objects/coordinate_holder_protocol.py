@@ -1,7 +1,7 @@
 from typing import runtime_checkable, Protocol, Self
 
-from app.core.geometry.shape import Shape
-from app.core.physics.body import Body
+from app.components.geometry.shape import Shape
+from app.components.physics.body import Body
 from app.core.vectors import CustomVec2i, CustomVec2f
 from app.protocols.objects.actor_protocol import ActorProtocol
 

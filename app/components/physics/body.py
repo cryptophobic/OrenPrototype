@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Self
 
+from app.components.component import Component
+
 
 class CollisionResponse(Enum):
     BLOCK = auto()
@@ -25,10 +27,10 @@ class CollisionMatrix:
         return self.response == CollisionResponse.BLOCK and other.response == CollisionResponse.BLOCK
 
 
-class Body:
-    def __init__(self,
-                 collision_matrix: CollisionMatrix = CollisionMatrix(response=CollisionResponse.IGNORE),):
-        self.collision_matrix: CollisionMatrix = collision_matrix
+class Body(Component):
+    def __init__(self, collision_matrix: CollisionMatrix = None):
+        super().__init__()
+        self.collision_matrix: CollisionMatrix = CollisionMatrix(response=CollisionResponse.IGNORE) if collision_matrix is None else collision_matrix
         pass
 
     def is_solid(self) -> bool:

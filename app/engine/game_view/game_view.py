@@ -17,8 +17,8 @@ from app.engine.input_processor.inpuit_events_continuous import InputEventsConti
 from app.engine.message_broker.broker import MessageBroker
 from app.maps.level import LevelLoader
 from app.maps.level1 import Level1Builder
-from app.objects.orchestrator import Orchestrator
-from app.objects.puppeteer import Puppeteer
+from app.components.objects.orchestrator import Orchestrator
+from app.components.objects.puppeteer import Puppeteer
 from app.protocols.collections.actor_collection_protocol import ActorCollectionProtocol
 from app.protocols.objects.orchestrator_protocol import OrchestratorProtocol
 from app.registry.behaviour_registry import get_behaviour_registry

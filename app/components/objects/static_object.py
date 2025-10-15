@@ -1,7 +1,7 @@
-from app.core.geometry.shape import Shape
-from app.core.physics.body import Body
+from app.components.geometry.shape import Shape
+from app.components.physics.body import Body
 from app.core.vectors import CustomVec2i
-from app.objects.coordinate_holder import CoordinateHolder
+from app.components.objects.coordinate_holder import CoordinateHolder
 from app.protocols.objects.static_object_protocol import StaticObjectProtocol
 
 

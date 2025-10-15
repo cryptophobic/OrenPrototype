@@ -3,6 +3,7 @@ from typing import List, Optional
 
 from app.behaviours.behaviour_states_store import BehaviourStateStore
 from app.collections.behaviour_collection import BehaviourCollection
+from app.components.component import Component
 from app.core.event_bus.bus import bus
 from app.core.event_bus.events import Events
 import app.core.event_bus.types as event_types
@@ -13,10 +14,11 @@ from app.protocols.collections.behaviour_collection_protocol import BehaviourCol
 from app.protocols.objects.actor_protocol import ActorProtocol
 
 
-class Actor(ActorProtocol):
+class Actor(Component, ActorProtocol):
     def __init__(self, name: str = None, is_active = False):
+        super().__init__(name)
         self.event_bus = bus
-        self.name: str = name
+        self.name = name
         self.behaviour_state: BehaviourStateStore = BehaviourStateStore()
         self.is_active: bool = False
         self.is_deleted: bool = False
@@ -24,10 +26,6 @@ class Actor(ActorProtocol):
         self.behaviours: BehaviourCollectionProtocol = BehaviourCollection()
         if is_active:
             self.activate()
-
-    @property
-    def id(self) -> str:
-        return self.name
 
     def activate(self) -> None:
         self.event_bus.emit(

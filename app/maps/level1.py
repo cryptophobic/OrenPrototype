@@ -2,7 +2,7 @@ from app.config import NpcAnimations
 from app.core.vectors import CustomVec2i
 from app.engine.message_broker.types import Controls
 from app.maps.level import LevelBuilder, map_dir
-from app.objects.types import UnitStats
+from app.components.objects.types import UnitStats
 from app.registry.icon_registry import Icons
 
 

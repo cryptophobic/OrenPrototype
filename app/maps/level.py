@@ -1,26 +1,25 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, Optional, List
+from typing import Dict, Optional
 
 import arcade
 
 from app.collections.actor_collection import ActorCollection
 from app.collections.coordinate_holder_collection import CoordinateHolderCollection
-from app.collections.static_object_collection import StaticObjectCollection
 from app.config import Behaviours, NpcAnimations, animation_paths
-from app.core.geometry.shape import Shape
-from app.core.physics.body import Body, CollisionMatrix, CollisionResponse
+from app.components.geometry.shape import Shape
+from app.components.physics.body import Body, CollisionMatrix, CollisionResponse
 from app.core.vectors import CustomVec2i
 from app.config import Y_MODIFIER
 from app.engine.game_view.tmx_animation_parser import TMXAnimationParser
 from app.engine.grid.grid import Grid
 from app.engine.message_broker.types import Controls, KeyBinding, MessageBody, MessageTypes, StopPayload, MovePayload
-from app.objects.coordinate_holder import CoordinateHolder
-from app.objects.puppeteer import Puppeteer
-from app.objects.static_object import StaticObject
-from app.objects.types import UnitStats
-from app.objects.unit import Unit
+from app.components.objects.coordinate_holder import CoordinateHolder
+from app.components.objects.puppeteer import Puppeteer
+from app.components.objects.static_object import StaticObject
+from app.components.objects.types import UnitStats
+from app.components.objects.unit import Unit
 from app.protocols.engine.grid.grid_protocol import GridProtocol
 from app.protocols.objects.unit_protocol import UnitProtocol
 from app.registry.icon_registry import get_icon_path, Icons

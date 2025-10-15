@@ -4,7 +4,7 @@ from arcade import Texture
 
 from app.config import NpcAnimations, UnitStates
 from app.core.collection_base import CollectionBase
-from app.core.geometry.types import Orientations
+from app.components.geometry.types import Orientations
 from app.protocols.collections.animation_collection_protocol import AnimationCollectionProtocol
 from app.registry.animation_registry import LoadedAnimation, get_animation_registry
 

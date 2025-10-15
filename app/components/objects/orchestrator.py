@@ -6,8 +6,8 @@ from app.core.types import ContinuousKeyPressEventLogRecords
 from app.core.vectors import CustomVec2i
 from app.engine.message_broker.types import Message, MessageBody, MessageTypes, AnimatePayload, \
     InputPayload, IntentionToPlacePayload
-from app.objects.actor import Actor
-from app.objects.puppeteer import Puppeteer
+from app.components.objects.actor import Actor
+from app.components.objects.puppeteer import Puppeteer
 from app.protocols.collections.actor_collection_protocol import ActorCollectionProtocol
 from app.protocols.collections.puppeteer_collection_protocol import PuppeteerCollectionProtocol
 from app.protocols.objects.actor_protocol import ActorProtocol

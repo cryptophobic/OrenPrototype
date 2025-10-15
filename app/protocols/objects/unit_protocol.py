@@ -1,6 +1,6 @@
 from typing import runtime_checkable, Protocol
 
-from app.objects.types import UnitStats
+from app.components.objects.types import UnitStats
 from app.protocols.objects.coordinate_holder_protocol import CoordinateHolderProtocol
 
 

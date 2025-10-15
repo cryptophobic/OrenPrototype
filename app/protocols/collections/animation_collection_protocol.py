@@ -3,7 +3,7 @@ from typing import Optional
 from arcade import Texture
 
 from app.config import NpcAnimations, UnitStates
-from app.core.geometry.types import Orientations
+from app.components.geometry.types import Orientations
 from app.protocols.core.collection_base_protocol import CollectionBaseProtocol
 from app.registry.animation_registry import LoadedAnimation
 

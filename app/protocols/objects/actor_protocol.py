@@ -1,15 +1,16 @@
 from collections import deque
-from typing import Protocol, List, runtime_checkable, Self, Optional
+from typing import Protocol, List, runtime_checkable, Optional
 
 from app.behaviours.behaviour_states_store import BehaviourStateStore
 from app.engine.message_broker.types import MessageBody
-from app.behaviours.types import BehaviourAction, BehaviourStates, BufferedMoverState
+from app.behaviours.types import BehaviourAction, BufferedMoverState
 from app.config import Behaviours
 from app.protocols.collections.behaviour_collection_protocol import BehaviourCollectionProtocol
+from app.protocols.objects.component_protocol import ComponentProtocol
 
 
 @runtime_checkable
-class ActorProtocol(Protocol):
+class ActorProtocol(ComponentProtocol, Protocol):
     name: str
     is_active: bool
     is_deleted: bool
@@ -18,7 +19,6 @@ class ActorProtocol(Protocol):
     behaviour_state: BehaviourStateStore
 
     @property
-    def id(self) -> str: ...
     def activate(self) -> None: ...
     def deactivate(self) -> None: ...
     def delete(self) -> None: ...

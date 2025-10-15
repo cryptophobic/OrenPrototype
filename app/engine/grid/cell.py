@@ -1,12 +1,14 @@
 from app.collections.coordinate_holder_collection import CoordinateHolderCollection
+from app.components.component import Component
 from app.core.vectors import CustomVec2i
 from app.engine.grid.types import PlaceToPositionResult
 from app.protocols.engine.grid.cell_protocol import CellProtocol
 from app.protocols.objects.coordinate_holder_protocol import CoordinateHolderProtocol
 
 
-class Cell(CellProtocol):
+class Cell(Component, CellProtocol):
     def __init__(self, coordinates: CustomVec2i):
+        super().__init__()
         self.coordinates = coordinates
         self.coordinate_holders: CoordinateHolderCollection = CoordinateHolderCollection()
 

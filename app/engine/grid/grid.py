@@ -1,4 +1,5 @@
 import app.core.event_bus.types as event_types
+from app.components.component import Component
 from app.core.event_bus.bus import bus
 from app.core.event_bus.events import Events
 from app.core.vectors import CustomVec2i
@@ -8,8 +9,9 @@ from app.protocols.engine.grid.grid_protocol import GridProtocol
 from app.protocols.objects.coordinate_holder_protocol import CoordinateHolderProtocol
 
 
-class Grid(GridProtocol):
+class Grid(Component, GridProtocol):
     def __init__(self, width = 0, height = 0):
+        super().__init__()
         self.width = width
         self.height = height
         self.event_bus = bus

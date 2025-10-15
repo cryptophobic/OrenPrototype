@@ -1,9 +1,9 @@
 from typing import Self
 
-from app.core.geometry.shape import Shape
-from app.core.physics.body import Body
+from app.components.geometry.shape import Shape
+from app.components.physics.body import Body
 from app.core.vectors import CustomVec2i, CustomVec2f
-from app.objects.actor import Actor
+from app.components.objects.actor import Actor
 from app.protocols.objects.coordinate_holder_protocol import CoordinateHolderProtocol
 
 
