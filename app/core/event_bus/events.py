@@ -1,11 +1,12 @@
 from enum import Enum, auto
 
 class Events(Enum):
-    AnimationUpdate = auto()
+    ShapeAnimationUpdate = auto()
+    SpriteAnimationUpdate = auto()
     MotionUpdate = auto()
     MousePositionUpdate = auto()
-    RegisterCoordinateHolder = auto()
+    RegisterSprite = auto()
     MoveCoordinateHolder = auto()
-    UnregisterCoordinateHolder = auto()
+    UnregisterSprite = auto()
     RegisterActor = auto()
     UnregisterActor = auto()

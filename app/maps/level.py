@@ -6,8 +6,9 @@ from typing import Dict, Optional
 import arcade
 
 from app.collections.actor_collection import ActorCollection
+from app.collections.animation_collection import AnimationCollection
 from app.collections.coordinate_holder_collection import CoordinateHolderCollection
-from app.config import Behaviours, NpcAnimations, animation_paths
+from app.config import Behaviours, NpcAnimations, animation_paths, UnitStates
 from app.components.geometry.shape import Shape
 from app.components.physics.body import Body, CollisionMatrix, CollisionResponse
 from app.core.vectors import CustomVec2i
@@ -71,7 +72,7 @@ class LevelBuilder(ABC):
         return cursor
 
     def create_unit(self, position: CustomVec2i, stats: UnitStats, icon: Icons, 
-                    animations: Dict[NpcAnimations, NpcAnimations], name: str,
+                    animations: Dict[UnitStates, NpcAnimations], name: str,
                     behaviours: list[Behaviours] = None) -> UnitProtocol:
         """Create a unit with animations and behaviours"""
         if behaviours is None:
@@ -79,10 +80,8 @@ class LevelBuilder(ABC):
         
         body = Body(CollisionMatrix(response=CollisionResponse.BLOCK))
         shape = Shape(get_icon_path(icon))
-        
-        # Setup animations
-        for anim_key, anim_value in animations.items():
-            shape.animations.set(animation_paths[anim_value].animation, anim_key)
+
+        shape.animations = AnimationCollection(animations)
         
         unit = Unit(body=body, shape=shape, coordinates=position, stats=stats, name=name)
         

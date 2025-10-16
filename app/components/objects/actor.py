@@ -15,7 +15,7 @@ from app.protocols.objects.actor_protocol import ActorProtocol
 
 
 class Actor(Component, ActorProtocol):
-    def __init__(self, name: str = None, is_active = False):
+    def __init__(self, name: str = None):
         super().__init__(name)
         self.event_bus = bus
         self.name = name
@@ -24,24 +24,22 @@ class Actor(Component, ActorProtocol):
         self.is_deleted: bool = False
         self.pending_actions: deque[BehaviourAction] = deque()
         self.behaviours: BehaviourCollectionProtocol = BehaviourCollection()
-        if is_active:
-            self.activate()
 
     def activate(self) -> None:
         self.event_bus.emit(
             Events.RegisterActor,
-            event_types.RegisterActorPayload(
+            event_types.ObjectPayload(
                 object_name=self.name,
             )
         )
         self.is_active = True
 
     def deactivate(self) -> None:
-        self.event_bus.emit(Events.UnregisterActor, event_types.UnregisterObjectPayload(object_name=self.name))
+        self.event_bus.emit(Events.UnregisterActor, event_types.ObjectPayload(object_name=self.name))
         self.is_active = False
 
     def delete(self) -> None:
-        self.event_bus.emit(Events.UnregisterActor, event_types.UnregisterObjectPayload(object_name=self.name))
+        self.event_bus.emit(Events.UnregisterActor, event_types.ObjectPayload(object_name=self.name))
         self.is_deleted = True
 
     def on_message(self, message_body: MessageBody) -> deque[BehaviourAction]:

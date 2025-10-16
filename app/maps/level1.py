@@ -1,4 +1,4 @@
-from app.config import NpcAnimations
+from app.config import NpcAnimations, UnitStates
 from app.core.vectors import CustomVec2i
 from app.engine.message_broker.types import Controls
 from app.maps.level import LevelBuilder, map_dir
@@ -27,14 +27,14 @@ class Level1Builder(LevelBuilder):
 
         # Create player unit with animations
         player_animations = {
-            NpcAnimations.ARMED_IDLE: NpcAnimations.ARMED_IDLE,
-            NpcAnimations.ARMED_RUN: NpcAnimations.ARMED_RUN,
-            NpcAnimations.ARMED_HURT: NpcAnimations.ARMED_HURT,
-            NpcAnimations.ARMED_WALK: NpcAnimations.ARMED_WALK,
-            NpcAnimations.ARMED_DEATH: NpcAnimations.ARMED_DEATH,
-            NpcAnimations.ARMED_ATTACK: NpcAnimations.ARMED_ATTACK,
-            NpcAnimations.ARMED_RUN_ATTACK: NpcAnimations.ARMED_RUN_ATTACK,
-            NpcAnimations.ARMED_WALK_ATTACK: NpcAnimations.ARMED_WALK_ATTACK,
+            UnitStates.IDLE: NpcAnimations.ARMED_IDLE,
+            UnitStates.RUN: NpcAnimations.ARMED_RUN,
+            UnitStates.HURT: NpcAnimations.ARMED_HURT,
+            UnitStates.WALK: NpcAnimations.ARMED_WALK,
+            UnitStates.DEATH: NpcAnimations.ARMED_DEATH,
+            UnitStates.ATTACK: NpcAnimations.ARMED_ATTACK,
+            UnitStates.RUN_ATTACK: NpcAnimations.ARMED_RUN_ATTACK,
+            UnitStates.WALK_ATTACK: NpcAnimations.ARMED_WALK_ATTACK,
         }
         player_stats = UnitStats(STR=5, DEX=1, CON=5, INT=2, WIS=2, CHA=1, HP=10, initiative=1)
         player = self.create_unit(
@@ -48,14 +48,14 @@ class Level1Builder(LevelBuilder):
 
         # Create enemy unit with animations
         enemy_animations = {
-            NpcAnimations.ENEMY_IDLE: NpcAnimations.ENEMY_IDLE,
-            NpcAnimations.ENEMY_RUN: NpcAnimations.ENEMY_RUN,
-            NpcAnimations.ENEMY_HURT: NpcAnimations.ENEMY_HURT,
-            NpcAnimations.ENEMY_WALK: NpcAnimations.ENEMY_WALK,
-            NpcAnimations.ENEMY_DEATH: NpcAnimations.ENEMY_DEATH,
-            NpcAnimations.ENEMY_ATTACK: NpcAnimations.ENEMY_ATTACK,
-            NpcAnimations.ENEMY_RUN_ATTACK: NpcAnimations.ENEMY_RUN_ATTACK,
-            NpcAnimations.ENEMY_WALK_ATTACK: NpcAnimations.ENEMY_WALK_ATTACK,
+            UnitStates.IDLE: NpcAnimations.ENEMY_IDLE,
+            UnitStates.RUN: NpcAnimations.ENEMY_RUN,
+            UnitStates.HURT: NpcAnimations.ENEMY_HURT,
+            UnitStates.WALK: NpcAnimations.ENEMY_WALK,
+            UnitStates.DEATH: NpcAnimations.ENEMY_DEATH,
+            UnitStates.ATTACK: NpcAnimations.ENEMY_ATTACK,
+            UnitStates.RUN_ATTACK: NpcAnimations.ENEMY_RUN_ATTACK,
+            UnitStates.WALK_ATTACK: NpcAnimations.ENEMY_WALK_ATTACK,
         }
         enemy_stats = UnitStats(STR=5, DEX=1, CON=5, INT=2, WIS=2, CHA=1, HP=10, initiative=1)
         enemy = self.create_unit(

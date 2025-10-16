@@ -37,15 +37,15 @@ class SpriteRenderer(Consumer):
         self._animation_game_data: dict[str, SpriteGameData] = defaultdict(SpriteGameData)
         self._dirty: dict[str, Dirty] = {}
 
-        self.register_handler(events.Events.AnimationUpdate, self._on_animation_changed)
+        self.register_handler(events.Events.SpriteAnimationUpdate, self._on_animation_changed)
         self.register_handler(events.Events.MotionUpdate, self._on_move)
-        self.register_handler(events.Events.RegisterObject, self._on_object_registered)
-        self.register_handler(events.Events.UnregisterObject, self._on_object_unregistered)
+        self.register_handler(events.Events.RegisterSprite, self._on_object_registered)
+        self.register_handler(events.Events.UnregisterSprite, self._on_object_unregistered)
 
     def _mark(self, name: str, bits: Dirty):
         self._dirty[name] = self._dirty.get(name, Dirty.NONE) | bits
 
-    def _on_object_unregistered(self, payload: event_types.UnregisterObjectPayload):
+    def _on_object_unregistered(self, payload: event_types.ObjectPayload):
         name = payload.object_name
         sprite = self._object_name_sprite_map.pop(name, None)
         if not sprite:
@@ -66,7 +66,7 @@ class SpriteRenderer(Consumer):
         self._animation_game_data[payload.object_name].coordinates = payload.coordinates
         self._mark(payload.object_name, Dirty.POS)
 
-    def _on_animation_changed(self, payload: event_types.AnimationUpdatePayload):
+    def _on_animation_changed(self, payload: event_types.SpriteAnimationUpdatePayload):
         self._animation_game_data[payload.object_name].animation = payload.animation
         self._mark(payload.object_name, Dirty.ANIM)
 

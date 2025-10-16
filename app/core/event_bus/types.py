@@ -31,8 +31,12 @@ class ObjectPositionPayload:
     coordinates: CustomVec2i
 
 @dataclass(frozen=True)
-class AnimationUpdatePayload:
+class SpriteAnimationUpdatePayload:
     object_name: str
+    animation: list[Texture]
+
+@dataclass(frozen=True)
+class ShapeAnimationUpdatePayload:
     animation: list[Texture]
 
 @dataclass(frozen=True)

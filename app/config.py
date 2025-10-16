@@ -52,9 +52,15 @@ class NpcAnimations(Enum):
     ARMED_NAKED_WALK = auto()
     ARMED_NAKED_WALK_ATTACK = auto()
 
+    UNARMED_NAKED_DEATH = auto()
+    UNARMED_NAKED_HURT = auto()
+    UNARMED_NAKED_IDLE = auto()
+    UNARMED_NAKED_RUN = auto()
+    UNARMED_NAKED_WALK = auto()
+
+
 @dataclass
 class AnimationFileDetails:
-    animation: UnitStates
     path: str
     sprite_width: int
     sprite_height: int
@@ -65,118 +71,38 @@ class AnimationFileDetails:
     right_offset: int = 2
 
 animation_paths: dict[NpcAnimations, AnimationFileDetails] = {
-    NpcAnimations.ENEMY_ATTACK: AnimationFileDetails(
-        animation=UnitStates.ATTACK,
-        path="goblin/Attack_full.png",
-        sprite_width=64,
-        sprite_height=64,
-        frames=8,
-        front_offset=0,
-        back_offset=1,
-        left_offset=2,
-        right_offset=3,
-    ),
-    NpcAnimations.ENEMY_DEATH: AnimationFileDetails(
-        animation=UnitStates.DEATH,
-        path="goblin/Death_full.png",
-        sprite_width=64,
-        sprite_height=64,
-        frames=7,
-        front_offset=0,
-        back_offset=1,
-        left_offset=2,
-        right_offset=3,
-    ),
-    NpcAnimations.ENEMY_HURT: AnimationFileDetails(
-        animation=UnitStates.HURT,
-        path="goblin/Hurt_full.png",
-        sprite_width=64,
-        sprite_height=64,
-        frames=5,
-        front_offset=0,
-        back_offset=1,
-        left_offset=2,
-        right_offset=3,
-    ),
-    NpcAnimations.ENEMY_IDLE: AnimationFileDetails(
-        animation=UnitStates.IDLE,
-        path="goblin/Idle_full.png",
-        sprite_width=64,
-        sprite_height=64,
-        frames=4,
-        front_offset=0,
-        back_offset=1,
-        left_offset=2,
-        right_offset=3,
-    ),
-    NpcAnimations.ENEMY_RUN: AnimationFileDetails(
-        animation=UnitStates.RUN,
-        path="goblin/Run_full.png",
-        sprite_width=64,
-        sprite_height=64,
-        frames=8,
-        front_offset=0,
-        back_offset=1,
-        left_offset=2,
-        right_offset=3,
-    ),
-    NpcAnimations.ENEMY_RUN_ATTACK: AnimationFileDetails(
-        animation=UnitStates.RUN_ATTACK,
-        path="goblin/Run_Attack_full.png",
-        sprite_width=64,
-        sprite_height=64,
-        frames=8,
-        front_offset=0,
-        back_offset=1,
-        left_offset=2,
-        right_offset=3,
-    ),
-    NpcAnimations.ENEMY_WALK: AnimationFileDetails(
-        animation=UnitStates.WALK,
-        path="goblin/Walk_full.png",
-        sprite_width=64,
-        sprite_height=64,
-        frames=6,
-        front_offset=0,
-        back_offset=1,
-        left_offset=2,
-        right_offset=3,
-    ),
-    NpcAnimations.ENEMY_WALK_ATTACK: AnimationFileDetails(
-        animation=UnitStates.WALK_ATTACK,
-        path="goblin/Walk_Attack_full.png",
-        sprite_width=64,
-        sprite_height=64,
-        frames=6,
-        front_offset=0,
-        back_offset=1,
-        left_offset=2,
-        right_offset=3,
-    ),
+    NpcAnimations.ENEMY_ATTACK: AnimationFileDetails("goblin/Attack_full.png", 64, 64, 8, 0, 1, 2, 3),
+    NpcAnimations.ENEMY_DEATH: AnimationFileDetails("goblin/Death_full.png", 64, 64, 7, 0, 1, 2, 3),
+    NpcAnimations.ENEMY_HURT: AnimationFileDetails("goblin/Hurt_full.png", 64, 64, 5, 0, 1, 2, 3),
+    NpcAnimations.ENEMY_IDLE: AnimationFileDetails("goblin/Idle_full.png", 64, 64, 4, 0, 1, 2, 3),
+    NpcAnimations.ENEMY_RUN: AnimationFileDetails("goblin/Run_full.png", 64, 64, 8, 0, 1, 2, 3),
+    NpcAnimations.ENEMY_RUN_ATTACK: AnimationFileDetails("goblin/Run_Attack_full.png", 64, 64, 8, 0, 1, 2, 3),
+    NpcAnimations.ENEMY_WALK: AnimationFileDetails("goblin/Walk_full.png", 64, 64, 6, 0, 1, 2, 3),
+    NpcAnimations.ENEMY_WALK_ATTACK: AnimationFileDetails("goblin/Walk_Attack_full.png", 64, 64, 6, 0, 1, 2, 3),
 
-    NpcAnimations.ARMED_ATTACK: AnimationFileDetails(UnitStates.ATTACK, "swordsman/Swordsman_lvl3/Swordsman_lvl3_attack_full.png", 64, 64, 8),
-    NpcAnimations.ARMED_DEATH: AnimationFileDetails(UnitStates.DEATH, "swordsman/Swordsman_lvl3/Swordsman_lvl3_Death_full.png", 64, 64, 7),
-    NpcAnimations.ARMED_HURT: AnimationFileDetails(UnitStates.HURT, "swordsman/Swordsman_lvl3/Swordsman_lvl3_Hurt_full.png", 64, 64, 5),
-    NpcAnimations.ARMED_IDLE: AnimationFileDetails(UnitStates.IDLE, "swordsman/Swordsman_lvl3/Swordsman_lvl3_Idle_full.png", 64, 64, 12),
-    NpcAnimations.ARMED_RUN: AnimationFileDetails(UnitStates.RUN, "swordsman/Swordsman_lvl3/Swordsman_lvl3_Run_full.png", 64, 64, 8),
-    NpcAnimations.ARMED_RUN_ATTACK: AnimationFileDetails(UnitStates.RUN_ATTACK, "swordsman/Swordsman_lvl3/Swordsman_lvl3_Run_Attack_full.png", 64, 64, 8),
-    NpcAnimations.ARMED_WALK: AnimationFileDetails(UnitStates.WALK, "swordsman/Swordsman_lvl3/Swordsman_lvl3_Walk_full.png", 64, 64, 6),
-    NpcAnimations.ARMED_WALK_ATTACK: AnimationFileDetails(UnitStates.WALK_ATTACK, "swordsman/Swordsman_lvl3/Swordsman_lvl3_Walk_Attack_full.png", 64, 64, 6),
+    NpcAnimations.ARMED_ATTACK: AnimationFileDetails("swordsman/Swordsman_lvl3/Swordsman_lvl3_attack_full.png", 64, 64, 8),
+    NpcAnimations.ARMED_DEATH: AnimationFileDetails("swordsman/Swordsman_lvl3/Swordsman_lvl3_Death_full.png", 64, 64, 7),
+    NpcAnimations.ARMED_HURT: AnimationFileDetails("swordsman/Swordsman_lvl3/Swordsman_lvl3_Hurt_full.png", 64, 64, 5),
+    NpcAnimations.ARMED_IDLE: AnimationFileDetails("swordsman/Swordsman_lvl3/Swordsman_lvl3_Idle_full.png", 64, 64, 12),
+    NpcAnimations.ARMED_RUN: AnimationFileDetails("swordsman/Swordsman_lvl3/Swordsman_lvl3_Run_full.png", 64, 64, 8),
+    NpcAnimations.ARMED_RUN_ATTACK: AnimationFileDetails("swordsman/Swordsman_lvl3/Swordsman_lvl3_Run_Attack_full.png", 64, 64, 8),
+    NpcAnimations.ARMED_WALK: AnimationFileDetails("swordsman/Swordsman_lvl3/Swordsman_lvl3_Walk_full.png", 64, 64, 6),
+    NpcAnimations.ARMED_WALK_ATTACK: AnimationFileDetails("swordsman/Swordsman_lvl3/Swordsman_lvl3_Walk_Attack_full.png", 64, 64, 6),
 
-    NpcAnimations.ARMED_NAKED_ATTACK: AnimationFileDetails(UnitStates.ATTACK, "male/Sword_attack_full.png", 64, 64, 8),
-    NpcAnimations.ARMED_NAKED_DEATH: AnimationFileDetails(UnitStates.DEATH, "male/Sword_Death_full.png", 64, 64, 7),
-    NpcAnimations.ARMED_NAKED_HURT: AnimationFileDetails(UnitStates.HURT, "male/Sword_Hurt_full.png", 64, 64, 5),
-    NpcAnimations.ARMED_NAKED_IDLE: AnimationFileDetails(UnitStates.IDLE, "male/Sword_Idle_full.png", 64, 64, 12),
-    NpcAnimations.ARMED_NAKED_RUN: AnimationFileDetails(UnitStates.RUN, "male/Sword_Run_full.png", 64, 64, 8),
-    NpcAnimations.ARMED_NAKED_RUN_ATTACK: AnimationFileDetails(UnitStates.RUN_ATTACK, "male/Sword_Run_Attack_full.png", 64, 64, 8),
-    NpcAnimations.ARMED_NAKED_WALK: AnimationFileDetails(UnitStates.WALK, "male/Sword_Walk_full.png", 64, 64, 6),
-    NpcAnimations.ARMED_NAKED_WALK_ATTACK: AnimationFileDetails(UnitStates.WALK_ATTACK, "male/Sword_Walk_Attack_full.png", 64, 64, 6),
+    NpcAnimations.ARMED_NAKED_ATTACK: AnimationFileDetails("male/Sword_attack_full.png", 64, 64, 8),
+    NpcAnimations.ARMED_NAKED_DEATH: AnimationFileDetails("male/Sword_Death_full.png", 64, 64, 7),
+    NpcAnimations.ARMED_NAKED_HURT: AnimationFileDetails("male/Sword_Hurt_full.png", 64, 64, 5),
+    NpcAnimations.ARMED_NAKED_IDLE: AnimationFileDetails("male/Sword_Idle_full.png", 64, 64, 12),
+    NpcAnimations.ARMED_NAKED_RUN: AnimationFileDetails("male/Sword_Run_full.png", 64, 64, 8),
+    NpcAnimations.ARMED_NAKED_RUN_ATTACK: AnimationFileDetails("male/Sword_Run_Attack_full.png", 64, 64, 8),
+    NpcAnimations.ARMED_NAKED_WALK: AnimationFileDetails("male/Sword_Walk_full.png", 64, 64, 6),
+    NpcAnimations.ARMED_NAKED_WALK_ATTACK: AnimationFileDetails("male/Sword_Walk_Attack_full.png", 64, 64, 6),
 
-    NpcAnimations.DEATH: AnimationFileDetails(UnitStates.DEATH, "male/Unarmed_Death_full.png", 64, 64, 7),
-    NpcAnimations.HURT: AnimationFileDetails(UnitStates.HURT, "male/Unarmed_Hurt_full.png", 64, 64, 5),
-    NpcAnimations.IDLE: AnimationFileDetails(UnitStates.IDLE, "male/Unarmed_Idle_full.png", 64, 64, 12),
-    NpcAnimations.RUN: AnimationFileDetails(UnitStates.RUN, "male/Unarmed_Run_full.png", 64, 64, 8),
-    NpcAnimations.WALK: AnimationFileDetails(UnitStates.WALK, "male/Unarmed_Walk_full.png", 64, 64, 6),
+    NpcAnimations.UNARMED_NAKED_DEATH: AnimationFileDetails("male/Unarmed_Death_full.png", 64, 64, 7),
+    NpcAnimations.UNARMED_NAKED_HURT: AnimationFileDetails("male/Unarmed_Hurt_full.png", 64, 64, 5),
+    NpcAnimations.UNARMED_NAKED_IDLE: AnimationFileDetails("male/Unarmed_Idle_full.png", 64, 64, 12),
+    NpcAnimations.UNARMED_NAKED_RUN: AnimationFileDetails("male/Unarmed_Run_full.png", 64, 64, 8),
+    NpcAnimations.UNARMED_NAKED_WALK: AnimationFileDetails("male/Unarmed_Walk_full.png", 64, 64, 6),
 }
 
 class Behaviours(Enum):
